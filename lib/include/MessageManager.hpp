@@ -40,6 +40,7 @@ public:
         MsgTransfer = 0x00000004,
         MsgImage = 0x00000008,
         MsgFile = 0x00000010,
+        MsgBinary = 0x00000020,
 
         Control = 0x00FF0000,
         CtrlSyncDesc    = 0x00010000,

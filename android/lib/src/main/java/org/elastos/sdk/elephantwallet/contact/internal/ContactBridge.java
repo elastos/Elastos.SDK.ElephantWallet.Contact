@@ -182,10 +182,16 @@ public class ContactBridge extends CrossBase {
         return msg;
     }
 
+    public static Contact.Message MakeBinaryMessage(byte[] binary, String cryptoAlgorithm) {
+        Contact.Message msg = new Contact.Message(binary, cryptoAlgorithm);
+        return msg;
+    }
+
     public static Contact.Message MakeFileMessage(File file, String cryptoAlgorithm) {
         Contact.Message msg = new Contact.Message(file, cryptoAlgorithm);
         return msg;
     }
+
 
 //    private static Contact.Message MakeMessage(ContactMessage.Type type, byte[] data, String cryptoAlgorithm) {
 //        Contact.Message msg = new Contact.Message(type, data, cryptoAlgorithm);

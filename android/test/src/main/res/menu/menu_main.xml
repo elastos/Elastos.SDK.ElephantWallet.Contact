@@ -46,6 +46,8 @@
         android:title="   |- Del Friend" />
     <item android:id="@+id/send_text_message"
         android:title="   |- Send Text Message" />
+    <item android:id="@+id/send_binary_message"
+        android:title="   |- Send Binary Message" />
     <item android:id="@+id/send_file_message"
         android:title="   |- Send File Message" />
     <item android:id="@+id/pull_file"

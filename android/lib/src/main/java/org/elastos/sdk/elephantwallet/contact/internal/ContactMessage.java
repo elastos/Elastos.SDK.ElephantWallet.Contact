@@ -20,7 +20,8 @@ public class ContactMessage extends CrossBase {
         MsgAudio(0x00000002),
         MsgTransfer(0x00000004),
         MsgImage(0x00000008),
-        MsgFile(0x00000010);
+        MsgFile(0x00000010),
+        MsgBinary(0x00000020);
 
         public static Type valueOf(int id) {
             Type[] values = Type.values();
@@ -53,6 +54,15 @@ public class ContactMessage extends CrossBase {
 
         @SerializedName(JsonKey.Text)
         final public String text;
+    }
+
+    public static class BinaryData extends MsgData {
+        public BinaryData(byte[] binary) {
+            this.binary = binary;
+        }
+
+        @SerializedName(JsonKey.Binary)
+        final public byte[] binary;
     }
 
     public static class FileData extends MsgData {
@@ -98,6 +108,11 @@ public class ContactMessage extends CrossBase {
         this(Type.MsgText, new TextData(text), cryptoAlgorithm);
     }
 
+    public ContactMessage(byte[] binary, String cryptoAlgorithm) {
+        this(Type.MsgBinary, new BinaryData(binary), cryptoAlgorithm);
+    }
+
+
     public ContactMessage(File file, String cryptoAlgorithm) {
         this(Type.MsgFile, new FileData(file), cryptoAlgorithm);
     }
@@ -122,6 +137,8 @@ public class ContactMessage extends CrossBase {
         switch (type) {
         case MsgText:
             return TextData.class;
+        case MsgBinary:
+            return BinaryData.class;
         case MsgFile:
             return FileData.class;
         default:

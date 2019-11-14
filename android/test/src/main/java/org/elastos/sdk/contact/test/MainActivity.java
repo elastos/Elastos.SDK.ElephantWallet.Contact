@@ -182,6 +182,9 @@ public class MainActivity extends Activity {
             case R.id.send_text_message:
                 message = sendTextMessage();
                 break;
+            case R.id.send_binary_message:
+                message = sendBinaryMessage();
+                break;
             case R.id.send_file_message:
                 message = sendFileMessage();
                 break;
@@ -715,8 +718,42 @@ public class MainActivity extends Activity {
                 }
             });
         });
-        return "Success to send message.";
+        return "Success to send text message.";
     }
+
+    private String sendBinaryMessage() {
+        if (mContact == null) {
+            return ErrorPrefix + "Contact is null.";
+        }
+        Contact.UserInfo info = mContact.getUserInfo();
+        if(info == null) {
+            return ErrorPrefix + "Failed to get user info.";
+        }
+
+        if (info.status != ContactStatus.Online) {
+            return ErrorPrefix + "Contact is not online.";
+        }
+
+
+        List<String> friendCodeList = mContact.listFriendCode();
+        Helper.showFriendList(this, friendCodeList, (friendCode) -> {
+            ContactStatus status = mContact.getStatus(friendCode);
+            if(status != ContactStatus.Online) {
+                showMessage(ErrorPrefix + "Friend is not online.");
+                return;
+            }
+
+            Contact.Message msgInfo = Contact.MakeBinaryMessage(new byte[]{0, 1, 2, 3}, null);
+            int ret = mContact.sendMessage(friendCode, ContactChannel.Carrier, msgInfo);
+            if(ret < 0) {
+                showMessage(ErrorPrefix + "Failed to send message to " + friendCode);
+            }
+
+            Helper.dismissDialog();
+        });
+        return "Success to send binary message.";
+    }
+
 
     private String sendFileMessage() {
         if (mContact == null) {
@@ -751,7 +788,7 @@ public class MainActivity extends Activity {
                 mContactSendFileMap.put(msgInfo.data.toString(), filepath);
             });
         });
-        return "Success to send message.";
+        return "Success to send file message.";
     }
 
     private String pullFile() {

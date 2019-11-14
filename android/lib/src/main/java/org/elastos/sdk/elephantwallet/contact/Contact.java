@@ -52,6 +52,10 @@ public final class Contact extends ContactBridge {
             super(text, cryptoAlgorithm);
         }
 
+        public Message(byte[] binary, String cryptoAlgorithm) {
+            super(binary, cryptoAlgorithm);
+        }
+
         public Message(File file, String cryptoAlgorithm) {
             super(file, cryptoAlgorithm);
         }
