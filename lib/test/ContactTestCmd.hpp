@@ -53,6 +53,11 @@ private:
     static int GetUserInfo(const std::vector<std::string>& args,
                            std::string& errMsg);
 
+
+    static int AcceptFriend(const std::vector<std::string>& args,
+                            std::string& errMsg);
+
+
     static int NewAndSaveMnemonic(const std::vector<std::string>& args,
                                   std::string& errMsg);
 

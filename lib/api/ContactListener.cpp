@@ -81,7 +81,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             auto ret = sContactListenerInstance->onAcquire(AcquireType::PublicKey, nullptr, nullptr);
 #else
             std::vector<uint8_t> vdata;
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::PublicKey, "", vdata);
+            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::PublicKey, "", vdata});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return "";
@@ -97,7 +97,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             const std::span<uint8_t> data(const_cast<uint8_t*>(src.data()), src.size());
             auto ret = sContactListenerInstance->onAcquire(AcquireType::EncryptData, pubKey.c_str(), &data);
 #else
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::EncryptData, pubKey, src);
+            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::EncryptData, pubKey, src});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return std::vector<uint8_t>();
@@ -112,7 +112,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             const std::span<uint8_t> data(const_cast<uint8_t*>(src.data()), src.size());
             auto ret = sContactListenerInstance->onAcquire(AcquireType::DecryptData, nullptr, &data);
 #else
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::DecryptData, "", src);
+            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::DecryptData, "", src});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return std::vector<uint8_t>();
@@ -133,7 +133,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             auto ret = sContactListenerInstance->onAcquire(AcquireType::DidPropAppId, nullptr, nullptr);
 #else
             std::vector<uint8_t> vdata;
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::DidPropAppId, "", vdata);
+            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::DidPropAppId, "", vdata});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return "";
@@ -150,7 +150,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             auto ret = sContactListenerInstance->onAcquire(AcquireType::DidAgentAuthHeader, nullptr, nullptr);
 #else
             std::vector<uint8_t> vdata;
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::DidAgentAuthHeader, "", vdata);
+            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::DidAgentAuthHeader, "", vdata});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return "";
@@ -167,7 +167,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             const std::span<uint8_t> data(const_cast<uint8_t*>(originData.data()), originData.size());
             auto ret = sContactListenerInstance->onAcquire(AcquireType::SignData, nullptr, &data);
 #else
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::SignData, "", originData);
+            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::SignData, "", originData});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return std::vector<uint8_t>();
@@ -201,14 +201,15 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             int ret = userInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
 
-            std::span<uint8_t> data {reinterpret_cast<uint8_t*>(&status), 1 };
 #ifdef WITH_CROSSPL
+            std::span<uint8_t> data {reinterpret_cast<uint8_t*>(&status), 1 };
             sContactListenerInstance->onEvent(EventType::StatusChanged, humanCode,
                                               static_cast<ContactChannel>(channelType), &data);
 #else
-            std::vector<uint8_t> vdata(data.data(), data.data() + data.size());
-            sContactListenerInstance->onEvent(EventType::StatusChanged, humanCode,
-                                              static_cast<ContactChannel>(channelType), vdata);
+            auto event = StatusEvent{EventType::StatusChanged, humanCode,
+                                     static_cast<ContactChannel>(channelType),
+                                     status};
+            sContactListenerInstance->onEvent(event);
 #endif // WITH_CROSSPL
         }
 
@@ -235,15 +236,16 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             int ret = friendInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
 
+#ifdef WITH_CROSSPL
             std::span<uint8_t> data {reinterpret_cast<uint8_t*>(const_cast<char*>(summary.c_str())),
                                      summary.length() };
-#ifdef WITH_CROSSPL
             sContactListenerInstance->onEvent(EventType::FriendReuqest, humanCode,
                                               static_cast<ContactChannel>(channelType), &data);
 #else
-            std::vector<uint8_t> vdata(data.data(), data.data() + data.size());
-            sContactListenerInstance->onEvent(EventType::FriendRequest, humanCode,
-                                              static_cast<ContactChannel>(channelType), vdata);
+            auto event = RequestEvent{EventType::FriendRequest, humanCode,
+                                      static_cast<ContactChannel>(channelType),
+                                      summary};
+            sContactListenerInstance->onEvent(event);
 #endif // WITH_CROSSPL
         }
 
@@ -255,14 +257,15 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             int ret = friendInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
 
-            std::span<uint8_t> data {reinterpret_cast<uint8_t*>(&status), 1 };
 #ifdef WITH_CROSSPL
+            std::span<uint8_t> data {reinterpret_cast<uint8_t*>(&status), 1 };
             sContactListenerInstance->onEvent(EventType::StatusChanged, humanCode,
                                               static_cast<ContactChannel>(channelType), &data);
 #else
-            std::vector<uint8_t> vdata(data.data(), data.data() + data.size());
-            sContactListenerInstance->onEvent(EventType::StatusChanged, humanCode,
-                                              static_cast<ContactChannel>(channelType), vdata);
+            auto event = StatusEvent{EventType::StatusChanged, humanCode,
+                                     static_cast<ContactChannel>(channelType),
+                                     status};
+            sContactListenerInstance->onEvent(event);
 #endif // WITH_CROSSPL
         }
 
@@ -273,19 +276,20 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
 
+#ifdef WITH_CROSSPL
             auto jsonInfo = std::make_shared<elastos::Json>();
             ret = humanInfo->toJson(jsonInfo);
             CHECK_AND_NOTIFY_RETVAL(ret);
             std::string info = jsonInfo->dump();
 
             std::span<uint8_t> data(reinterpret_cast<uint8_t*>(info.data()), info.size());
-#ifdef WITH_CROSSPL
             sContactListenerInstance->onEvent(EventType::HumanInfoChanged, humanCode,
                                               static_cast<ContactChannel>(channelType), &data);
 #else
-            std::vector<uint8_t> vdata(data.data(), data.data() + data.size());
-            sContactListenerInstance->onEvent(EventType::HumanInfoChanged, humanCode,
-                                              static_cast<ContactChannel>(channelType), vdata);
+            auto event = InfoEvent{EventType::HumanInfoChanged, humanCode,
+                                   static_cast<ContactChannel>(channelType),
+                                   humanInfo};
+            sContactListenerInstance->onEvent(event);
 #endif // WITH_CROSSPL
         }
     };

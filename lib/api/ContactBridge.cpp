@@ -238,7 +238,7 @@ int ContactBridge::removeFriend(const char* friendCode)
     return 0;
 }
 
-int ContactBridge::acceptFriend(const char* friendCode)
+int ContactBridge::acceptFriend(const std::string& friendCode)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;

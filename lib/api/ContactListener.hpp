@@ -49,6 +49,115 @@ public:
         Email = 3,
     };
 
+    class AcquireArgs {
+    public:
+        using Type = AcquireType;
+
+        explicit AcquireArgs(Type type, const std::string& pubKey, const std::vector<uint8_t>& data) {
+            this->type = type;
+            this->publicKey = pubKey;
+            this->data = std::move(data);
+        }
+        virtual ~AcquireArgs() = default;
+
+        std::string toString() const {
+            return std::string("AcquireArgs")
+                   + "[type=" + std::to_string(static_cast<int>(type))
+                   + ",publicKey=" + publicKey
+                   + ",data={unprintable}"
+                   +"]";
+        }
+
+        Type type;
+        std::string publicKey;
+        std::vector<uint8_t> data;
+    };
+
+    class EventArgs {
+    public:
+        using Type = EventType;
+
+        explicit EventArgs(Type type, const std::string& humanCode, ContactChannel channelType)
+                : type(type)
+                , humanCode(humanCode)
+                , channelType(channelType) {
+        }
+        virtual ~EventArgs() = default;
+
+        virtual std::string toString() const {
+            return std::string("EventArgs")
+                   + "[type=" + std::to_string(static_cast<int>(type))
+                   + ",humanCode=" + humanCode
+                   + ",channelType=" + std::to_string(static_cast<int>(channelType))
+                   +"]";
+        }
+
+        Type type;
+        std::string humanCode;
+        ContactChannel channelType;
+    };
+
+    class StatusEvent: public EventArgs {
+    public:
+        using Status = elastos::HumanInfo::Status;
+        explicit StatusEvent(Type type, const std::string& humanCode, ContactChannel channelType, Status status)
+                : EventArgs(type, humanCode, channelType)
+                , status(status) {
+        }
+        virtual ~StatusEvent() = default;
+
+        virtual std::string toString() const override {
+            return std::string("StatusEvent")
+                   + "[status=" + std::to_string(static_cast<int>(status))
+                   + ", " + EventArgs::toString()
+                   +"]";
+        }
+
+        Status status;
+    };
+
+    class RequestEvent: public EventArgs {
+    public:
+        explicit RequestEvent(Type type, const std::string& humanCode, ContactChannel channelType, const std::string& summary)
+                : EventArgs(type, humanCode, channelType)
+                , summary(summary) {
+        }
+        virtual ~RequestEvent() = default;
+
+        virtual std::string toString() const override  {
+            return std::string("RequestEvent")
+                   + "[summary=" + summary
+                   + ", " + EventArgs::toString()
+                   +"]";
+        }
+
+        std::string summary;
+    };
+
+    class InfoEvent: public EventArgs {
+    public:
+        explicit InfoEvent(Type type, const std::string& humanCode, ContactChannel channelType, std::shared_ptr<elastos::HumanInfo> humanInfo)
+                : EventArgs(type, humanCode, channelType) {
+            this->humanInfo = humanInfo;
+        }
+        virtual ~InfoEvent() = default;
+
+        virtual std::string toString() const override {
+            auto jsonInfo = std::make_shared<elastos::Json>();
+            int ret = humanInfo->toJson(jsonInfo);
+            if(ret < 0) {
+                return "Error toString";
+            }
+
+            return std::string("RequestEvent")
+                   + "[humanInfo=" + jsonInfo->dump(2)
+                   + ", " + EventArgs::toString()
+                   +"]";
+        }
+
+        std::shared_ptr<elastos::HumanInfo> humanInfo;
+    };
+
     /*** static function and variable ***/
 
     /*** class function and variable ***/
@@ -62,10 +171,8 @@ public:
                            std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo);
     void onError(int errCode, const std::string& errStr, const std::string& ext);
 #else
-    virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(AcquireType type, const std::string& pubKey,
-                                                            const std::vector<uint8_t>& data) = 0;
-    virtual void onEvent(EventType type, const std::string& humanCode, ContactChannel channelType,
-                         const std::vector<uint8_t>& data) = 0;
+    virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const AcquireArgs& request) = 0;
+    virtual void onEvent(EventArgs& event) = 0;
     virtual void onReceivedMessage(const std::string& humanCode, ContactChannel channelType,
                                    std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo) = 0;
     virtual void onError(int errCode, const std::string& errStr, const std::string& ext) = 0;

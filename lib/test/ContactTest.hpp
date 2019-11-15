@@ -30,6 +30,8 @@ public:
 
     int showGetUserInfo();
 
+    int doAcceptFriend(const std::string& friendCode);
+
    private:
     /*** type define ***/
 
@@ -50,11 +52,8 @@ public:
     std::string getPrivateKey();
     std::string getAgentAuthHeader();
     std::string getMd5Sum(const std::string& data);
-    std::shared_ptr<std::vector<uint8_t>> processAcquire(ElaphantContact::Listener::AcquireType type,
-                                                         const std::string& pubKey,
-                                                         const std::vector<uint8_t>& data);
-    void processEvent(ElaphantContact::Listener::EventType event, const std::string& humanCode,
-                      ElaphantContact::Listener::ContactChannel channelType, const std::vector<uint8_t>& data);
+    std::shared_ptr<std::vector<uint8_t>> processAcquire(const ElaphantContact::Listener::AcquireArgs& request);
+    void processEvent(ElaphantContact::Listener::EventArgs& event);
 
     std::string mSavedMnemonic;
     std::shared_ptr<ElaphantContact> mContact;

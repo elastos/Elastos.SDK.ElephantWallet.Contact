@@ -43,6 +43,7 @@ public:
     }; // class Factory
 
     class Listener: public ContactListener {
+    public:
     }; // class Listener
 
     class DataListener: public ContactDataListener {

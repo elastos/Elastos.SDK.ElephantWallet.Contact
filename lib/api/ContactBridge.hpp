@@ -52,7 +52,7 @@ public:
 
     int addFriend(const char* friendCode, const char* summary);
     int removeFriend(const char* friendCode);
-    int acceptFriend(const char* friendCode);
+    int acceptFriend(const std::string& friendCode);
     int getFriendList(std::stringstream* info);
 
     int sendMessage(const char* friendCode, int chType, CrossBase* message);

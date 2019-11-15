@@ -60,7 +60,7 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
 
     { '-', "",              nullptr,                             "\n Friend" },
     { 'g', "get-finfo",     ContactTestCmd::Unimplemention,      "\tGet Friend Info" },
-    { 'f', "accept-frd",    ContactTestCmd::Unimplemention,      "\tAccept Friend" },
+    { 'f', "accept-frd",    ContactTestCmd::AcceptFriend,        "\tAccept Friend" },
     { 'a', "add-frd",       ContactTestCmd::Unimplemention,      "\t\tAdd Friend" },
     { ' ', "del-frd",       ContactTestCmd::Unimplemention,      "\t\tDel Friend" },
     { 't', "send-tmsg",     ContactTestCmd::Unimplemention,      "\tSend Text Message" },
@@ -263,6 +263,18 @@ int ContactTestCmd::GetUserInfo(const std::vector<std::string>& args,
 {
     auto ret = ContactTest::GetInstance()->showGetUserInfo();
 
+    return ret;
+}
+
+int ContactTestCmd::AcceptFriend(const std::vector<std::string>& args,
+                                 std::string& errMsg)
+{
+    if(args.size() < 2) {
+        errMsg = "Bad input count: " + std::to_string(args.size());
+        return -1;
+    }
+
+    auto ret = ContactTest::GetInstance()->doAcceptFriend(args[1]);
     return ret;
 }
 

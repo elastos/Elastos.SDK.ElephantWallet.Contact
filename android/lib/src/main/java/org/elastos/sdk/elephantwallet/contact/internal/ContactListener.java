@@ -53,7 +53,7 @@ public abstract class ContactListener extends CrossBase {
         }
         @Override
         public String toString() {
-            return "StatusEvent" + "[type=" + type
+            return "RequestEvent" + "[type=" + type
                     + ",humanCode=" + humanCode + ",channelType=" + channelType
                     + ",summary=" + summary +"]";
         }
@@ -80,7 +80,7 @@ public abstract class ContactListener extends CrossBase {
         }
         @Override
         public String toString() {
-            return "StatusEvent" + "[type=" + type
+            return "InfoEvent" + "[type=" + type
                     + ",humanCode=" + humanCode + ",channelType=" + channelType
                     + ",humanInfo=" + humanInfo +"]";
         }

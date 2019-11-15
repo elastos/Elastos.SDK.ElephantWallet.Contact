@@ -29,7 +29,7 @@ std::shared_ptr<ContactTest> ContactTest::GetInstance() {
 
 void ContactTest::ShowEvent(const std::string& msg)
 {
-    Log::I(Log::TAG, "%s", msg.c_str());
+    Log::V(Log::TAG, "%s", msg.c_str());
 }
 
 void ContactTest::ShowError(const std::string& msg)
@@ -83,24 +83,19 @@ int ContactTest::testNewContact()
     }
 
     class Listener: public ElaphantContact::Listener {
-        virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(AcquireType type,
-                                                                const std::string& pubKey,
-                                                                const std::vector<uint8_t>& data) override {
-            auto ret = ContactTest::GetInstance()->processAcquire(type, pubKey, data);
+        virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const AcquireArgs& request) override {
+            auto ret = ContactTest::GetInstance()->processAcquire(request);
 
-            auto msg = std::string("onAcquire(): req=") + std::to_string(static_cast<int>(type)) + "\n";
+            auto msg = std::string("onAcquire(): req=") + request.toString() + "\n";
             // msg += "onAcquire(): resp=" + std::string(ret->data()) + "\n";
             ShowEvent(msg);
 
             return ret;
         }
-        virtual void onEvent(EventType event,
-                             const std::string& humanCode,
-                             ContactChannel channelType,
-                             const std::vector<uint8_t>& data) override {
-            ContactTest::GetInstance()->processEvent(event, humanCode, channelType, data);
+        virtual void onEvent(EventArgs& event) override {
+            ContactTest::GetInstance()->processEvent(event);
 
-            std::string msg = "onEvent(): ev=" + std::to_string(static_cast<int>(event)) + "\n";
+            std::string msg = "onEvent(): ev=" + event.toString() + "\n";
             ShowEvent(msg);
         }
         virtual void onReceivedMessage(const std::string& humanCode,
@@ -225,6 +220,21 @@ int ContactTest::showGetUserInfo()
     return 0;
 }
 
+int ContactTest::doAcceptFriend(const std::string& friendCode)
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    auto ret = mContact->acceptFriend(friendCode);
+    CHECK_ERROR(ret);
+
+    Log::V(Log::TAG, "Success to accept friend: %s", friendCode.c_str());
+
+    return 0;
+}
+
 /* =========================================== */
 /* === class protected function implement  === */
 /* =========================================== */
@@ -244,7 +254,7 @@ std::string ContactTest::getPublicKey()
     std::string retval = pubKey;
     freeBuf(pubKey);
 
-    Log::D(Log::TAG, "%s %d pubkey=%s", __PRETTY_FUNCTION__, __LINE__, retval.c_str());
+    Log::D(Log::TAG, "%s %d, pubkey=%s", __PRETTY_FUNCTION__, __LINE__, retval.c_str());
     return retval;
 
 }
@@ -292,14 +302,12 @@ std::string ContactTest::GetMd5Sum(const std::string& data)
     return sstream.str();
 }
 
-std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(ElaphantContact::Listener::AcquireType type,
-                                                                  const std::string& pubKey,
-                                                                  const std::vector<uint8_t>& data)
+std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const ElaphantContact::Listener::AcquireArgs& request)
 {
     Log::D(Log::TAG, "%s", __PRETTY_FUNCTION__);
     std::shared_ptr<std::vector<uint8_t>> response;
 
-    switch(type) {
+    switch(request.type) {
     case ElaphantContact::Listener::AcquireType::PublicKey:
     {
         auto pubKey = getPublicKey();
@@ -307,10 +315,10 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(ElaphantContac
         break;
     }
     case ElaphantContact::Listener::AcquireType::EncryptData:
-        response = std::make_shared<std::vector<uint8_t>>(data); // ignore encrypt
+        response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore encrypt
         break;
     case ElaphantContact::Listener::AcquireType::DecryptData:
-        response = std::make_shared<std::vector<uint8_t>>(data); // ignore decrypt
+        response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore decrypt
         break;
     case ElaphantContact::Listener::AcquireType::DidPropAppId:
     {
@@ -333,30 +341,27 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(ElaphantContac
 }
 
 
-void ContactTest::processEvent(ElaphantContact::Listener::EventType event, const std::string& humanCode,
-                               ElaphantContact::Listener::ContactChannel channelType, const std::vector<uint8_t>& data)
+void ContactTest::processEvent(ElaphantContact::Listener::EventArgs& event)
 {
-    switch (event) {
+    switch (event.type) {
     case ElaphantContact::Listener::EventType::StatusChanged:
         break;
     case ElaphantContact::Listener::EventType::FriendRequest:
-        Log::W(Log::TAG, "Friend request from: %s, summary: %s", humanCode.c_str(), data.data());
+    {
+        auto requestEvent = dynamic_cast<ElaphantContact::Listener::RequestEvent*>(&event);
+        Log::V(Log::TAG, "Friend request from: %s, summary: %s",
+                         requestEvent->humanCode.c_str(), requestEvent->summary.c_str());
         break;
-
-    //     Contact.Listener.RequestEvent requestEvent =
-    //         (Contact.Listener.RequestEvent)event;
-    //     Helper.showFriendRequest(
-    //         this, requestEvent.humanCode, requestEvent.summary,
-    //         v->{ mContact.acceptFriend(requestEvent.humanCode); });
-    //     break;
-    // case HumanInfoChanged:
-    //     Contact.Listener.InfoEvent infoEvent =
-    //         (Contact.Listener.InfoEvent)event;
-    //     String msg =
-    //         event.humanCode + " info changed: " + infoEvent.toString();
-    //     showEvent(msg);
-    //     break;
-    // default:
-    //     Log.w(TAG, "Unprocessed event: " + event);
+    }
+    case ElaphantContact::Listener::EventType::HumanInfoChanged:
+    {
+        auto infoEvent = dynamic_cast<ElaphantContact::Listener::InfoEvent*>(&event);
+        auto msg = event.humanCode + " info changed: " + infoEvent->toString();
+        ShowEvent(msg);
+        break;
+    }
+    default:
+        Log::W(Log::TAG, "Unprocessed event: %d", static_cast<int>(event.type));
+            break;
     }
 }
