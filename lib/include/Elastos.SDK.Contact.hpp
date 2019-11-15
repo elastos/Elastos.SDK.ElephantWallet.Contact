@@ -8,8 +8,8 @@
  * @copyright	(c) 2012 xxx All rights reserved.
  **/
 
-#ifndef _ELASTOS_SDK_CONTACT_HPP_
-#define _ELASTOS_SDK_CONTACT_HPP_
+#ifndef _ELASTOS_OLDSDK_CONTACT_HPP_
+#define _ELASTOS_OLDSDK_CONTACT_HPP_
 
 #include "Config.hpp"
 #include "FriendManager.hpp"
@@ -85,4 +85,4 @@ private:
 
 } // namespace elastos
 
-#endif /* _ELASTOS_SDK_CONTACT_HPP_ */
+#endif /* _ELASTOS_OLDSDK_CONTACT_HPP_ */

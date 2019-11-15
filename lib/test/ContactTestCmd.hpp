@@ -1,10 +1,10 @@
 #ifndef _CONTACT_TEST_CMD_HPP_
 #define _CONTACT_TEST_CMD_HPP_
 
-#include <Elastos.SDK.Contact.hpp>
 #include <functional>
 #include <memory>
 #include <string>
+#include <thread>
 #include <vector>
 
 class ContactTestCmd {
@@ -12,9 +12,8 @@ public:
     /*** type define ***/
 
     /*** static function and variable ***/
-    static int Do(std::shared_ptr<elastos::Contact> contact,
-                  const std::string& cmdLine,
-                  std::string& errMsg);
+    static void Loop(const std::string& fifoFilePath);
+    static int Do(const std::string& cmdLine, std::string& errMsg);
 
     /*** class function and variable ***/
 
@@ -30,34 +29,36 @@ private:
     struct CommandInfo {
         char mCmd;
         std::string mLongCmd;
-        std::function<int(std::shared_ptr<elastos::Contact>, const std::vector<std::string>&, std::string&)> mFunc;
+        std::function<int(const std::vector<std::string>&, std::string&)> mFunc;
         std::string mUsage;
     };
 
     /*** static function and variable ***/
-    static int Help(std::shared_ptr<elastos::Contact> contact,
-                    const std::vector<std::string>& args,
+    static void ProcessCmd(const std::string& cmdLine);
+    static void MonitorCmdPipe(const std::string& fifoFilePath);
+    static int Unimplemention(const std::vector<std::string>& args,
+                              std::string& errMsg);
+    static int Help(const std::vector<std::string>& args,
                     std::string& errMsg);
-    static int PrintInfo(std::shared_ptr<elastos::Contact> contact,
-                         const std::vector<std::string>& args,
-                         std::string& errMsg);
-    static int PrintCarrier(std::shared_ptr<elastos::Contact> contact,
-                            const std::vector<std::string>& args,
-                            std::string& errMsg);
-    static int PrintCachedInfo(std::shared_ptr<elastos::Contact> contact,
-                               const std::vector<std::string> &args,
-                               std::string &errMsg);
-    static int UploadInfo(std::shared_ptr<elastos::Contact> contact,
-                          const std::vector<std::string>& args,
-                          std::string& errMsg);
-    static int AddFriend(std::shared_ptr<elastos::Contact> contact,
-                         const std::vector<std::string>& args,
-                         std::string& errMsg);
-    static int SendMessage(std::shared_ptr<elastos::Contact> contact,
-                           const std::vector<std::string>& args,
+
+    static int NewAndStartContact(const std::vector<std::string>& args,
+                                  std::string& errMsg);
+    static int StopAndDelContact(const std::vector<std::string>& args,
+                                  std::string& errMsg);
+    static int RecreateContact(const std::vector<std::string>& args,
+                               std::string& errMsg);
+    static int RestartContact(const std::vector<std::string>& args,
+                              std::string& errMsg);
+
+    static int GetUserInfo(const std::vector<std::string>& args,
                            std::string& errMsg);
 
-    static const std::vector<CommandInfo> gCommandInfoList;
+    static int NewAndSaveMnemonic(const std::vector<std::string>& args,
+                                  std::string& errMsg);
+
+    static std::thread gCmdPipeMonitor;
+    static bool gQuitFlag;
+    static const std::vector<CommandInfo> gCmdInfoList;
 
     /*** class function and variable ***/
     explicit ContactTestCmd() = delete;

@@ -54,7 +54,7 @@ int PlatformDarwin::GetCurrentDevId(std::string& devId)
 
     uuid_t uuid = {};
     struct timespec ts = { .tv_sec = 5, .tv_nsec = 0 };
-//    ret = gethostuuid(uuid, &ts);
+   ret = gethostuuid(uuid, &ts);
     if(ret < 0) {
         return ErrCode::DevUUIDError;
     }

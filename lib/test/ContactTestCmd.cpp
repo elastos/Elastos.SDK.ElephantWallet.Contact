@@ -1,30 +1,99 @@
 #include <ContactTestCmd.hpp>
+#include <ContactTest.hpp>
 
+#include <fstream>
 #include <iostream>
 #include <iterator>
+#include <signal.h>
 #include <sstream>
+#include <Log.hpp>
+#include <Platform.hpp>
 
-#include <DidChnClient.hpp>
+void signalHandler(int sig) {
+    std::cerr << "Error: signal " << sig << std::endl;
+
+    std::string backtrace = elastos::Platform::GetBacktrace();
+    std::cerr << backtrace << std::endl;
+
+    exit(sig);
+}
+
+int main(int argc, char **argv)
+{
+    signal(SIGSEGV, signalHandler);
+    signal(SIGABRT, signalHandler);
+
+    Log::I(Log::TAG, "Start Contact Test.");
+    Log::I(Log::TAG, "%s\n", (argc > 1 ? argv[1]:""));
+    ContactTest::GetInstance()->init();
+
+    const char* fifoFilePath = (argc > 1 ? argv[1] : "");
+
+    ContactTestCmd::Loop(fifoFilePath);
+
+    return 0;
+}
 
 /* =========================================== */
 /* === static variables initialize =========== */
 /* =========================================== */
-const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCommandInfoList{
-    { 'q', "quit",             nullptr,                         "\t\tQuit." },
-    { 'h', "help",             ContactTestCmd::Help,            "\t\tPrint help usages." },
-    { 'p', "print-info",       ContactTestCmd::PrintInfo,       "\tPrint current contact infos." },
-    { 'c', "print-carrier",    ContactTestCmd::PrintCarrier,    "\tPrint current carrier infos." },
-    { 'd', "print-cachedinfo", ContactTestCmd::PrintCachedInfo, "Print current carrier infos." },
-    { 'u', "upload-info",      ContactTestCmd::UploadInfo,      "\tUpload info to did chain." },
-    { 'a', "add-friend",       ContactTestCmd::AddFriend,       "\tAdd a friend by [did, ela address or carrier address]." },
-    { 's', "send-message",     ContactTestCmd::SendMessage,     "\tSend message to a friend like: s [friendCode] [chType(1 or 2)] [msg]" },
+std::thread ContactTestCmd::gCmdPipeMonitor;
+bool ContactTestCmd::gQuitFlag;
+const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
+    { 'q', "quit",          nullptr,                             "\t\tQuit." },
+    { 'h', "help",          ContactTestCmd::Help,                "\t\tPrint help usages." },
+
+    { '-', "",              nullptr,                             "\nContact" },
+    { 'n', "ns-contact",    ContactTestCmd::NewAndStartContact,  "\tNew and Start Contact" },
+    { 'd', "sd-contact",    ContactTestCmd::StopAndDelContact,   "\tStop and Del Contact" },
+    { 'c', "rc-contact",    ContactTestCmd::RecreateContact,     "\tRecreate Contact" },
+    { 's', "rs-contact",    ContactTestCmd::RestartContact,      "\tRestart Contact" },
+
+    { '-', "",              nullptr,                             "\n User" },
+    { 'i', "get-uinfo",     ContactTestCmd::GetUserInfo,         "\tGet User Info" },
+    { ' ', "set-uid",       ContactTestCmd::Unimplemention,      "\t\tSet User Identifycode" },
+    { ' ', "set-udetails",  ContactTestCmd::Unimplemention,      "\tSet User Details" },
+    { ' ', "set-uwaddr",    ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
+    { ' ', "set-uwaddr",    ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
+    { 'l', "sync-upload",   ContactTestCmd::Unimplemention,      "\tSync Upload" },
+    { ' ', "sync-download", ContactTestCmd::Unimplemention,      "\tSync Download" },
+
+    { '-', "",              nullptr,                             "\n Friend" },
+    { 'g', "get-finfo",     ContactTestCmd::Unimplemention,      "\tGet Friend Info" },
+    { 'f', "accept-frd",    ContactTestCmd::Unimplemention,      "\tAccept Friend" },
+    { 'a', "add-frd",       ContactTestCmd::Unimplemention,      "\t\tAdd Friend" },
+    { ' ', "del-frd",       ContactTestCmd::Unimplemention,      "\t\tDel Friend" },
+    { 't', "send-tmsg",     ContactTestCmd::Unimplemention,      "\tSend Text Message" },
+    { 'b', "send-bmsg",     ContactTestCmd::Unimplemention,      "\tSend Binary Message" },
+    { 'f', "send-fmsg",     ContactTestCmd::Unimplemention,      "\tSend File Message" },
+    { 'p', "pull-file",     ContactTestCmd::Unimplemention,      "\tPull File" },
+    { ' ', "cancel-pfile",  ContactTestCmd::Unimplemention,      "\tCancel Pull File" },
+
+
+    { '-', "",             nullptr,                             "\n Mnemonic" },
+    { 'm', "new-mnemonic", ContactTestCmd::NewAndSaveMnemonic,  "\t\tnew mnemonic" },
 };
 
 /* =========================================== */
 /* === static function implement ============= */
 /* =========================================== */
-int ContactTestCmd::Do(std::shared_ptr<elastos::Contact> contact,
-                       const std::string& cmdLine,
+void ContactTestCmd::Loop(const std::string& fifoFilePath)
+{
+    MonitorCmdPipe(fifoFilePath);
+
+    while (true) {
+        std::string cmdLine;
+        std::getline(std::cin, cmdLine);
+
+        if (cmdLine == "q" || cmdLine == "quit") {
+            gQuitFlag = true;
+            return;
+        }
+        ProcessCmd(cmdLine);
+    }
+}
+
+int ContactTestCmd::Do(const std::string& cmdLine,
                        std::string& errMsg)
 {
     auto wsfront=std::find_if_not(cmdLine.begin(), cmdLine.end(),
@@ -41,13 +110,17 @@ int ContactTestCmd::Do(std::shared_ptr<elastos::Contact> contact,
     }
     const auto& cmd = args[0];
 
-    for(const auto& cmdInfo : gCommandInfoList) {
+    for(const auto& cmdInfo : gCmdInfoList) {
+        if(cmdInfo.mCmd == ' '
+        || cmdInfo.mFunc == nullptr) {
+            continue;
+        }
         if(cmd.compare(0, 1, &cmdInfo.mCmd) != 0
         && cmd != cmdInfo.mLongCmd) {
             continue;
         }
 
-        int ret = cmdInfo.mFunc(contact, args, errMsg);
+        int ret = cmdInfo.mFunc(args, errMsg);
         return ret;
     }
 
@@ -67,180 +140,134 @@ int ContactTestCmd::Do(std::shared_ptr<elastos::Contact> contact,
 /* =========================================== */
 /* === class private function implement  ===== */
 /* =========================================== */
-int ContactTestCmd::Help(std::shared_ptr<elastos::Contact> contact,
-                         const std::vector<std::string>& args,
+void ContactTestCmd::ProcessCmd(const std::string& cmdLine)
+{
+    if (cmdLine.empty() == true) {
+        std::cout << "# ";
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        return;
+    }
+    Log::I(Log::TAG, "==> Received Command: %s", cmdLine.c_str());
+
+    std::string errMsg;
+    int ret = ContactTestCmd::Do(cmdLine, errMsg);
+    if (ret < 0) {
+        Log::E(Log::TAG, "ErrCode(%d): %s", ret, errMsg.c_str());
+    } else {
+        Log::I(Log::TAG, "Success to exec: %s", cmdLine.c_str());
+    }
+    std::cout << "# ";
+}
+
+void ContactTestCmd::MonitorCmdPipe(const std::string& fifoFilePath)
+{
+    if (fifoFilePath.empty()) {
+        return;
+    }
+
+    auto funcPipeMonitor = [=] {
+        while (true) {
+            std::string cmdLine;
+            std::ifstream fifoStream(fifoFilePath, std::ifstream::in);
+            std::getline(fifoStream, cmdLine);
+            fifoStream.close();
+
+            if (cmdLine == "q" || cmdLine == "quit") {
+                gQuitFlag = true;
+                return;
+            }
+            ProcessCmd(cmdLine);
+        };
+    };
+
+    gCmdPipeMonitor = std::thread (funcPipeMonitor);
+}
+
+int ContactTestCmd::Unimplemention(const std::vector<std::string>& args,
+                                   std::string& errMsg)
+{
+    errMsg = "Unimplemention Command!!!";
+    return -1;
+}
+
+int ContactTestCmd::Help(const std::vector<std::string>& args,
                          std::string& errMsg)
 {
     std::cout << "Usage:" << std::endl;
-    for(const auto& cmdInfo : gCommandInfoList) {
-        std::cout << "  " << cmdInfo.mCmd << " | " << cmdInfo.mLongCmd << ": " << cmdInfo.mUsage << std::endl;
-    }
-    std::cout << std::endl;
-
-    return 0;
-}
-
-int ContactTestCmd::PrintInfo(std::shared_ptr<elastos::Contact> contact,
-                              const std::vector<std::string>& args,
-                              std::string& errMsg)
-{
-    std::string value;
-
-    auto weakUserMgr = contact->getUserManager();
-    auto userMgr = weakUserMgr.lock();
-    userMgr->serialize(value);
-    std::cout << "==========================" << std::endl;
-    std::cout << "UserInfo:" << std::endl;
-    std::cout << value << std::endl;
-
-    auto weakFriendMgr = contact->getFriendManager();
-    auto friendMgr = weakFriendMgr.lock();
-    friendMgr->serialize(value);
-    std::cout << "FriendInfo:" << std::endl;
-    std::cout << value << std::endl;
-
-
-    return 0;
-}
-
-int ContactTestCmd::PrintCarrier(std::shared_ptr<elastos::Contact> contact,
-                                 const std::vector<std::string>& args,
-                                 std::string& errMsg)
-{
-    std::string value;
-
-    std::cout << "==========================" << std::endl;
-    auto weakUserMgr = contact->getUserManager();
-    std::shared_ptr<elastos::UserInfo> userInfo;
-    weakUserMgr.lock()->getUserInfo(userInfo);
-
-    std::vector<elastos::HumanInfo::CarrierInfo> carrierInfoArray;
-    userInfo->getAllCarrierInfo(carrierInfoArray);
-    std::cout << "UserCarrierInfo:" << std::endl;
-    for(auto& it: carrierInfoArray) {
-        std::cout << " addr:" << it.mUsrAddr << ", id:" << it.mUsrId  << std::endl;
-    }
-
-
-    auto weakFriendMgr = contact->getFriendManager();
-    std::vector<std::shared_ptr<elastos::FriendInfo>> friendList;
-    weakFriendMgr.lock()->getFriendInfoList(friendList);
-    for(auto& friendInfo: friendList) {
-        std::cout << "FriendCarrierInfo:" << std::endl;
-        std::vector<elastos::HumanInfo::CarrierInfo> carrierInfoArray;
-        friendInfo->getAllCarrierInfo(carrierInfoArray);
-        for(auto& it: carrierInfoArray) {
-            std::cout << " addr:" << it.mUsrAddr << ", id:" << it.mUsrId  << std::endl;
+    for(const auto& cmdInfo : gCmdInfoList) {
+        if(cmdInfo.mCmd == '-') {
+            std::cout << cmdInfo.mUsage << std::endl;
+        } else {
+            std::cout << "  " << cmdInfo.mCmd << " | " << cmdInfo.mLongCmd << ": " << cmdInfo.mUsage << std::endl;
         }
     }
-
-    return 0;
-}
-
-int ContactTestCmd::PrintCachedInfo(std::shared_ptr<elastos::Contact> contact,
-                                    const std::vector<std::string>& args,
-                                    std::string& errMsg)
-{
-    auto dcClient = elastos::DidChnClient::GetInstance();
-
-    std::string value;
-    dcClient->printCachedDidProp(value);
-
-    std::cout << "==========================" << std::endl;
-    std::cout << value << std::endl;
     std::cout << std::endl;
 
     return 0;
 }
 
-int ContactTestCmd::UploadInfo(std::shared_ptr<elastos::Contact> contact,
-                               const std::vector<std::string>& args,
-                               std::string& errMsg)
+int ContactTestCmd::NewAndStartContact(const std::vector<std::string>& args,
+                                       std::string& errMsg)
 {
-    int ret = contact->syncInfoUploadToDidChain();
-    if (ret < 0) {
-      errMsg = "Failed to upload info. ret=" + std::to_string(ret);
-      return -1;
-    }
-
-    return 0;
-}
-
-int ContactTestCmd::AddFriend(std::shared_ptr<elastos::Contact> contact,
-                              const std::vector<std::string>& args,
-                              std::string& errMsg)
-{
-    if(args.size() < 2) {
-        errMsg = "Bad input count: " + std::to_string(args.size());
-        return -1;
-    }
-
-    auto weakFriendMgr = contact->getFriendManager();
-    auto friendMgr = weakFriendMgr.lock();
-    if(friendMgr.get() == nullptr) {
-        errMsg = "FriendManager has been released.";
-        return -1;
-    }
-
-    auto friendId = args.size() > 1 ? args[1] : "";
-    auto summary = args.size() > 2 ? args[2] : "";
-
-    int ret = friendMgr->tryAddFriend(friendId, summary);
+    auto ret = ContactTest::GetInstance()->testNewContact();
     if(ret < 0) {
-        errMsg = "Failed to add friend ret=" + std::to_string(ret);
         return ret;
     }
 
-    return 0;
+    ret = ContactTest::GetInstance()->testStartContact();
+
+    return ret;
 }
 
+int ContactTestCmd::StopAndDelContact(const std::vector<std::string>& args,
+                                      std::string& errMsg)
+{
+    auto ret = ContactTest::GetInstance()->testStopContact();
+    if(ret < 0) {
+        return ret;
+    }
 
-int ContactTestCmd::SendMessage(std::shared_ptr<elastos::Contact> contact,
-                                const std::vector<std::string>& args,
+    ret = ContactTest::GetInstance()->testDelContact();
+
+    return ret;
+}
+
+int ContactTestCmd::RecreateContact(const std::vector<std::string>& args,
+                                    std::string& errMsg)
+{
+    auto ret = StopAndDelContact(args, errMsg);
+    if(ret < 0) {
+        return ret;
+    }
+
+    ret = NewAndStartContact(args, errMsg);
+
+    return ret;
+}
+
+int ContactTestCmd::RestartContact(const std::vector<std::string>& args,
+                                   std::string& errMsg)
+{
+    auto ret = ContactTest::GetInstance()->testStopContact();
+    if(ret < 0) {
+        return ret;
+    }
+
+    ret = ContactTest::GetInstance()->testStartContact();
+
+    return ret;
+}
+
+int ContactTestCmd::GetUserInfo(const std::vector<std::string>& args,
                                 std::string& errMsg)
 {
-    if(args.size() < 4) {
-        errMsg = "Bad input";
-        return -1;
-    }
+    auto ret = ContactTest::GetInstance()->showGetUserInfo();
 
-    auto friendCode = args.size() > 1 ? args[1] : "";
-    auto channelType = args.size() > 2 ? args[2] : "";
-    auto msg = args.size() > 3 ? args[3] : "";
-    if(channelType.empty() == true) {
-        errMsg = "Channel Type not exists";
-        return -1;
-    }
+    return ret;
+}
 
-    auto weakFriendMgr = contact->getFriendManager();
-    auto friendMgr = weakFriendMgr.lock();
-    if(friendMgr.get() == nullptr) {
-        errMsg = "FriendManager has been released.";
-        return -1;
-    }
-
-    std::shared_ptr<elastos::FriendInfo> friendInfo;
-    int ret = friendMgr->tryGetFriendInfo(friendCode, friendInfo);
-    if(ret < 0) {
-        errMsg = "Failed to find friend ret=" + std::to_string(ret);
-        return ret;
-    }
-
-    auto weakMsgMgr = contact->getMessageManager();
-    auto msgMgr = weakMsgMgr.lock();
-    if(msgMgr.get() == nullptr) {
-        errMsg = "msgManager has been released.";
-        return -1;
-    }
-
-    int chType = std::stoi(channelType);
-    auto msgInfo = elastos::MessageManager::MakeTextMessage(msg);
-
-    ret = msgMgr->sendMessage(friendInfo, static_cast<elastos::MessageManager::ChannelType>(chType), msgInfo);
-    if(ret < 0) {
-        errMsg = "Failed to send message ret=" + std::to_string(ret);
-        return ret;
-    }
-
-    return 0;
+int ContactTestCmd::NewAndSaveMnemonic(const std::vector<std::string>& args,
+                                       std::string& errMsg) {
+    auto ret = ContactTest::GetInstance()->newAndSaveMnemonic();
+    return ret;
 }

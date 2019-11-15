@@ -21,6 +21,7 @@
 #ifdef WITH_CROSSPL
 namespace crosspl {
 namespace native {
+};
 #endif // WITH_CROSSPL
 
 class ContactBridge {
@@ -33,8 +34,13 @@ public:
     explicit ContactBridge();
     virtual ~ContactBridge();
 
+#ifdef WITH_CROSSPL
     void setListener(CrossBase* listener);
     void setDataListener(CrossBase* listener);
+#else
+    void setListener(ContactListener* listener);
+    void setDataListener(ContactDataListener* listener);
+#endif // WITH_CROSSPL
     int start();
     int stop();
 
@@ -58,13 +64,20 @@ public:
 
     int setWalletAddress(const char* name, const char* value);
 
-private:
+protected:
     /*** type define ***/
 
     /*** static function and variable ***/
 
     /*** class function and variable ***/
     std::shared_ptr<elastos::Contact> mContactImpl;
+
+private:
+    /*** type define ***/
+
+    /*** static function and variable ***/
+
+    /*** class function and variable ***/
     ContactListener* mListener;
     ContactDataListener* mDataListener;
 

@@ -1,311 +1,242 @@
-#include <Elastos.SDK.Contact.hpp>
+#include <ContactTest.hpp>
 #include <Elastos.SDK.Keypair.C/Elastos.Wallet.Utility.h>
 
 #include <fstream>
-#include <iostream>
-#include <thread>
-#include <signal.h>
-
-#include <DateTime.hpp>
-#include <Platform.hpp>
 #include <Log.hpp>
-#include <MD5.hpp>
-#include "ContactTestCmd.hpp"
-#include "ContactTestListener.hpp"
+#include <ContactTestCmd.hpp>
+#include <openssl/md5.h>
 
-const char* keypairLanguage = "english";
-const char* keypairWords = "";
+/* =========================================== */
+/* === static variables initialize =========== */
+/* =========================================== */
+const std::string ContactTest::gCacheDir { "/tmp/elastos.sdk.contact/test/" };
+std::shared_ptr<ContactTest> ContactTest::gContactTest;
 
-std::string gSavedMnemonic;
-std::string gCachedMnemonic;
+/* =========================================== */
+/* === static function implement ============= */
+/* =========================================== */
+std::shared_ptr<ContactTest> ContactTest::GetInstance() {
+    if(gContactTest != nullptr) {
+        return gContactTest;
+    }
 
-std::thread gCmdPipeMonitor;
-bool gQuitFlag = false;
+    struct Impl : ContactTest {
+    };
+    gContactTest = std::make_shared<Impl>();
 
-void loop(const char* fifoFilePath, std::shared_ptr<elastos::Contact> contact);
-void signalHandler(int sig);
-std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener(std::weak_ptr<elastos::Contact> contact);
-std::shared_ptr<elastos::UserManager::UserListener> getUserListener();
-std::shared_ptr<elastos::FriendManager::FriendListener> getFriendListener();
-void ensureCachedMnemonic();
-std::string getPublicKey();
-std::string getPrivateKey();
+    return gContactTest;
+}
 
-int main(int argc, char **argv)
+void ContactTest::ShowEvent(const std::string& msg)
 {
-    signal(SIGSEGV, signalHandler);
-    signal(SIGABRT, signalHandler);
+    Log::I(Log::TAG, "%s", msg.c_str());
+}
 
-	const char* nickname = "Friend";
-    const char* fifoFilePath = (argc > 1 ? argv[1] : nullptr);
-    if(fifoFilePath != nullptr) {
-//        gSavedMnemonic = "bachelor sail glove swing despair lawsuit exhibit travel slot practice latin glass";
-        nickname = "Me";
-    } else {
-       gSavedMnemonic = "month business urban nurse joy derive acquire snap venue hello city buyer";
+void ContactTest::ShowError(const std::string& msg)
+{
+    Log::E(Log::TAG, "Error: %s", msg.c_str());
+}
+
+/* =========================================== */
+/* === class public function implement  ====== */
+/* =========================================== */
+int ContactTest::init()
+{
+    std::ifstream mnemStream(gCacheDir + MnemonicFileName);
+    std::getline(mnemStream, mSavedMnemonic);
+    mnemStream.close();
+
+    auto ret = newAndSaveMnemonic(mSavedMnemonic);
+    return ret;
+}
+
+int ContactTest::newAndSaveMnemonic(const std::string& newMnemonic)
+{
+    mSavedMnemonic = newMnemonic;
+    if (mSavedMnemonic.empty()) {
+        mSavedMnemonic = generateMnemonic(KeypairLanguage, KeypairWords);
     }
 
-    Log::I(Log::TAG, "Start Contact Test.");
-    Log::I(Log::TAG, "%s\n", (argc > 1 ? argv[1]:""));
+    std::ofstream mnemStream(gCacheDir + MnemonicFileName);
+    mnemStream << mSavedMnemonic;
+    mnemStream.close();
 
-    elastos::Contact::Factory::SetLogLevel(4);
-    int ret = elastos::Contact::Factory::SetLocalDataDir("/tmp/elastos.sdk.contact/test");
-    if(ret < 0) {
-        throw std::runtime_error(std::string("Failed to set contact local dir! ret=") + std::to_string(ret));
-    }
-
-    auto contact = elastos::Contact::Factory::Create();
-
-    auto sectyListener = getSecurityListener(contact);
-    auto userListener = getUserListener();
-    auto friendListener = getFriendListener();
-    auto msgListener = std::make_shared<ContactTestListener>(contact);
-    contact->setListener(sectyListener, userListener, friendListener, msgListener);
-
-    ret = contact->start();
-    if(ret < 0) {
-        throw std::runtime_error(std::string("Failed to start contact! ret=") + std::to_string(ret));
-    }
-
-    gCachedMnemonic.clear();
-
-    auto userMgr = contact->getUserManager().lock();
-    std::shared_ptr<elastos::UserInfo> userInfo;
-    ret = userMgr->getUserInfo(userInfo);
-    if(ret < 0) {
-        throw std::runtime_error(std::string("Failed to get user info! ret=") + std::to_string(ret));
-    }
-
-    ret = userInfo->setHumanInfo(elastos::UserInfo::Item::Nickname, nickname);
-    if(ret < 0) {
-        throw std::runtime_error(std::string("Failed to get user info! ret=") + std::to_string(ret));
-    }
-
-    std::string value;
-    userInfo->getHumanInfo(elastos::UserInfo::Item::Nickname, value);
-    Log::I(Log::TAG, "NickName  : %s", value.c_str());
-    userInfo->getHumanInfo(elastos::UserInfo::Item::ChainPubKey, value);
-    Log::I(Log::TAG, "PubKey    : %s", value.c_str());
-    userInfo->getHumanInfo(elastos::UserInfo::Item::Did, value);
-    Log::I(Log::TAG, "DID       : %s", value.c_str());
-    userInfo->getHumanInfo(elastos::UserInfo::Item::ElaAddress, value);
-    Log::I(Log::TAG, "ElaAddress: %s", value.c_str());
-
-    std::vector<elastos::UserInfo::CarrierInfo> carrierInfoArray;
-    userInfo->getAllCarrierInfo(carrierInfoArray);
-    for(auto& it: carrierInfoArray) {
-        Log::I(Log::TAG, "BoundDevId  : %s", it.mDevInfo.mDevId.c_str());
-        Log::I(Log::TAG, "BoundDevName: %s", it.mDevInfo.mDevName.c_str());
-        Log::I(Log::TAG, "CarrierAddr : %s", it.mUsrAddr.c_str());
-        Log::I(Log::TAG, "carrierUsrId: %s", it.mUsrId.c_str());
-    }
-
-    //ret = userMgr->uploadUserInfo();
-    //if(ret < 0) {
-        //throw std::runtime_error(std::string("Failed to upload user info! ret=") + std::to_string(ret));
-    //}
-
-    //ret = userMgr->syncUserInfo();
-    //if(ret < 0) {
-        //throw std::runtime_error(std::string("Failed to get user info! ret=") + std::to_string(ret));
-    //}
-
-    loop(fifoFilePath, contact);
+    Log::I(Log::TAG, "Success to save mnemonic:\n%s", mSavedMnemonic.c_str());
 
     return 0;
 }
 
-void processCmd(const std::string& cmdLine, std::shared_ptr<elastos::Contact> contact)
+int ContactTest::testNewContact()
 {
-    if (cmdLine.empty() == true) {
-        std::cout << "# ";
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        return;
-    }
-    Log::I(Log::TAG, "==> Received Command: %s", cmdLine.c_str());
+    ElaphantContact::Factory::SetLogLevel(7);
 
-    std::string errMsg;
-    int ret = ContactTestCmd::Do(contact, cmdLine, errMsg);
+    // ElaphantContact::Factory::SetDeviceId(getDeviceId());
+
+    int ret = ElaphantContact::Factory::SetLocalDataDir(gCacheDir);
     if (ret < 0) {
-        Log::E(Log::TAG, "ErrCode(%d): %s", ret, errMsg.c_str());
-    } else {
-        Log::I(Log::TAG, "Success to exec: %s", cmdLine.c_str());
-    }
-    std::cout << "# ";
-}
-
-void monitorCmdPipe(const char* fifoFilePath, std::shared_ptr<elastos::Contact> contact) {
-    if (fifoFilePath == nullptr) {
-        return;
+        Log::E(Log::TAG, "Failed to call Contact.Factory.SetLocalDataDir() ret=%d", ret);
     }
 
-    auto funcPipeMonitor = [=] {
-        while (true) {
-            std::string cmdLine;
-            std::ifstream fifoStream(fifoFilePath, std::ifstream::in);
-            std::getline(fifoStream, cmdLine);
-            fifoStream.close();
+    mContact = ElaphantContact::Factory::Create();
+    if (mContact == nullptr) {
+        Log::E(Log::TAG, "Failed to call Contact.Factory.Create()");
+    }
 
-            if (cmdLine == "q" || cmdLine == "quit") {
-                gQuitFlag = true;
-                return;
+    class Listener: public ElaphantContact::Listener {
+        virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(AcquireType type,
+                                                                const std::string& pubKey,
+                                                                const std::vector<uint8_t>& data) override {
+            auto ret = ContactTest::GetInstance()->processAcquire(type, pubKey, data);
+
+            auto msg = std::string("onAcquire(): req=") + std::to_string(static_cast<int>(type)) + "\n";
+            // msg += "onAcquire(): resp=" + std::string(ret->data()) + "\n";
+            ShowEvent(msg);
+
+            return ret;
+        }
+        virtual void onEvent(EventType event,
+                             const std::string& humanCode,
+                             ContactChannel channelType,
+                             const std::vector<uint8_t>& data) override {
+            ContactTest::GetInstance()->processEvent(event, humanCode, channelType, data);
+
+            std::string msg = "onEvent(): ev=" + std::to_string(static_cast<int>(event)) + "\n";
+            ShowEvent(msg);
+        }
+        virtual void onReceivedMessage(const std::string& humanCode,
+                                       ContactChannel channelType,
+                                       std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo) override {
+            auto msg = std::string("onRcvdMsg(): data=") /*+ std::to_string(&message.data)*/ + "\n";
+            msg += "onRcvdMsg(): type=" + std::to_string(static_cast<int>(msgInfo->mType)) + "\n";
+            msg += "onRcvdMsg(): crypto=" + msgInfo->mCryptoAlgorithm + "\n";
+            ShowEvent(msg);
+
+            if (msgInfo->mType == ElaphantContact::Message::Type::MsgFile) {
+                //             mContactRecvFileMap.put(humanCode, (Contact.Message.FileData)message.data);
             }
-            processCmd(cmdLine, contact);
-        };
+        }
+        virtual void onError(int errCode, const std::string& errStr,
+                             const std::string& ext) override {
+            auto msg = std::to_string(errCode) + ": " + errStr;
+            msg += "\n" + ext;
+            ShowError(msg);
+        }
     };
+    mContactListener = std::make_shared<Listener>();
+    mContact->setListener(mContactListener.get());
 
-    gCmdPipeMonitor = std::thread (funcPipeMonitor);
-}
-
-void loop(const char* fifoFilePath, std::shared_ptr<elastos::Contact> contact)
-{
-    monitorCmdPipe(fifoFilePath, contact);
-
-    while (true) {
-        std::string cmdLine;
-        std::getline(std::cin, cmdLine);
-
-        if (cmdLine == "q" || cmdLine == "quit") {
-            gQuitFlag = true;
-            return;
+    class DataListener: public ElaphantContact::DataListener {
+        virtual void onNotify(const std::string& humanCode,
+                              ContactListener::ContactChannel channelType,
+                              const std::string& dataId, int status) override {
+            std::string msg = "onNotify(): dataId=" + dataId
+                            + ", status=" + std::to_string(status) + "\n";
+            ShowEvent(msg);
         }
-        processCmd(cmdLine, contact);
-    }
-}
-
-void signalHandler(int sig) {
-    std::cerr << "Error: signal " << sig << std::endl;
-
-    std::string backtrace = elastos::Platform::GetBacktrace();
-    std::cerr << backtrace << std::endl;
-
-    exit(sig);
-}
-
-std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener(std::weak_ptr<elastos::Contact> contact)
-{
-    class SecurityListener final : public elastos::SecurityManager::SecurityListener {
-    public:
-        explicit SecurityListener(std::weak_ptr<elastos::Contact> contact)
-            : mContact(contact) {
-        };
-        virtual ~SecurityListener() = default;
-
-        std::string onAcquirePublicKey() override {
-            auto pubKey = getPublicKey();
-            //std::cout << __PRETTY_FUNCTION__ << " pubKey:" << pubKey << std::endl;
-            return pubKey;
-        };
-
-        std::vector<uint8_t> onEncryptData(const std::string& pubKey, const std::vector<uint8_t>& src) override {
-            //auto dest = std::vector<uint8_t> {src.rbegin(), src.rend()};
-            //return dest;
-            return src;
+        virtual int onReadData(const std::string& humanCode,
+                               ContactListener::ContactChannel channelType,
+                               const std::string& dataId, uint64_t offset,
+                               std::vector<uint8_t>& data) override {
+            std::string msg = "onReadData(): dataId=" + dataId
+                            + ", offset=" + std::to_string(offset) + "\n";
+            ShowEvent(msg);
         }
-        std::vector<uint8_t> onDecryptData(const std::vector<uint8_t>& src) override {
-            //auto dest = std::vector<uint8_t> {src.rbegin(), src.rend()};
-            //return dest;
-            return src;
+        virtual int onWriteData(const std::string& humanCode,
+                                ContactListener::ContactChannel channelType,
+                                const std::string& dataId, uint64_t offset,
+                                const std::vector<uint8_t>& data) override {
+            std::string msg = "onWriteData(): dataId=" + dataId
+                            + ", offset=" + std::to_string(offset) + "\n";
+            ShowEvent(msg);
         }
-
-        std::string onAcquireDidPropAppId() override {
-            return "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AAA65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
-        }
-
-        std::string onAcquireDidAgentAuthHeader() override {
-            std::string appid = "org.elastos.debug.didplugin";
-            std::string appkey = "b2gvzUM79yLhCbbGNWCuhSsGdqYhA7sS";
-            std::string timestamp = std::to_string(elastos::DateTime::CurrentMS());
-            std::string auth = elastos::MD5::Get(appkey + timestamp);
-            std::string headerValue = "id=" + appid + ";time=" + timestamp + ";auth=" + auth;
-            Log::I(Log::TAG, "onAcquireDidAgentAuthHeader() headerValue=%s", headerValue.c_str());
-
-            return headerValue;
-        }
-
-        std::vector<uint8_t> onSignData(const std::vector<uint8_t>& originData) override {
-            std::string privKey = getPrivateKey();
-
-            std::vector<uint8_t> signedData;
-
-            void* keypairSignedData = nullptr;
-            int keypairSignedSize = ::sign(privKey.c_str(), originData.data(), originData.size(), &keypairSignedData);
-            if(keypairSignedSize <= 0) {
-                return signedData;
-            }
-
-            uint8_t* keypairSignedDataPtr = reinterpret_cast<uint8_t*>(keypairSignedData);
-            signedData = std::vector<uint8_t>(keypairSignedDataPtr, keypairSignedDataPtr + keypairSignedSize);
-
-            return signedData;
-        }
-
-    private:
-        std::weak_ptr<elastos::Contact> mContact;
     };
+    mContactDataListener = std::make_shared<DataListener>();
+    mContact->setDataListener(mContactDataListener.get());
 
-    return std::make_shared<SecurityListener>(contact);
+    Log::I(Log::TAG, "Success to create a contact instance.");
+    return 0;
 }
 
-
-std::shared_ptr<elastos::UserManager::UserListener> getUserListener()
+int ContactTest::testStartContact()
 {
-    class UserListener : public elastos::UserManager::UserListener {
-    public:
-        explicit UserListener() = default;
-        virtual ~UserListener() = default;
-
-        //virtual int onSigninDevicesOverflow(const std::weak_ptr<elastos::HumanInfo> userInfo, int capacity) override {
-            //std::cout << __PRETTY_FUNCTION__ << std::endl;
-            //return 0;
-        //};
-    };
-
-    return std::make_shared<UserListener>();
-}
-
-std::shared_ptr<elastos::FriendManager::FriendListener> getFriendListener()
-{
-    class FriendListener : public elastos::FriendManager::FriendListener {
-    public:
-        explicit FriendListener() = default;
-        virtual ~FriendListener() = default;
-
-        //virtual int onFriendRequest(elastos::FriendInfo friendInfo, std::string message) override {
-            //std::cout << __PRETTY_FUNCTION__ << " message:" << message << std::endl;
-            //return 0;
-        //};
-
-        //virtual void onStatusChanged(elastos::FriendInfo friendInfo, uint64_t status) override {
-            //std::cout << __PRETTY_FUNCTION__ << std::endl;
-        //};
-    };
-
-    return std::make_shared<FriendListener>();
-}
-
-void ensureCachedMnemonic()
-{
-    if(gCachedMnemonic.empty() == true) {
-        //std::string password;
-        //std::cout << "input password: ";
-        //std::getline(std::cin, password);
-
-        if(gSavedMnemonic.empty() == true) {
-            gSavedMnemonic = ::generateMnemonic(keypairLanguage, keypairWords);
-            Log::I(Log::TAG, "generate mnemonic: %s", gSavedMnemonic.c_str());
-        }
-        gCachedMnemonic = gSavedMnemonic;
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
     }
 
+    int ret = mContact->start();
+    if (ret < 0) {
+        ShowError("Failed to start contact instance. ret=" + std::to_string(ret));
+        return -1;
+    }
+
+    Log::I(Log::TAG, "Success to start contact instance.");
+    return 0;
 }
 
-std::string getPublicKey()
+int ContactTest::testStopContact()
 {
-    ensureCachedMnemonic();
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
 
+    int ret = mContact->stop();
+    if (ret < 0) {
+        ShowError("Failed to stop contact instance. ret=" + std::to_string(ret));
+        return -1;
+    }
+
+    Log::I(Log::TAG, "Success to stop contact instance.");
+    return 0;
+}
+
+int ContactTest::testDelContact()
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    mContact.reset();
+    Log::I(Log::TAG, "Success to delete contact instance.");
+    return 0;
+}
+
+int ContactTest::showGetUserInfo()
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    auto info = mContact->getUserInfo();
+    if (info == nullptr) {
+        ShowError("Failed to get user info.");
+        return -1;
+    }
+
+    auto jsonInfo = std::make_shared<nlohmann::json>();
+    int ret = info->toJson(jsonInfo);
+    CHECK_ERROR(ret);
+
+    Log::V(Log::TAG, "UserInfo: %s", jsonInfo->dump(2).c_str());
+
+    return 0;
+}
+
+/* =========================================== */
+/* === class protected function implement  === */
+/* =========================================== */
+
+/* =========================================== */
+/* === class private function implement  ===== */
+/* =========================================== */
+
+std::string ContactTest::getPublicKey()
+{
     void* seedData = nullptr;
-    int seedSize = ::getSeedFromMnemonic(&seedData, gCachedMnemonic.c_str(), keypairLanguage);
+    int seedSize = ::getSeedFromMnemonic(&seedData, mSavedMnemonic.c_str(), KeypairLanguage);
 
     auto pubKey = ::getSinglePublicKey(seedData, seedSize);
     freeBuf(seedData);
@@ -313,16 +244,15 @@ std::string getPublicKey()
     std::string retval = pubKey;
     freeBuf(pubKey);
 
+    Log::D(Log::TAG, "%s %d pubkey=%s", __PRETTY_FUNCTION__, __LINE__, retval.c_str());
     return retval;
 
 }
 
-std::string getPrivateKey()
+std::string ContactTest::getPrivateKey()
 {
-    ensureCachedMnemonic();
-
     void* seedData = nullptr;
-    int seedSize = ::getSeedFromMnemonic(&seedData, gCachedMnemonic.c_str(), keypairLanguage);
+    int seedSize = ::getSeedFromMnemonic(&seedData, mSavedMnemonic.c_str(), KeypairLanguage);
 
     auto privKey = ::getSinglePrivateKey(seedData, seedSize);
     freeBuf(seedData);
@@ -332,4 +262,101 @@ std::string getPrivateKey()
 
     return retval;
 
+}
+
+std::string ContactTest::getAgentAuthHeader()
+{
+    std::string appid = "org.elastos.debug.didplugin";
+    std::string appkey = "b2gvzUM79yLhCbbGNWCuhSsGdqYhA7sS";
+    uint64_t timestamp = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()
+    ).count();
+    std::string auth = ContactTest::GetMd5Sum(appkey + std::to_string(timestamp));
+    std::string headerValue = "id=" + appid + ";time=" + std::to_string(timestamp) + ";auth=" + auth;
+    Log::I(Log::TAG, "getAgentAuthHeader() headerValue=%s", headerValue.c_str());
+
+    return headerValue;
+}
+
+std::string ContactTest::GetMd5Sum(const std::string& data)
+{
+    uint8_t result[MD5_DIGEST_LENGTH];
+    MD5((uint8_t*)data.data(), data.size(), result);
+
+    std::ostringstream sstream;
+    sstream<< std::hex<< std::setfill('0');
+    for(auto i: result) {
+        sstream << std::setw(2) <<(int)i;
+    }
+
+    return sstream.str();
+}
+
+std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(ElaphantContact::Listener::AcquireType type,
+                                                                  const std::string& pubKey,
+                                                                  const std::vector<uint8_t>& data)
+{
+    Log::D(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    std::shared_ptr<std::vector<uint8_t>> response;
+
+    switch(type) {
+    case ElaphantContact::Listener::AcquireType::PublicKey:
+    {
+        auto pubKey = getPublicKey();
+        response = std::make_shared<std::vector<uint8_t>>(pubKey.begin(), pubKey.end());
+        break;
+    }
+    case ElaphantContact::Listener::AcquireType::EncryptData:
+        response = std::make_shared<std::vector<uint8_t>>(data); // ignore encrypt
+        break;
+    case ElaphantContact::Listener::AcquireType::DecryptData:
+        response = std::make_shared<std::vector<uint8_t>>(data); // ignore decrypt
+        break;
+    case ElaphantContact::Listener::AcquireType::DidPropAppId:
+    {
+        std::string appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AA"
+                            "A65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
+        response = std::make_shared<std::vector<uint8_t>>(appId.begin(), appId.end());
+        break;
+    }
+    case ElaphantContact::Listener::AcquireType::DidAgentAuthHeader:
+    {
+        std::string authHeader = getAgentAuthHeader();
+        response = std::make_shared<std::vector<uint8_t>>(authHeader.begin(), authHeader.end());
+        break;
+    }
+    case ElaphantContact::Listener::AcquireType::SignData:
+        break;
+    }
+
+    return response;
+}
+
+
+void ContactTest::processEvent(ElaphantContact::Listener::EventType event, const std::string& humanCode,
+                               ElaphantContact::Listener::ContactChannel channelType, const std::vector<uint8_t>& data)
+{
+    switch (event) {
+    case ElaphantContact::Listener::EventType::StatusChanged:
+        break;
+    case ElaphantContact::Listener::EventType::FriendRequest:
+        Log::W(Log::TAG, "Friend request from: %s, summary: %s", humanCode.c_str(), data.data());
+        break;
+
+    //     Contact.Listener.RequestEvent requestEvent =
+    //         (Contact.Listener.RequestEvent)event;
+    //     Helper.showFriendRequest(
+    //         this, requestEvent.humanCode, requestEvent.summary,
+    //         v->{ mContact.acceptFriend(requestEvent.humanCode); });
+    //     break;
+    // case HumanInfoChanged:
+    //     Contact.Listener.InfoEvent infoEvent =
+    //         (Contact.Listener.InfoEvent)event;
+    //     String msg =
+    //         event.humanCode + " info changed: " + infoEvent.toString();
+    //     showEvent(msg);
+    //     break;
+    // default:
+    //     Log.w(TAG, "Unprocessed event: " + event);
+    }
 }

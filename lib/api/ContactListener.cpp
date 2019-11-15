@@ -242,7 +242,7 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
                                               static_cast<ContactChannel>(channelType), &data);
 #else
             std::vector<uint8_t> vdata(data.data(), data.data() + data.size());
-            sContactListenerInstance->onEvent(EventType::FriendReuqest, humanCode,
+            sContactListenerInstance->onEvent(EventType::FriendRequest, humanCode,
                                               static_cast<ContactChannel>(channelType), vdata);
 #endif // WITH_CROSSPL
         }

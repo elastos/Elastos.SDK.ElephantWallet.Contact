@@ -24,6 +24,7 @@ namespace native {
 class ContactMessage : public CrossBase {
 public:
     /*** type define ***/
+    using Type = elastos::MessageManager::MessageType;
 
     /*** static function and variable ***/
 

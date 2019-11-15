@@ -1,9 +1,15 @@
-file( GLOB ContactTest-SOURCES "ContactTest*.cpp")
+pkg_search_module(pkg-openssl REQUIRED openssl)
+message(STATUS "openssl include path: ${pkg-openssl_INCLUDE_DIRS}")
+message(STATUS "openssl library path: ${pkg-openssl_STATIC_LDFLAGS}")
 
+file( GLOB ContactTest-SOURCES "ContactTest*.cpp")
 add_executable(ContactTest)
 target_sources(ContactTest PRIVATE
     ${ContactTest-SOURCES})
 target_include_directories(ContactTest PRIVATE
+    "${pkg-openssl_INCLUDE_DIRS}"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../api"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../crosspl"
     "${CMAKE_CURRENT_SOURCE_DIR}/../common"
     "${CMAKE_CURRENT_SOURCE_DIR}/../include"
     "${CMAKE_CURRENT_SOURCE_DIR}/../platform"
@@ -11,6 +17,7 @@ target_include_directories(ContactTest PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/../wrapper/json"
     "${CMAKE_INSTALL_PREFIX}/include")
 target_link_libraries(ContactTest PUBLIC
+    ${pkg-openssl_STATIC_LDFLAGS}
     Elastos.SDK.Contact)
 configure_file("ContactTestUI.sh" "${CMAKE_CURRENT_BINARY_DIR}/ContactTestUI.sh" COPYONLY)
 

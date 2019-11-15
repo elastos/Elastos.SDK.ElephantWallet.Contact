@@ -38,7 +38,7 @@ public:
         StatusChanged = 101,
 //        ReceivedMessage = 102,
 //        SentMessage = 103,
-        FriendReuqest = 104,
+        FriendRequest = 104,
 //        FriendStatusChanged = 105,
         HumanInfoChanged = 106,
     };

@@ -46,7 +46,11 @@ ContactBridge::~ContactBridge()
     elastos::ErrCode::SetErrorListener(nullptr);
 }
 
+#ifdef WITH_CROSSPL
 void ContactBridge::setListener(CrossBase* listener)
+#else
+void ContactBridge::setListener(ContactListener* listener)
+#endif // WITH_CROSSPL
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
 
@@ -64,7 +68,11 @@ void ContactBridge::setListener(CrossBase* listener)
     return;
 }
 
+#ifdef WITH_CROSSPL
 void ContactBridge::setDataListener(CrossBase* listener)
+#else
+void ContactBridge::setDataListener(ContactDataListener* listener)
+#endif // WITH_CROSSPL
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
 

@@ -11,52 +11,70 @@
 #ifndef _ELASTOS_SDK_CONTACT_HPP_
 #define _ELASTOS_SDK_CONTACT_HPP_
 
-#include <sstream>
-
-#include <ContactListener.hpp>
-#include <ContactDataListener.hpp>
-#include "CrossBase.hpp"
 #include <Elastos.SDK.Contact.hpp>
+#include <ContactBridge.hpp>
+#include <ContactDataListener.hpp>
+#include <ContactFactory.hpp>
+#include <ContactListener.hpp>
+#include <ContactMessage.hpp>
+#include <memory>
 
-#ifdef WITH_CROSSPL
-namespace crosspl {
-namespace native {
-#endif // WITH_CROSSPL
 
-class ContactBridge {
+class ElaphantContact : public ContactBridge {
 public:
     /*** type define ***/
+    class Factory final: public ContactFactory {
+       public:
+        static std::shared_ptr<ElaphantContact> Create() {
+            struct Impl : ElaphantContact {
+            };
+
+            return std::make_shared<Impl>();
+        }
+
+        // void SetDeviceId(const std::string& devId) {
+        //     ContactFactory.SetDeviceId(devId);
+        //     // UserInfo.SetCurrDevId(devId);
+        // }
+
+        private:
+         explicit Factory() = default;
+         virtual ~Factory() = default;
+    }; // class Factory
+
+    class Listener: public ContactListener {
+    }; // class Listener
+
+    class DataListener: public ContactDataListener {
+    }; // class DataListener
+
+    using UserInfo = elastos::UserInfo;
+
+    class Message: public ContactMessage {
+        // public Message(String text, String cryptoAlgorithm) {
+        //     super(text, cryptoAlgorithm);
+        // }
+
+        // public Message(byte[] binary, String cryptoAlgorithm) {
+        //     super(binary, cryptoAlgorithm);
+        // }
+
+        // public Message(File file, String cryptoAlgorithm) {
+        //     super(file, cryptoAlgorithm);
+        // }
+
+        // public Message(Type type, byte[] data, String cryptoAlgorithm) {
+        //     super(type, data, cryptoAlgorithm);
+        // }
+
+    }; // class Message
+
 
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    explicit ContactBridge();
-    virtual ~ContactBridge();
+    std::shared_ptr<ElaphantContact::UserInfo> getUserInfo();
 
-    void setListener(CrossBase* listener);
-    void setDataListener(CrossBase* listener);
-    int start();
-    int stop();
-
-    int setUserInfo(int item, const char* value);
-    int setIdentifyCode(int type, const char* value);
-
-    int getHumanInfo(const char* humanCode, std::stringstream* info);
-    int getHumanStatus(const char* humanCode);
-
-    int addFriend(const char* friendCode, const char* summary);
-    int removeFriend(const char* friendCode);
-    int acceptFriend(const char* friendCode);
-    int getFriendList(std::stringstream* info);
-
-    int sendMessage(const char* friendCode, int chType, CrossBase* message);
-    int pullData(const char* humanCode, int chType, const char* devId, const char* dataId);
-    int cancelPullData(const char* humanCode, int chType, const char* devId, const char* dataId);
-
-    int syncInfoDownloadFromDidChain();
-    int syncInfoUploadToDidChain();
-
-    int setWalletAddress(const char* name, const char* value);
 
 private:
     /*** type define ***/
@@ -64,9 +82,9 @@ private:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    std::shared_ptr<elastos::Contact> mContactImpl;
-    ContactListener* mListener;
-    ContactDataListener* mDataListener;
+    explicit ElaphantContact() = default;
+    virtual ~ElaphantContact() = default;
+
 
 }; // class Contact
 

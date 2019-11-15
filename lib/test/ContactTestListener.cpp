@@ -42,7 +42,7 @@ void ContactTestListener::onFriendRequest(std::shared_ptr<elastos::FriendInfo> f
     std::cout << __PRETTY_FUNCTION__ << " summary:" << summary << std::endl;
 
     std::string errMsg;
-    ContactTestCmd::Do(mContact, "print-info", errMsg);
+    ContactTestCmd::Do("print-info", errMsg);
 
     std::weak_ptr<elastos::FriendManager> friendMgr = mContact->getFriendManager();
     int ret = friendMgr.lock()->acceptFriend(friendInfo);
@@ -51,7 +51,7 @@ void ContactTestListener::onFriendRequest(std::shared_ptr<elastos::FriendInfo> f
         return;
     }
 
-    ContactTestCmd::Do(mContact, "print-info", errMsg);
+    ContactTestCmd::Do("print-info", errMsg);
 }
 
 void ContactTestListener::onFriendStatusChanged(std::shared_ptr<elastos::FriendInfo> friendInfo,
