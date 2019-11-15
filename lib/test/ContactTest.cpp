@@ -100,13 +100,13 @@ int ContactTest::testNewContact()
         }
         virtual void onReceivedMessage(const std::string& humanCode,
                                        ContactChannel channelType,
-                                       std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo) override {
-            auto msg = std::string("onRcvdMsg(): data=") /*+ std::to_string(&message.data)*/ + "\n";
-            msg += "onRcvdMsg(): type=" + std::to_string(static_cast<int>(msgInfo->mType)) + "\n";
-            msg += "onRcvdMsg(): crypto=" + msgInfo->mCryptoAlgorithm + "\n";
+                                       std::shared_ptr<ElaphantContact::Message> msgInfo) override {
+            auto msg = std::string("onRcvdMsg(): data=") + msgInfo->data->toString() + "\n";
+            msg += "onRcvdMsg(): type=" + std::to_string(static_cast<int>(msgInfo->type)) + "\n";
+            msg += "onRcvdMsg(): crypto=" + msgInfo->cryptoAlgorithm + "\n";
             ShowEvent(msg);
 
-            if (msgInfo->mType == ElaphantContact::Message::Type::MsgFile) {
+            if (msgInfo->type == ElaphantContact::Message::Type::MsgFile) {
                 //             mContactRecvFileMap.put(humanCode, (Contact.Message.FileData)message.data);
             }
         }
@@ -122,14 +122,14 @@ int ContactTest::testNewContact()
 
     class DataListener: public ElaphantContact::DataListener {
         virtual void onNotify(const std::string& humanCode,
-                              ContactListener::ContactChannel channelType,
+                              ContactChannel channelType,
                               const std::string& dataId, int status) override {
             std::string msg = "onNotify(): dataId=" + dataId
                             + ", status=" + std::to_string(status) + "\n";
             ShowEvent(msg);
         }
         virtual int onReadData(const std::string& humanCode,
-                               ContactListener::ContactChannel channelType,
+                               ContactChannel channelType,
                                const std::string& dataId, uint64_t offset,
                                std::vector<uint8_t>& data) override {
             std::string msg = "onReadData(): dataId=" + dataId
@@ -137,7 +137,7 @@ int ContactTest::testNewContact()
             ShowEvent(msg);
         }
         virtual int onWriteData(const std::string& humanCode,
-                                ContactListener::ContactChannel channelType,
+                                ContactChannel channelType,
                                 const std::string& dataId, uint64_t offset,
                                 const std::vector<uint8_t>& data) override {
             std::string msg = "onWriteData(): dataId=" + dataId
@@ -229,6 +229,26 @@ int ContactTest::doAcceptFriend(const std::string& friendCode)
 
     auto ret = mContact->acceptFriend(friendCode);
     CHECK_ERROR(ret);
+
+    Log::V(Log::TAG, "Success to accept friend: %s", friendCode.c_str());
+
+    return 0;
+}
+
+int ContactTest::doSendMessage(const std::string& friendCode, const std::string& text)
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    auto msgInfo = ElaphantContact::MakeTextMessage(text, "");
+    if(msgInfo == nullptr) {
+        ShowError("Failed to make text message.");
+        return -1;
+    }
+
+    auto ret = mContact->sendMessage(friendCode, ContactChannel::Carrier, msgInfo);
 
     Log::V(Log::TAG, "Success to accept friend: %s", friendCode.c_str());
 

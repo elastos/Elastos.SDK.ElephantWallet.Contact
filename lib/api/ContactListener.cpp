@@ -239,7 +239,7 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
 #ifdef WITH_CROSSPL
             std::span<uint8_t> data {reinterpret_cast<uint8_t*>(const_cast<char*>(summary.c_str())),
                                      summary.length() };
-            sContactListenerInstance->onEvent(EventType::FriendReuqest, humanCode,
+            sContactListenerInstance->onEvent(EventType::FriendRequest, humanCode,
                                               static_cast<ContactChannel>(channelType), &data);
 #else
             auto event = RequestEvent{EventType::FriendRequest, humanCode,

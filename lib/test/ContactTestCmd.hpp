@@ -57,6 +57,8 @@ private:
     static int AcceptFriend(const std::vector<std::string>& args,
                             std::string& errMsg);
 
+    static int SendTextMessage(const std::vector<std::string>& args,
+                               std::string& errMsg);
 
     static int NewAndSaveMnemonic(const std::vector<std::string>& args,
                                   std::string& errMsg);

@@ -5,9 +5,12 @@
 //  Copyright © 2016 mengxk. All rights reserved.
 //
 
+#ifndef WITH_CROSSPL
+
 #include <Contact.hpp>
 
 #include <SafePtr.hpp>
+#include <JsonDefine.hpp>
 
 /***********************************************/
 /***** static variables initialize *************/
@@ -37,6 +40,57 @@ std::shared_ptr<ElaphantContact::UserInfo> ElaphantContact::getUserInfo()
     return userInfo;
 }
 
+int ElaphantContact::sendMessage(const std::string& friendCode, ContactChannel chType, std::shared_ptr<Message> message)
+{
+    auto str = message->data->toString();
+    std::span<uint8_t> data(reinterpret_cast<uint8_t*>(str.data()), str.size());
+    auto ret = message->syncMessageToNative(static_cast<int>(message->type), &data,
+                                            message->cryptoAlgorithm.c_str(),
+                                            message->timestamp);
+    CHECK_ERROR(ret);
+
+    ret = ContactBridge::sendMessage(friendCode.c_str(), static_cast<int>(chType), message.get());
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+ElaphantContact::Message::Message(Type type, const std::vector<uint8_t>& data, std::string cryptoAlgorithm, int64_t timestamp)
+        : type(type)
+        , data()
+        , cryptoAlgorithm(cryptoAlgorithm)
+        , timestamp(timestamp)
+{
+    auto msgData = std::string(data.begin(), data.end());
+    auto jsonInfo = elastos::Json::parse(msgData);
+    switch (type) {
+        case Type::MsgText:
+            this->data = std::make_shared<TextData>(jsonInfo[elastos::JsonKey::Text]);
+            break;
+        case Type::MsgBinary:
+            this->data = std::make_shared<BinaryData>(jsonInfo[elastos::JsonKey::Binary]);
+            break;
+        default:
+            Log::E(Log::TAG, "Unprocessed Message Type");
+            break;
+    }
+}
+
+std::string ElaphantContact::Message::TextData::toString()
+{
+    auto jsonInfo = elastos::Json::object();
+    jsonInfo[elastos::JsonKey::Text] = text;
+    return jsonInfo.dump();
+}
+
+std::string ElaphantContact::Message::BinaryData::toString()
+{
+    auto jsonInfo = elastos::Json::object();
+    jsonInfo[elastos::JsonKey::Binary] = binary;
+    return jsonInfo.dump();
+}
+
+
 /***********************************************/
 /***** class protected function implement  *****/
 /***********************************************/
@@ -45,3 +99,5 @@ std::shared_ptr<ElaphantContact::UserInfo> ElaphantContact::getUserInfo()
 /***********************************************/
 /***** class private function implement  *******/
 /***********************************************/
+
+#endif // WITH_CROSSPL

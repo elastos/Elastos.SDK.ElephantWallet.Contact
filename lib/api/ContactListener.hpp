@@ -15,6 +15,7 @@
 
 #include "CrossBase.hpp"
 #include <Elastos.SDK.Contact.hpp>
+#include <ContactChannel.hpp>
 #include "experimental-span.hpp"
 
 #ifdef WITH_CROSSPL
@@ -41,12 +42,6 @@ public:
         FriendRequest = 104,
 //        FriendStatusChanged = 105,
         HumanInfoChanged = 106,
-    };
-
-    enum class ContactChannel: int { //TODO: Same as elastos::MessageManager::ChannelType, need merge to one.
-        Carrier = 1,
-        ElaChain = 2,
-        Email = 3,
     };
 
     class AcquireArgs {

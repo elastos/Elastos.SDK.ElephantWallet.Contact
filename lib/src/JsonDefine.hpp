@@ -53,6 +53,7 @@ struct JsonKey {
     static constexpr const char* TimeStamp       = "TimeStamp";
 
     static constexpr const char* Text            = "Text";
+    static constexpr const char* Binary          = "Binary";
     static constexpr const char* Name            = "Name";
     static constexpr const char* Size            = "Size";
     static constexpr const char* Md5             = "Md5";

@@ -31,6 +31,7 @@ public:
     int showGetUserInfo();
 
     int doAcceptFriend(const std::string& friendCode);
+    int doSendMessage(const std::string& friendCode, const std::string& text);
 
    private:
     /*** type define ***/

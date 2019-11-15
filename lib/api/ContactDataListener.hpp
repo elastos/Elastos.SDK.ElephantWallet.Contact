@@ -33,19 +33,19 @@ public:
     virtual ~ContactDataListener();
 
 #ifdef WITH_CROSSPL
-    void onNotify(const std::string& humanCode, ContactListener::ContactChannel channelType,
+    void onNotify(const std::string& humanCode, ContactChannel channelType,
                   const std::string& dataId, int status);
-    std::shared_ptr<std::span<uint8_t>> onReadData(const std::string& humanCode, ContactListener::ContactChannel channelType,
+    std::shared_ptr<std::span<uint8_t>> onReadData(const std::string& humanCode, ContactChannel channelType,
                                                    const std::string& dataId, uint64_t offset);
-    int onWriteData(const std::string& humanCode, ContactListener::ContactChannel channelType,
+    int onWriteData(const std::string& humanCode, ContactChannel channelType,
                     const std::string& dataId, uint64_t offset, const std::span<uint8_t>* data);
 #else
-    virtual void onNotify(const std::string& humanCode, ContactListener::ContactChannel channelType,
+    virtual void onNotify(const std::string& humanCode, ContactChannel channelType,
                           const std::string& dataId, int status) = 0;
-    virtual int onReadData(const std::string& humanCode, ContactListener::ContactChannel channelType,
+    virtual int onReadData(const std::string& humanCode, ContactChannel channelType,
                            const std::string& dataId, uint64_t offset,
                            std::vector<uint8_t>& data) = 0;
-    virtual int onWriteData(const std::string& humanCode, ContactListener::ContactChannel channelType,
+    virtual int onWriteData(const std::string& humanCode, ContactChannel channelType,
                             const std::string& dataId, uint64_t offset,
                             const std::vector<uint8_t>& data) = 0;
 #endif // WITH_CROSSPL

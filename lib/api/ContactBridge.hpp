@@ -21,7 +21,6 @@
 #ifdef WITH_CROSSPL
 namespace crosspl {
 namespace native {
-};
 #endif // WITH_CROSSPL
 
 class ContactBridge {
