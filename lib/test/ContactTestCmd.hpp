@@ -59,6 +59,8 @@ private:
 
     static int SendTextMessage(const std::vector<std::string>& args,
                                std::string& errMsg);
+    static int SendBinaryMessage(const std::vector<std::string>& args,
+                                 std::string& errMsg);
 
     static int NewAndSaveMnemonic(const std::vector<std::string>& args,
                                   std::string& errMsg);

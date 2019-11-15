@@ -250,7 +250,27 @@ int ContactTest::doSendMessage(const std::string& friendCode, const std::string&
 
     auto ret = mContact->sendMessage(friendCode, ContactChannel::Carrier, msgInfo);
 
-    Log::V(Log::TAG, "Success to accept friend: %s", friendCode.c_str());
+    Log::V(Log::TAG, "Success send text to friend: %s", friendCode.c_str());
+
+    return 0;
+}
+
+int ContactTest::doSendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary)
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    auto msgInfo = ElaphantContact::MakeBinaryMessage(binary, "");
+    if(msgInfo == nullptr) {
+        ShowError("Failed to make binary message.");
+        return -1;
+    }
+
+    auto ret = mContact->sendMessage(friendCode, ContactChannel::Carrier, msgInfo);
+
+    Log::V(Log::TAG, "Success send binary to friend: %s", friendCode.c_str());
 
     return 0;
 }

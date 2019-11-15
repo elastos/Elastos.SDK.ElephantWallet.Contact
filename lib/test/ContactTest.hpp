@@ -32,6 +32,7 @@ public:
 
     int doAcceptFriend(const std::string& friendCode);
     int doSendMessage(const std::string& friendCode, const std::string& text);
+    int doSendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary);
 
    private:
     /*** type define ***/
