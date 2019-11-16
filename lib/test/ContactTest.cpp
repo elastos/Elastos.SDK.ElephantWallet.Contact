@@ -243,7 +243,7 @@ int ContactTest::doSendMessage(const std::string& friendCode, const std::string&
         return -1;
     }
 
-    auto msgInfo = ElaphantContact::MakeTextMessage(text, "");
+    auto msgInfo = ElaphantContact::MakeTextMessage(text);
     if(msgInfo == nullptr) {
         ShowError("Failed to make text message.");
         return -1;
@@ -263,7 +263,27 @@ int ContactTest::doSendMessage(const std::string& friendCode, const std::vector<
         return -1;
     }
 
-    auto msgInfo = ElaphantContact::MakeBinaryMessage(binary, "");
+    auto msgInfo = ElaphantContact::MakeBinaryMessage(binary);
+    if(msgInfo == nullptr) {
+        ShowError("Failed to make binary message.");
+        return -1;
+    }
+
+    auto ret = mContact->sendMessage(friendCode, ContactChannel::Carrier, msgInfo);
+
+    Log::V(Log::TAG, "Success send binary to friend: %s", friendCode.c_str());
+
+    return 0;
+}
+
+int ContactTest::doSendMessage(const std::string& friendCode, const std::filesystem::path& file)
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    auto msgInfo = ElaphantContact::MakeFileMessage(file.string());
     if(msgInfo == nullptr) {
         ShowError("Failed to make binary message.");
         return -1;

@@ -60,6 +60,7 @@ public:
             explicit TextData(const std::string& text)
                     : text(text) {
             }
+            explicit TextData() = default;
             virtual ~TextData() = default;
             virtual std::string toString() override;
             virtual std::vector<uint8_t> toData() override;
@@ -73,6 +74,7 @@ public:
             explicit BinaryData(const std::vector<uint8_t>& binary)
                     : binary(std::move(binary)) {
             }
+            explicit BinaryData() = default;
             virtual ~BinaryData() = default;
             virtual std::string toString() override;
             virtual std::vector<uint8_t> toData() override;
@@ -81,15 +83,8 @@ public:
             std::vector<uint8_t> binary;
         };
 
-//        class FileData: public MsgData {
-//        public:
-//            explicit FileData(std::fstream& file) {
-////                devId = Platform::GetCurrDevId();
-////                name = file.getName();
-//                size = file.tellg();
-////                md5 = Utils.getMD5Sum(file);
-//            }
-//
+        class FileData: public MsgData {
+        public:
 //            // fix json decode and encode different issue
 //            static std::string ConvertId(const std::string& id) {
 ////                FileData fileData = new Gson().fromJson(id, FileData.class);
@@ -100,17 +95,18 @@ public:
 //                return fileData.toString();
 //            }
 //
-//        virtual std::string toString() override {
-//        auto jsonInfo = elastos::Json::object();
-//            jsonInfo[JsonKey::Text] = text;
-//            return jsonInfo->dump(2);
-//        }
-//
-//            const std::string devId;
-//            const std::string name;
-//            const int64_t size;
-//            const std::string md5;
-//        };
+            explicit FileData(const std::string& filepath);
+            explicit FileData() = default;
+            virtual ~FileData() = default;
+            virtual std::string toString() override;
+            virtual std::vector<uint8_t> toData() override;
+            virtual void fromData(const std::vector<uint8_t>& data) override;
+
+            std::string devId;
+            std::string name;
+            int64_t size;
+            std::string md5;
+        };
 
         explicit Message(Type type, std::shared_ptr<MsgData> data, const std::string& cryptoAlgorithm)
                 : type(type)
@@ -148,24 +144,24 @@ public:
     }; // class DataListener
 
     /*** static function and variable ***/
-    static std::shared_ptr<Message> MakeTextMessage(const std::string& text, const std::string& cryptoAlgorithm) {
+    static std::shared_ptr<Message> MakeTextMessage(const std::string& text, const std::string& cryptoAlgorithm = "") {
         auto data = std::make_shared<Message::TextData>(text);
         auto msg = std::make_shared<Message>(Message::Type::MsgText, data, cryptoAlgorithm);
         return msg;
     }
 
-    static std::shared_ptr<Message> MakeBinaryMessage(const std::vector<uint8_t>& binary, const std::string& cryptoAlgorithm) {
+    static std::shared_ptr<Message> MakeBinaryMessage(const std::vector<uint8_t>& binary, const std::string& cryptoAlgorithm = "") {
         auto data = std::make_shared<Message::BinaryData>(binary);
         auto msg = std::make_shared<Message>(Message::Type::MsgBinary, data, cryptoAlgorithm);
         return msg;
     }
 
-//    static std::shared_ptr<Message> MakeFileMessage(std::fstream& file, const std::string& cryptoAlgorithm) {
-//        auto data = std::shared_ptr<FileData>(file);
-//        auto msg = std::make_shared<Message>(MsgFile, data, cryptoAlgorithm);
-//        return msg;
-//    }
-//
+    static std::shared_ptr<Message> MakeFileMessage(const std::string& filepath, const std::string& cryptoAlgorithm = "") {
+        auto data = std::make_shared<Message::FileData>(filepath);
+        auto msg = std::make_shared<Message>(Message::Type::MsgFile, data, cryptoAlgorithm);
+        return msg;
+    }
+
     /*** class function and variable ***/
     std::shared_ptr<ElaphantContact::UserInfo> getUserInfo();
     int sendMessage(const std::string& friendCode, ContactChannel chType, std::shared_ptr<Message> message);

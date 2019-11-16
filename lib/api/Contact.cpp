@@ -11,6 +11,9 @@
 
 #include <SafePtr.hpp>
 #include <JsonDefine.hpp>
+#include <CompatibleFileSystem.hpp>
+#include <Platform.hpp>
+#include <MD5.hpp>
 
 /***********************************************/
 /***** static variables initialize *************/
@@ -63,14 +66,20 @@ ElaphantContact::Message::Message(Type type, const std::vector<uint8_t>& data, s
 {
     switch (type) {
         case Type::MsgText:
-            this->data = std::make_shared<TextData>(std::string(data.begin(), data.end()));
+            this->data = std::make_shared<TextData>();
             break;
         case Type::MsgBinary:
-            this->data = std::make_shared<BinaryData>(data);
+            this->data = std::make_shared<BinaryData>();
+            break;
+        case Type::MsgFile:
+            this->data = std::make_shared<FileData>();
             break;
         default:
             Log::E(Log::TAG, "Unprocessed Message Type");
             break;
+    }
+    if(this->data != nullptr) {
+        this->data->fromData(data);
     }
 }
 
@@ -102,6 +111,40 @@ void ElaphantContact::Message::BinaryData::fromData(const std::vector<uint8_t>& 
 {
     this->binary = data;
 }
+
+ElaphantContact::Message::FileData::FileData(const std::string& filepath)
+{
+    elastos::Platform::GetCurrentDevId(this->devId);
+    auto file = elastos::filesystem::path(filepath);
+    this->name = file.filename();
+    this->size = elastos::filesystem::file_size(file);
+    this->md5 = elastos::MD5::Get(file);
+}
+
+std::string ElaphantContact::Message::FileData::toString()
+{
+    auto jsonInfo = elastos::Json::object();
+    jsonInfo[elastos::JsonKey::DeviceId] = this-> devId;
+    jsonInfo[elastos::JsonKey::Name] = this-> name;
+    jsonInfo[elastos::JsonKey::Size] = this-> size;
+    jsonInfo[elastos::JsonKey::Md5] = this-> md5;
+    return jsonInfo.dump();
+}
+
+std::vector<uint8_t> ElaphantContact::Message::FileData::toData()
+{
+    auto dataId = toString();
+    return std::vector<uint8_t>(dataId.begin(), dataId.end());
+}
+void ElaphantContact::Message::FileData::fromData(const std::vector<uint8_t>& data)
+{
+    auto jsonInfo = elastos::Json::parse(data);
+    this-> devId = jsonInfo[elastos::JsonKey::DeviceId];
+    this-> name = jsonInfo[elastos::JsonKey::Name];
+    this-> size = jsonInfo[elastos::JsonKey::Size];
+    this-> md5 = jsonInfo[elastos::JsonKey::Md5];
+}
+
 
 /***********************************************/
 /***** class protected function implement  *****/

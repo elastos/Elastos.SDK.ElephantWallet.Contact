@@ -661,7 +661,7 @@ int DidChnClient::clearDidPropCache(bool refreshUpdateTime)
 int DidChnClient::loadLocalData()
 {
     auto config = SAFE_GET_PTR(mConfig);
-    auto dataFilePath = elastos::filesystem::path(config->mUserDataDir.c_str()) / DataFileName;
+    auto dataFilePath = elastos::filesystem::path(config->mUserDataDir) / DataFileName;
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData;
@@ -686,7 +686,7 @@ int DidChnClient::loadLocalData()
 int DidChnClient::saveLocalData()
 {
     auto config = SAFE_GET_PTR(mConfig);
-    auto dataFilePath = elastos::filesystem::path(config->mUserDataDir.c_str()) / DataFileName;
+    auto dataFilePath = elastos::filesystem::path(config->mUserDataDir) / DataFileName;
 
     std::string cacheData;
     try {

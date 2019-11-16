@@ -60,12 +60,12 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
 
     { '-', "",              nullptr,                             "\n Friend" },
     { 'g', "get-finfo",     ContactTestCmd::Unimplemention,      "\tGet Friend Info" },
-    { 'f', "accept-frd",    ContactTestCmd::AcceptFriend,        "\tAccept Friend" },
+    { 'e', "accept-frd",    ContactTestCmd::AcceptFriend,        "\tAccept Friend" },
     { 'a', "add-frd",       ContactTestCmd::Unimplemention,      "\t\tAdd Friend" },
     { ' ', "del-frd",       ContactTestCmd::Unimplemention,      "\t\tDel Friend" },
     { 't', "send-tmsg",     ContactTestCmd::SendTextMessage,     "\tSend Text Message" },
     { 'b', "send-bmsg",     ContactTestCmd::SendBinaryMessage,   "\tSend Binary Message" },
-    { 'f', "send-fmsg",     ContactTestCmd::Unimplemention,      "\tSend File Message" },
+    { 'f', "send-fmsg",     ContactTestCmd::SendFileMessage,     "\tSend File Message" },
     { 'p', "pull-file",     ContactTestCmd::Unimplemention,      "\tPull File" },
     { ' ', "cancel-pfile",  ContactTestCmd::Unimplemention,      "\tCancel Pull File" },
 
@@ -300,6 +300,19 @@ int ContactTestCmd::SendBinaryMessage(const std::vector<std::string>& args,
 
     std::vector<uint8_t> data = {255, 1, 0, 1, 255};
     auto ret = ContactTest::GetInstance()->doSendMessage(args[1], data);
+    return ret;
+}
+
+int ContactTestCmd::SendFileMessage(const std::vector<std::string>& args,
+                                    std::string& errMsg)
+{
+    if(args.size() < 3) {
+        errMsg = "Bad input count: " + std::to_string(args.size());
+        return -1;
+    }
+
+    auto file = std::filesystem::path(args[2]);
+    auto ret = ContactTest::GetInstance()->doSendMessage(args[1], file);
     return ret;
 }
 

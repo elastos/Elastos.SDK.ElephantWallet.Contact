@@ -13,6 +13,7 @@
 
 #include <string>
 #include <vector>
+#include <CompatibleFileSystem.hpp>
 
 namespace elastos {
 
@@ -24,6 +25,7 @@ public:
     /*** static function and variable ***/
     static std::string Get(const std::vector<uint8_t>& data);
     static std::string Get(const std::string& data);
+    static std::string Get(const elastos::filesystem::path& datapath);
 
     static std::string MakeHexString(const std::vector<uint8_t>& data);
 

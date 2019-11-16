@@ -54,6 +54,8 @@ public class ContactMessage extends CrossBase {
     }
 
     public static class TextData extends MsgData {
+        public TextData() {
+        }
         public TextData(String text) {
             this.text = text;
         }
@@ -75,6 +77,8 @@ public class ContactMessage extends CrossBase {
     }
 
     public static class BinaryData extends MsgData {
+        public BinaryData() {
+        }
         public BinaryData(byte[] binary) {
             this.binary = binary;
         }
@@ -97,6 +101,8 @@ public class ContactMessage extends CrossBase {
     }
 
     public static class FileData extends MsgData {
+        public FileData() {
+        }
         public FileData(File file) {
             devId = UserInfo.GetCurrDevId();
             name = file.getName();
@@ -123,7 +129,7 @@ public class ContactMessage extends CrossBase {
         public void fromData(byte[] data) {
             JsonElement element = new JsonParser().parse(new String(data));
             JsonObject json = element.getAsJsonObject();
-            this.devId = json.get(JsonKey.DeviceName).getAsString();
+            this.devId = json.get(JsonKey.DeviceId).getAsString();
             this.name = json.get(JsonKey.Name).getAsString();
             this.size = json.get(JsonKey.Size).getAsLong();
             this.md5 = json.get(JsonKey.Md5).getAsString();
@@ -174,13 +180,13 @@ public class ContactMessage extends CrossBase {
         if(data != null) {
             switch (type) {
                 case MsgText:
-                    this.data = new TextData(null);
+                    this.data = new TextData();
                     break;
                 case MsgBinary:
-                    this.data = new BinaryData(null);
+                    this.data = new BinaryData();
                     break;
                 case MsgFile:
-                    this.data = new FileData(null);
+                    this.data = new FileData();
                     break;
                 default:
                     Log.w(Contact.TAG, "Unknown Message Type: " + type);

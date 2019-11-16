@@ -6,6 +6,7 @@
 #include <string>
 #include <thread>
 #include <vector>
+//#include <CompatibleFileSystem.hpp>
 
 class ContactTestCmd {
 public:
@@ -61,6 +62,8 @@ private:
                                std::string& errMsg);
     static int SendBinaryMessage(const std::vector<std::string>& args,
                                  std::string& errMsg);
+    static int SendFileMessage(const std::vector<std::string>& args,
+                               std::string& errMsg);
 
     static int NewAndSaveMnemonic(const std::vector<std::string>& args,
                                   std::string& errMsg);
