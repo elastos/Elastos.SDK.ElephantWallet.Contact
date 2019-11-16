@@ -3,5 +3,5 @@ rootProject.name = 'Elastos.SDK.Contact'
 include ':crosspl:anno'
 include ':crosspl:lib'
 
-include ':lib'
+include ':sdk'
 include ':test'
