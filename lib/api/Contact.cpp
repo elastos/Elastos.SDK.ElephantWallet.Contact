@@ -42,8 +42,8 @@ std::shared_ptr<ElaphantContact::UserInfo> ElaphantContact::getUserInfo()
 
 int ElaphantContact::sendMessage(const std::string& friendCode, ContactChannel chType, std::shared_ptr<Message> message)
 {
-    auto str = message->data->toString();
-    std::span<uint8_t> data(reinterpret_cast<uint8_t*>(str.data()), str.size());
+    auto dataInfo = message->data->toData();
+    std::span<uint8_t> data(dataInfo.data(), dataInfo.size());
     auto ret = message->syncMessageToNative(static_cast<int>(message->type), &data,
                                             message->cryptoAlgorithm.c_str(),
                                             message->timestamp);
@@ -63,7 +63,7 @@ ElaphantContact::Message::Message(Type type, const std::vector<uint8_t>& data, s
 {
     switch (type) {
         case Type::MsgText:
-            this->data = std::make_shared<TextData>(data.begin(), data.end());
+            this->data = std::make_shared<TextData>(std::string(data.begin(), data.end()));
             break;
         case Type::MsgBinary:
             this->data = std::make_shared<BinaryData>(data);
@@ -76,18 +76,32 @@ ElaphantContact::Message::Message(Type type, const std::vector<uint8_t>& data, s
 
 std::string ElaphantContact::Message::TextData::toString()
 {
-    auto jsonInfo = elastos::Json::object();
-    jsonInfo[elastos::JsonKey::Text] = text;
-    return jsonInfo.dump();
+    return this->text;
+}
+
+std::vector<uint8_t> ElaphantContact::Message::TextData::toData()
+{
+    return std::vector<uint8_t>(this->text.begin(), this->text.end());
+}
+void ElaphantContact::Message::TextData::fromData(const std::vector<uint8_t>& data)
+{
+    this->text = std::string(data.begin(), data.end());
 }
 
 std::string ElaphantContact::Message::BinaryData::toString()
 {
-    auto jsonInfo = elastos::Json::object();
-    jsonInfo[elastos::JsonKey::Binary] = binary;
+    auto jsonInfo = elastos::Json(this->binary);
     return jsonInfo.dump();
 }
 
+std::vector<uint8_t> ElaphantContact::Message::BinaryData::toData()
+{
+    return this->binary;
+}
+void ElaphantContact::Message::BinaryData::fromData(const std::vector<uint8_t>& data)
+{
+    this->binary = data;
+}
 
 /***********************************************/
 /***** class protected function implement  *****/

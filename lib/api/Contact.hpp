@@ -51,6 +51,8 @@ public:
         class MsgData {
         public:
             virtual std::string toString() = 0;
+            virtual std::vector<uint8_t> toData() = 0;
+            virtual void fromData(const std::vector<uint8_t>& data) = 0;
         };
 
         class TextData: public  MsgData {
@@ -60,8 +62,10 @@ public:
             }
             virtual ~TextData() = default;
             virtual std::string toString() override;
+            virtual std::vector<uint8_t> toData() override;
+            virtual void fromData(const std::vector<uint8_t>& data) override;
 
-            const std::string text;
+            std::string text;
         };
 
         class BinaryData: public MsgData {
@@ -71,8 +75,10 @@ public:
             }
             virtual ~BinaryData() = default;
             virtual std::string toString() override;
+            virtual std::vector<uint8_t> toData() override;
+            virtual void fromData(const std::vector<uint8_t>& data) override;
 
-            const std::vector<uint8_t> binary;
+            std::vector<uint8_t> binary;
         };
 
 //        class FileData: public MsgData {

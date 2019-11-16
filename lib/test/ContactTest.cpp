@@ -101,7 +101,8 @@ int ContactTest::testNewContact()
         virtual void onReceivedMessage(const std::string& humanCode,
                                        ContactChannel channelType,
                                        std::shared_ptr<ElaphantContact::Message> msgInfo) override {
-            auto msg = std::string("onRcvdMsg(): data=") + msgInfo->data->toString() + "\n";
+            auto msg = std::string("onRcvdMsg(): humanCode=") + humanCode.c_str() + "\n";
+            msg += "onRcvdMsg(): data=" + msgInfo->data->toString() + "\n";
             msg += "onRcvdMsg(): type=" + std::to_string(static_cast<int>(msgInfo->type)) + "\n";
             msg += "onRcvdMsg(): crypto=" + msgInfo->cryptoAlgorithm + "\n";
             ShowEvent(msg);

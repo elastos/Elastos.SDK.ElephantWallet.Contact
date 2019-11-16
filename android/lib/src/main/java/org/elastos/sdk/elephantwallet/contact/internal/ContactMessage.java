@@ -58,9 +58,15 @@ public class ContactMessage extends CrossBase {
             this.text = text;
         }
 
+        @Override
+        public String toString() {
+            return text;
+        }
+        @Override
         public byte[] toData() {
             return text.getBytes();
         }
+        @Override
         public void fromData(byte[] data) {
             text = new String(data);
         }
@@ -73,9 +79,16 @@ public class ContactMessage extends CrossBase {
             this.binary = binary;
         }
 
+        @Override
+        public String toString() {
+            String str = new Gson().toJson(binary);
+            return str;
+        }
+        @Override
         public byte[] toData() {
             return binary;
         }
+        @Override
         public void fromData(byte[] data) {
             binary = data;
         }
@@ -91,6 +104,12 @@ public class ContactMessage extends CrossBase {
             md5 = Utils.getMD5Sum(file);
         }
 
+        @Override
+        public String toString() {
+            byte[] data = toData();
+            return new String(data);
+        }
+        @Override
         public byte[] toData() {
             JsonObject json = new JsonObject();
             json.addProperty(JsonKey.DeviceId, this.devId);
@@ -100,6 +119,7 @@ public class ContactMessage extends CrossBase {
 
             return json.toString().getBytes();
         }
+        @Override
         public void fromData(byte[] data) {
             JsonElement element = new JsonParser().parse(new String(data));
             JsonObject json = element.getAsJsonObject();

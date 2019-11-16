@@ -7,7 +7,7 @@
 
 #if defined(__APPLE__)
 #include "TargetConditionals.h"
-#if !defined(TARGET_OS_IOS)
+#if !(TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR)
 
 #include "PlatformDarwin.hpp"
 
