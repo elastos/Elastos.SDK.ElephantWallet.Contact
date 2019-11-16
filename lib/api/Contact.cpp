@@ -61,14 +61,12 @@ ElaphantContact::Message::Message(Type type, const std::vector<uint8_t>& data, s
         , cryptoAlgorithm(cryptoAlgorithm)
         , timestamp(timestamp)
 {
-    auto msgData = std::string(data.begin(), data.end());
-    auto jsonInfo = elastos::Json::parse(msgData);
     switch (type) {
         case Type::MsgText:
-            this->data = std::make_shared<TextData>(jsonInfo[elastos::JsonKey::Text]);
+            this->data = std::make_shared<TextData>(data.begin(), data.end());
             break;
         case Type::MsgBinary:
-            this->data = std::make_shared<BinaryData>(jsonInfo[elastos::JsonKey::Binary]);
+            this->data = std::make_shared<BinaryData>(data);
             break;
         default:
             Log::E(Log::TAG, "Unprocessed Message Type");

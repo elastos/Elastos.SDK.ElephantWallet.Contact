@@ -1,6 +1,10 @@
 file( GLOB Elastos.SDK.Contact-SOURCES "*.cpp" )
 file( GLOB Elastos.SDK.Contact-HEADERS "*.hpp" "../include/*.hpp" )
 
+if(("${CFG_TARGET_PLATFORM}" STREQUAL "Android") OR ("${CFG_TARGET_PLATFORM}" STREQUAL "iOS"))
+list(FILTER Elastos.SDK.Contact-SOURCES EXCLUDE REGEX "Contact.cpp")
+endif()
+
 add_library(Elastos.SDK.Contact)
 target_sources(Elastos.SDK.Contact PRIVATE
     ${Elastos.SDK.Contact-SOURCES})

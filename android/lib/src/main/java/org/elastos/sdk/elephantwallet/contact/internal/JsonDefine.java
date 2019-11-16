@@ -43,8 +43,8 @@ final class JsonKey {
     static final String CryptoAlgorithm = "CryptoAlgorithm";
     static final String TimeStamp       = "TimeStamp";
 
-    static final String Text            = "Text";
-    static final String Binary          = "Binary";
+//    static final String Text            = "Text";
+//    static final String Binary          = "Binary";
     static final String Name            = "Name";
     static final String Size            = "Size";
     static final String Md5             = "Md5";

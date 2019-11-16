@@ -15,7 +15,7 @@
 
 #include "CrossBase.hpp"
 #include <Elastos.SDK.Contact.hpp>
-#include <ContactChannel.hpp>
+#include "ContactChannel.hpp"
 #include "experimental-span.hpp"
 
 #ifdef WITH_CROSSPL

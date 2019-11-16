@@ -20,9 +20,11 @@ public class Utils {
     return digestData.map { String(format: "%02hhx", $0) }.joined()
   }
 
-  public static func getMD5Sum(file: URL) -> String? {
-    let bufferSize = 1024 * 1024
-    guard let file = try? FileHandle(forReadingFrom: file) else {
+  public static func getMD5Sum(file: URL?) -> String? {
+    guard file != nil else {
+      return nil
+    }
+    guard let file = try? FileHandle(forReadingFrom: file!) else {
       return nil
     }
     defer {
@@ -32,6 +34,7 @@ public class Utils {
     var context = CC_MD5_CTX()
     CC_MD5_Init(&context)
     
+    let bufferSize = 1024 * 1024
     while autoreleasepool(invoking: {
         let data = file.readData(ofLength: bufferSize)
         if data.count > 0 {

@@ -153,7 +153,7 @@ open class ContactBridge: CrossBase {
     }
     
     let ret = pullData(friendCode: friendCode, channelType: channelType.rawValue,
-                       dev: fileInfo.devId, dataId: fileInfo.toString())
+                       dev: fileInfo.devId!, dataId: fileInfo.toString())
 
     return ret;
   }
@@ -165,7 +165,7 @@ open class ContactBridge: CrossBase {
     }
     
     let ret = cancelPullData(friendCode: friendCode, channelType: channelType.rawValue,
-                             dev: fileInfo.devId, dataId: fileInfo.toString())
+                             dev: fileInfo.devId!, dataId: fileInfo.toString())
 
     return ret;
   }

@@ -9,76 +9,101 @@ open class ContactMessage: CrossBase {
     case MsgTransfer = 0x00000004
     case MsgImage    = 0x00000008
     case MsgFile     = 0x00000010
+    case MsgBinary   = 0x00000020
   }
   
-  public class MsgData: Codable {
+  public class MsgData {
     public func toString() -> String {
-      let encode = try! JSONEncoder().encode(self)
-      let val = String(data: encode, encoding: .utf8)!
-      return val
+      let data = toData()
+      return Data.ToString(from: data) ?? "nil"
     }
-    public func toData() -> Data {
-      return String.ToData(from: self.toString())!
+    public func toData() -> Data? {
+      fatalError("\(#function) not implementation.")
+    }
+    public func fromData(data: Data?) {
+      fatalError("\(#function) not implementation.")
     }
   }
 
   public class TextData: MsgData {
-    public init(text: String) {
+    public init(text: String?) {
       self.text = text;
       super.init()
     }
     
-    required init(from decoder: Decoder) throws {
-      let container = try decoder.container(keyedBy: CodingKeys.self)
-      text = try container.decode(String.self, forKey: .text)
-      try super.init(from: decoder)
+    public override func toData() -> Data? {
+      String.ToData(from: self.text)!
     }
     
-    override public func encode(to encoder: Encoder) throws {
-      var container = encoder.container(keyedBy: CodingKeys.self)
-      try container.encode(text, forKey: .text)
-      try super.encode(to: encoder)
+    public override func fromData(data: Data?) {
+      self.text = Data.ToString(from: data)
     }
     
     public private(set) var text: String?
-    
-    enum CodingKeys : String, CodingKey {
-      case text
-      var rawValue: String {
-        get {
-          switch self {
-            case .text: return JsonKey.Text
-          }
-        }
-      }
-    }
   }
-
-  public class FileData: MsgData {
-    public init(file: URL) {
-      devId = UserInfo.GetCurrDevId()!
-      name = file.lastPathComponent
-      size = try? FileManager.default.attributesOfItem(atPath: file.path)[FileAttributeKey.size] as? Int64
-      md5 = Utils.getMD5Sum(file: file)
+  
+  public class BinaryData: MsgData {
+    public init(data: Data?) {
+      self.data = data;
       super.init()
     }
     
-    required init(from decoder: Decoder) throws {
+    public override func toString() -> String {
+      let encode = try! JSONEncoder().encode(self.data)
+      let val = String(data: encode, encoding: .utf8)!
+      return val
+    }
+    
+    public override func toData() -> Data? {
+      return self.data
+    }
+    
+    public override func fromData(data: Data?) {
+      self.data = data
+    }
+    
+    public private(set) var data: Data?
+  }
+
+  public class FileData: MsgData, Codable {
+    public init(file: URL?) {
+      devId = UserInfo.GetCurrDevId()
+      if(file != nil) {
+        name = file?.lastPathComponent
+        let attr = try? FileManager.default.attributesOfItem(atPath: file!.path)
+        size = attr![FileAttributeKey.size] as? Int64
+        md5 = Utils.getMD5Sum(file: file)
+      }
+      super.init()
+    }
+    
+    public override func toData() -> Data? {
+      let json = try? JSONEncoder().encode(self)
+      return json
+    }
+    
+    public override func fromData(data: Data?) {
+      let newData = try? JSONDecoder().decode(FileData.self, from: data!)
+      self.devId = newData?.devId
+      self.name = newData?.name
+      self.size = newData?.size
+      self.md5 = newData?.md5
+     }
+    
+    public required init(from decoder: Decoder) throws {
       let container = try decoder.container(keyedBy: CodingKeys.self)
       devId = try container.decode(String.self, forKey: .devId)
       name = try container.decode(String.self, forKey: .name)
       size = try container.decode(Int64.self, forKey: .size)
       md5 = try container.decode(String.self, forKey: .md5)
-      try super.init(from: decoder)
     }
     
-    override public func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
       var container = encoder.container(keyedBy: CodingKeys.self)
       try container.encode(devId, forKey: .devId)
       try container.encode(name, forKey: .name)
       try container.encode(size, forKey: .size)
       try container.encode(md5, forKey: .md5)
-      try super.encode(to: encoder)
     }
     
     // fix json decode and encode different issue
@@ -93,10 +118,10 @@ open class ContactMessage: CrossBase {
         return nil
       }
       
-      return fileData.toString()
+      return Data.ToString(from: fileData.toData())
     }
     
-    public private(set) var devId: String
+    public private(set) var devId: String?
     public private(set) var name: String?
     public private(set) var size: Int64?
     public private(set) var md5: String?
@@ -127,7 +152,7 @@ open class ContactMessage: CrossBase {
   
   public func syncMessageToNative() -> Int {
     let ret = syncMessageToNative(type: type.rawValue,
-                                  data: data.toData(),
+                                  data: data.toData()!,
                                   cryptoAlgorithm: cryptoAlgorithm,
                                   timestamp: timestamp)
     return ret;
@@ -157,21 +182,21 @@ open class ContactMessage: CrossBase {
   
   public convenience init(type: Kind, data: Data, cryptoAlgorithm: String?) {
     self.init(type: type, data: MsgData(), cryptoAlgorithm: cryptoAlgorithm)
-//      if(data != nil) {
-        self.data = try! JSONDecoder().decode(ContactMessage.GetDataClass(type: type)!,
-                                              from: data)
-//      }
-  }
-  
-  static private func GetDataClass(type: Kind) -> MsgData.Type? {
-      switch (type) {
-      case .MsgText:
-        return TextData.self
-      case .MsgFile:
-        return FileData.self
-      default:
-        return nil
-      }
+    switch (type) {
+    case .MsgText:
+      self.data = TextData(text: nil)
+      break;
+    case .MsgBinary:
+      self.data = BinaryData(data: nil)
+      break;
+    case .MsgFile:
+      self.data = FileData(file: nil)
+      break;
+    default:
+      print("Unknown message type \(type)")
+      return;
+    }
+    self.data.fromData(data: data)
   }
   
   /* @CrossNativeInterface */

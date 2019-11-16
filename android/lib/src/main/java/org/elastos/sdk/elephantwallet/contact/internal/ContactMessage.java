@@ -3,6 +3,9 @@ package org.elastos.sdk.elephantwallet.contact.internal;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.annotations.SerializedName;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
@@ -11,6 +14,7 @@ import org.elastos.tools.crosspl.annotation.CrossClass;
 import org.elastos.tools.crosspl.annotation.CrossInterface;
 
 import java.io.File;
+import java.io.StringReader;
 
 @CrossClass
 public class ContactMessage extends CrossBase {
@@ -39,12 +43,14 @@ public class ContactMessage extends CrossBase {
         private int id;
     }
 
-    public static class MsgData {
-        @Override
+    public static abstract class MsgData {
         public String toString() {
             String str = new Gson().toJson(this);
             return str;
         }
+
+        public abstract byte[] toData();
+        public abstract void fromData(byte[] data);
     }
 
     public static class TextData extends MsgData {
@@ -52,8 +58,14 @@ public class ContactMessage extends CrossBase {
             this.text = text;
         }
 
-        @SerializedName(JsonKey.Text)
-        final public String text;
+        public byte[] toData() {
+            return text.getBytes();
+        }
+        public void fromData(byte[] data) {
+            text = new String(data);
+        }
+
+        public String text;
     }
 
     public static class BinaryData extends MsgData {
@@ -61,8 +73,14 @@ public class ContactMessage extends CrossBase {
             this.binary = binary;
         }
 
-        @SerializedName(JsonKey.Binary)
-        final public byte[] binary;
+        public byte[] toData() {
+            return binary;
+        }
+        public void fromData(byte[] data) {
+            binary = data;
+        }
+
+        public byte[] binary;
     }
 
     public static class FileData extends MsgData {
@@ -71,6 +89,24 @@ public class ContactMessage extends CrossBase {
             name = file.getName();
             size = file.length();
             md5 = Utils.getMD5Sum(file);
+        }
+
+        public byte[] toData() {
+            JsonObject json = new JsonObject();
+            json.addProperty(JsonKey.DeviceId, this.devId);
+            json.addProperty(JsonKey.Name, this.name);
+            json.addProperty(JsonKey.Size, this.size);
+            json.addProperty(JsonKey.Md5, this.md5);
+
+            return json.toString().getBytes();
+        }
+        public void fromData(byte[] data) {
+            JsonElement element = new JsonParser().parse(new String(data));
+            JsonObject json = element.getAsJsonObject();
+            this.devId = json.get(JsonKey.DeviceName).getAsString();
+            this.name = json.get(JsonKey.Name).getAsString();
+            this.size = json.get(JsonKey.Size).getAsLong();
+            this.md5 = json.get(JsonKey.Md5).getAsString();
         }
 
         // fix json decode and encode different issue
@@ -83,14 +119,10 @@ public class ContactMessage extends CrossBase {
             return fileData.toString();
         }
 
-        @SerializedName(JsonKey.DeviceId)
-        final public String devId;
-        @SerializedName(JsonKey.Name)
-        final public String name;
-        @SerializedName(JsonKey.Size)
-        final public long size;
-        @SerializedName(JsonKey.Md5)
-        final public String md5;
+        public String devId;
+        public String name;
+        public long size;
+        public String md5;
     }
 
     public final Type type;
@@ -99,7 +131,7 @@ public class ContactMessage extends CrossBase {
     public long timestamp;
 
     public int syncMessageToNative() {
-        byte[] msgData = data.toString().getBytes();
+        byte[] msgData = data.toData();
         int ret = syncMessageToNative(type.id, msgData, cryptoAlgorithm, timestamp);
         return ret;
     }
@@ -120,7 +152,23 @@ public class ContactMessage extends CrossBase {
     public ContactMessage(Type type, byte[] data, String cryptoAlgorithm) {
         this(type, (MsgData) null, cryptoAlgorithm);
         if(data != null) {
-            this.data = new Gson().fromJson(new String(data), GetDataClass(type));
+            switch (type) {
+                case MsgText:
+                    this.data = new TextData(null);
+                    break;
+                case MsgBinary:
+                    this.data = new BinaryData(null);
+                    break;
+                case MsgFile:
+                    this.data = new FileData(null);
+                    break;
+                default:
+                    Log.w(Contact.TAG, "Unknown Message Type: " + type);
+                    break;
+            }
+        }
+        if(data != null) {
+            this.data.fromData(data);
         }
     }
 
@@ -131,19 +179,6 @@ public class ContactMessage extends CrossBase {
         this.data = data;
         this.cryptoAlgorithm = cryptoAlgorithm;
         this.timestamp = System.currentTimeMillis();
-    }
-
-    static private Class<? extends MsgData> GetDataClass(Type type) {
-        switch (type) {
-        case MsgText:
-            return TextData.class;
-        case MsgBinary:
-            return BinaryData.class;
-        case MsgFile:
-            return FileData.class;
-        default:
-            return null;
-        }
     }
 
     @CrossInterface

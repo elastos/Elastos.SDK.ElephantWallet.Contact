@@ -7,7 +7,7 @@
 
 #if defined(__APPLE__)
 #include "TargetConditionals.h"
-#if defined(TARGET_OS_OSX)
+#if !defined(TARGET_OS_IOS)
 
 #include "PlatformDarwin.hpp"
 
@@ -98,5 +98,5 @@ int PlatformDarwin::GetCurrentDevName(std::string& devName)
 
 } // namespace elastos
 
-#endif // defined(TARGET_OS_OSX)
+#endif // !defined(TARGET_OS_IOS)
 #endif // defined(__APPLE__)

@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
 
 include(../config/cmake/CMakeLists.txt)
+
+#if(("${CFG_TARGET_PLATFORM}" STREQUAL "Android") OR ("${CFG_TARGET_PLATFORM}" STREQUAL "iOS"))
+#add_definitions(-DWITH_CROSSPL)
+#endif()
+
 include_directories("${CMAKE_INSTALL_PREFIX}/include")
 
 project(Elastos.SDK.Contact)
