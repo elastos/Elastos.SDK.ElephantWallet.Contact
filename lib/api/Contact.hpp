@@ -45,6 +45,7 @@ public:
     }; // class Factory
 
     using UserInfo = elastos::UserInfo;
+    using FriendInfo = elastos::FriendInfo;
 
     class Message: public ContactMessage {
     public:
@@ -164,6 +165,8 @@ public:
 
     /*** class function and variable ***/
     std::shared_ptr<ElaphantContact::UserInfo> getUserInfo();
+    std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> listFriendInfo();
+
     int sendMessage(const std::string& friendCode, ContactChannel chType, std::shared_ptr<Message> message);
 
 private:

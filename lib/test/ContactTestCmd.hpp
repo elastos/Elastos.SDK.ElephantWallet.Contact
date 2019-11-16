@@ -55,9 +55,14 @@ private:
                            std::string& errMsg);
 
 
+    static int ListFriendInfo(const std::vector<std::string>& args,
+                              std::string& errMsg);
     static int AcceptFriend(const std::vector<std::string>& args,
                             std::string& errMsg);
-
+    static int AddFriend(const std::vector<std::string>& args,
+                         std::string& errMsg);
+    static int DelFriend(const std::vector<std::string>& args,
+                         std::string& errMsg);
     static int SendTextMessage(const std::vector<std::string>& args,
                                std::string& errMsg);
     static int SendBinaryMessage(const std::vector<std::string>& args,

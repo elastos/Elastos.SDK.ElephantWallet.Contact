@@ -208,7 +208,7 @@ int ContactBridge::getHumanStatus(const char* humanCode)
     return static_cast<int>(status);
 }
 
-int ContactBridge::addFriend(const char* friendCode, const char* summary)
+int ContactBridge::addFriend(const std::string& friendCode, const std::string& summary)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -223,7 +223,7 @@ int ContactBridge::addFriend(const char* friendCode, const char* summary)
     return 0;
 }
 
-int ContactBridge::removeFriend(const char* friendCode)
+int ContactBridge::removeFriend(const std::string& friendCode)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;

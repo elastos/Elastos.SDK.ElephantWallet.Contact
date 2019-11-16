@@ -31,6 +31,9 @@ public:
 
     int showGetUserInfo();
 
+    int listFriendInfo();
+    int doAddFriend(const std::string& friendCode, const std::string& summary);
+    int doDelFriend(const std::string& friendCode);
     int doAcceptFriend(const std::string& friendCode);
     int doSendMessage(const std::string& friendCode, const std::string& text);
     int doSendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary);

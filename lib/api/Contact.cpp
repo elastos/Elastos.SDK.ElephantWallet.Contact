@@ -43,6 +43,23 @@ std::shared_ptr<ElaphantContact::UserInfo> ElaphantContact::getUserInfo()
     return userInfo;
 }
 
+std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ElaphantContact::listFriendInfo()
+{
+    std::vector<std::shared_ptr<elastos::FriendInfo>> friendList;
+
+    if(mContactImpl->isStarted() == false) {
+        return friendList;
+    }
+
+    auto weakFriendMgr = mContactImpl->getFriendManager();
+    auto friendMgr =  SAFE_GET_PTR_DEF_RETVAL(weakFriendMgr, friendList);
+
+    int ret = friendMgr->getFriendInfoList(friendList);
+    CHECK_AND_RETDEF(ret, friendList);
+
+    return friendList;
+}
+
 int ElaphantContact::sendMessage(const std::string& friendCode, ContactChannel chType, std::shared_ptr<Message> message)
 {
     auto dataInfo = message->data->toData();

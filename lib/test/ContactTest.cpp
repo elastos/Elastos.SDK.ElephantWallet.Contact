@@ -5,6 +5,7 @@
 #include <Log.hpp>
 #include <ContactTestCmd.hpp>
 #include <openssl/md5.h>
+#include <JsonDefine.hpp>
 
 /* =========================================== */
 /* === static variables initialize =========== */
@@ -221,6 +222,26 @@ int ContactTest::showGetUserInfo()
     return 0;
 }
 
+int ContactTest::listFriendInfo()
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    auto infoArray = mContact->listFriendInfo();
+
+    auto jsonInfo = std::make_shared<nlohmann::json>();
+    for(auto const& item: infoArray) {
+        auto jsonItem = std::make_shared<nlohmann::json>();
+        item->toJson(jsonItem);
+        jsonInfo->push_back(*jsonItem);
+    }
+    Log::V(Log::TAG, "FriendInfo: %s", jsonInfo->dump(2).c_str());
+
+    return 0;
+}
+
 int ContactTest::doAcceptFriend(const std::string& friendCode)
 {
     if (mContact == nullptr) {
@@ -232,6 +253,36 @@ int ContactTest::doAcceptFriend(const std::string& friendCode)
     CHECK_ERROR(ret);
 
     Log::V(Log::TAG, "Success to accept friend: %s", friendCode.c_str());
+
+    return 0;
+}
+
+int ContactTest::doAddFriend(const std::string& friendCode, const std::string& summary)
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    auto ret = mContact->addFriend(friendCode, summary);
+    CHECK_ERROR(ret);
+
+    Log::V(Log::TAG, "Success to add friend request: %s", friendCode.c_str());
+
+    return 0;
+}
+
+int ContactTest::doDelFriend(const std::string& friendCode)
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    auto ret = mContact->removeFriend(friendCode);
+    CHECK_ERROR(ret);
+
+    Log::V(Log::TAG, "Success to del friend: %s", friendCode.c_str());
 
     return 0;
 }
