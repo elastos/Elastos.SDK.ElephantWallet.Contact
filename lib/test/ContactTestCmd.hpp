@@ -73,6 +73,9 @@ private:
     static int NewAndSaveMnemonic(const std::vector<std::string>& args,
                                   std::string& errMsg);
 
+    static int ThreadSendMessage(const std::vector<std::string>& args,
+                                 std::string& errMsg);
+
     static std::thread gCmdPipeMonitor;
     static bool gQuitFlag;
     static const std::vector<CommandInfo> gCmdInfoList;

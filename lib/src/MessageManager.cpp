@@ -14,6 +14,7 @@
 #include <Log.hpp>
 #include <Random.hpp>
 #include <SafePtr.hpp>
+#include <Platform.hpp>
 //#include "BlkChnClient.hpp"
 
 namespace elastos {
@@ -452,7 +453,7 @@ int MessageManager::sendMessage(const std::shared_ptr<HumanInfo> humanInfo,
     jsonData[JsonKey::MessageData] = cryptoMsgInfo;
     //std::vector<uint8_t> data = Json::to_cbor(jsonData);
     std::string jsonStr = jsonData.dump();
-    Log::W(Log::TAG, ">>>>>>>>>>>>> %s", jsonStr.c_str());
+//    Log::W(Log::TAG, ">>>>>>>>>>>>> %s", jsonStr.c_str());
     std::vector<uint8_t> data(jsonStr.begin(), jsonStr.end());
 
     if(humanChType == ChannelType::Carrier) {
@@ -482,6 +483,10 @@ int MessageManager::sendMessage(const std::shared_ptr<HumanInfo> humanInfo,
             Log::I(Log::TAG, "----------- %s", it.mUsrId.c_str());
         }
 
+        std::string currDevId;
+        ret = Platform::GetCurrentDevId(currDevId);
+        CHECK_ERROR(ret);
+
         ret = ErrCode::ChannelNotOnline;
         for(auto& it: infoArray) {
             HumanInfo::Status status1 = HumanInfo::Status::Invalid;
@@ -490,6 +495,9 @@ int MessageManager::sendMessage(const std::shared_ptr<HumanInfo> humanInfo,
             humanInfo->getCarrierStatus(it.mUsrId, status2);
             if(status1 != HumanInfo::Status::Online
             && status2 != HumanInfo::Status::Online) {
+                continue;
+            }
+            if(it.mDevInfo.mDevId == currDevId) { // current device, ignore send
                 continue;
             }
 
@@ -690,7 +698,7 @@ void MessageManager::MessageListener::onReceivedMessage(const std::string& frien
     CHECK_AND_NOTIFY_RETVAL(ret)
 
     std::string jsonStr(msgContent.begin(), msgContent.end());
-    Log::W(Log::TAG, "<<<<<<<<<<<<< %s", jsonStr.c_str());
+//    Log::W(Log::TAG, "<<<<<<<<<<<<< %s", jsonStr.c_str());
     std::shared_ptr<MessageInfo> cryptoMsgInfo;
     if(jsonStr.find(JsonKey::MessageData) != std::string::npos) { // it's contact sdk
         auto jsonData = Json::parse(jsonStr);

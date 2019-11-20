@@ -12,6 +12,7 @@
 #include <Log.hpp>
 #include <SafePtr.hpp>
 #include <Platform.hpp>
+#include <DateTime.hpp>
 
 namespace elastos {
 
@@ -253,6 +254,7 @@ int ChannelImplCarrier::sendMessage(const std::string& friendCode,
         return ErrCode::ChannelDataTooLarge;
     }
 
+    uint64_t pkgTimestamp = DateTime::CurrentMS();
     for(uint64_t pkgIdx = 0; pkgIdx < pkgCount; pkgIdx++) {
         std::vector<uint8_t> data {std::begin(PkgMagic), std::end(PkgMagic)};
         uint16_t pkgVal = static_cast<uint16_t>(pkgIdx);
@@ -261,6 +263,11 @@ int ChannelImplCarrier::sendMessage(const std::string& friendCode,
         pkgVal = static_cast<uint16_t>(pkgCount);
         data[PkgMagicDataCnt] = (pkgVal >> 8 ) & 0xFF;
         data[PkgMagicDataCnt + 1] = pkgVal & 0xFF;
+        uint64_t timestamp = pkgTimestamp;
+        for(auto idx = 0; idx < 8; idx++) {
+            data[PkgMagicTimestamp + idx] = timestamp & 0xFF;
+            timestamp = (timestamp >> 8);
+        }
 
         auto dataBegin = msgContent.begin() + pkgIdx * MaxPkgSize;
         auto dataRemains = msgContent.end() - dataBegin;
@@ -276,8 +283,10 @@ int ChannelImplCarrier::sendMessage(const std::string& friendCode,
             Log::E(Log::TAG, "Failed to send message! ret=%s(0x%x)", strerr_buf, err);
             return ErrCode::ChannelNotSendMessage;
         }
-        Log::D(Log::TAG, "ChannelImplCarrier::sendMessage PkgMagicData Idx/Cnt=%05lld[%02x,%02x]/%05lld[%02x,%02x]",
-                         pkgIdx, data[PkgMagicDataIdx], data[PkgMagicDataIdx + 1], pkgCount, data[PkgMagicDataCnt], data[PkgMagicDataCnt + 1]);
+        Log::D(Log::TAG, "ChannelImplCarrier::sendMessage PkgMagicData Idx/Cnt=0x%04llx[%02x,%02x]/0x%04llx[%02x,%02x] Timestamp=0x%016llx[%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x]",
+               pkgIdx, data[PkgMagicDataIdx], data[PkgMagicDataIdx + 1], pkgCount, data[PkgMagicDataCnt], data[PkgMagicDataCnt + 1],
+               pkgTimestamp, data[PkgMagicTimestamp + 0], data[PkgMagicTimestamp + 1], data[PkgMagicTimestamp + 2], data[PkgMagicTimestamp + 3],
+                             data[PkgMagicTimestamp + 4], data[PkgMagicTimestamp + 5], data[PkgMagicTimestamp + 6], data[PkgMagicTimestamp + 7]);
     }
 
     return 0;
@@ -472,22 +481,36 @@ void ChannelImplCarrier::OnCarrierFriendMessage(ElaCarrier *carrier, const char 
         pkgIdx = (pkgIdx << 8) + data[PkgMagicDataIdx + 1];
         uint64_t pkgCount = data[PkgMagicDataCnt];
         pkgCount = (pkgCount << 8) + data[PkgMagicDataCnt + 1];
+        uint64_t pkgTimestamp = 0;
+        for(auto idx = 0; idx < 8; idx++) {
+            uint64_t tmp = data[PkgMagicTimestamp + idx];
+            pkgTimestamp += (tmp << (8 * idx));
+        }
 
 //        dataComplete = (pkgIdx == pkgCount - 1 ? true : false);
-        Log::D(Log::TAG, "ChannelImplCarrier::OnCarrierFriendMessage PkgMagicData Idx/Cnt=%05lld[%02x,%02x]/%05lld[%02x,%02x]",
-               pkgIdx, data[PkgMagicDataIdx], data[PkgMagicDataIdx + 1], pkgCount, data[PkgMagicDataCnt], data[PkgMagicDataCnt + 1]);
+        Log::D(Log::TAG, "ChannelImplCarrier::OnCarrierFriendMessage PkgMagicData Idx/Cnt=0x%04llx[%02x,%02x]/0x%04llx[%02x,%02x] Timestamp=0x%016llx[%02x,%02x,%02x,%02x,%02x,%02x,%02x,%02x]",
+               pkgIdx, data[PkgMagicDataIdx], data[PkgMagicDataIdx + 1], pkgCount, data[PkgMagicDataCnt], data[PkgMagicDataCnt + 1],
+               pkgTimestamp, data[PkgMagicTimestamp + 0], data[PkgMagicTimestamp + 1], data[PkgMagicTimestamp + 2], data[PkgMagicTimestamp + 3],
+                             data[PkgMagicTimestamp + 4], data[PkgMagicTimestamp + 5], data[PkgMagicTimestamp + 6], data[PkgMagicTimestamp + 7]);
 
         auto& dataCache = thiz->mRecvDataCache[from];
-        dataCache[pkgIdx] = std::move(dataSection);
+        if(dataCache.timestamp > pkgTimestamp) { // if new message is too old, ignore it.
+            Log::W(Log::TAG, "Ignore to process carrier old message!");
+            return;
+        } else if(dataCache.timestamp < pkgTimestamp) { // if new message is too new, clear cached
+            dataCache.dataMap.clear();
+            dataCache.timestamp = pkgTimestamp;
+        }
+        dataCache.dataMap[pkgIdx] = std::move(dataSection);
 
-        if(dataCache.size() == pkgCount) {
+        if(dataCache.dataMap.size() == pkgCount) {
             std::vector<uint8_t> dataPkg;
-            for(int idx = 0; idx < dataCache.size(); idx++) {
-                dataPkg.insert(dataPkg.end(), dataCache[idx].begin(), dataCache[idx].end());
+            for(int idx = 0; idx < dataCache.dataMap.size(); idx++) {
+                dataPkg.insert(dataPkg.end(), dataCache.dataMap[idx].begin(), dataCache.dataMap[idx].end());
             }
 
             thiz->mChannelListener->onReceivedMessage(from, thiz->mChannelType, dataPkg);
-            dataCache.clear();
+            dataCache.dataMap.clear();
         }
     } else {
         thiz->mChannelListener->onReceivedMessage(from, thiz->mChannelType, dataSection);
