@@ -30,6 +30,7 @@ public:
     int testDelContact();
 
     int showGetUserInfo();
+    int doSyncUpload();
 
     int listFriendInfo();
     int doAddFriend(const std::string& friendCode, const std::string& summary);
@@ -38,6 +39,8 @@ public:
     int doSendMessage(const std::string& friendCode, const std::string& text);
     int doSendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary);
     int doSendMessage(const std::string& friendCode, const std::filesystem::path& file);
+
+    int showCachedProp();
 
    private:
     /*** type define ***/

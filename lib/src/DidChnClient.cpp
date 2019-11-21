@@ -112,6 +112,17 @@ int DidChnClient::removeMoniter(const std::string& did)
 
 int DidChnClient::cacheDidProp(const std::string& key, const std::string& value)
 {
+    bool needCache = false;
+    for(const auto& it: DidPropNames) {
+        if (key == it.key) {
+            needCache = true;
+            break;
+        }
+    }
+    if(needCache == false) {
+        return ErrCode::BlkChnIgnoreCacheProp;
+    }
+
     Log::I(Log::TAG, "DidChnClient::cacheDidProp() key=%s, value=%s", key.c_str(), value.c_str());
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
@@ -718,7 +729,9 @@ int DidChnClient::getPropKeyPathPrefix(std::string& keyPathPrefix)
 
         std::string appId;
         int ret = sectyMgr->getDidPropAppId(appId);
-        if (ret < 0) {
+        if (ret == ErrCode::BadSecurityValue) {
+            appId = "DidFriend"; //
+        } else {
             return ret;
         }
 

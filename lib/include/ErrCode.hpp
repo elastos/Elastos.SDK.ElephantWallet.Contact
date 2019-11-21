@@ -88,6 +88,8 @@ public:
     constexpr static const int BlkChnBadUpdateTimeError = -304;
     constexpr static const int BlkChnOldUpdateTimeError = -305;
     constexpr static const int BlkChnMonStoppedError = -306;
+	constexpr static const int BlkChnIgnoreCacheProp = -307;
+
 
     constexpr static const int HttpClientError = -500;
 

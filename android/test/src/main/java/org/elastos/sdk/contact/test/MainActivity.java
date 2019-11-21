@@ -906,8 +906,9 @@ public class MainActivity extends Activity {
                 response = request.data; // plaintext
                 break;
             case DidPropAppId:
-                String appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AAA65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
-                response = appId.getBytes();
+//                String appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AAA65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
+//                response = appId.getBytes();
+                response = null;
                 break;
             case DidAgentAuthHeader:
                 response = getAgentAuthHeader();

@@ -222,6 +222,19 @@ int ContactTest::showGetUserInfo()
     return 0;
 }
 
+int ContactTest::doSyncUpload()
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    int ret = mContact->syncInfoUploadToDidChain();
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
 int ContactTest::listFriendInfo()
 {
     if (mContact == nullptr) {
@@ -347,6 +360,21 @@ int ContactTest::doSendMessage(const std::string& friendCode, const std::filesys
     return 0;
 }
 
+int ContactTest::showCachedProp()
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    std::stringstream cachedDidProp;
+    ElaphantContact::Debug::GetCachedDidProp(&cachedDidProp);
+    Log::V(Log::TAG, "CachedDidProp: %s", cachedDidProp.str().c_str());
+
+    return 0;
+}
+
+
 /* =========================================== */
 /* === class protected function implement  === */
 /* =========================================== */
@@ -434,9 +462,10 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const Elaphant
         break;
     case ElaphantContact::Listener::AcquireType::DidPropAppId:
     {
-        std::string appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AA"
-                            "A65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
-        response = std::make_shared<std::vector<uint8_t>>(appId.begin(), appId.end());
+//        std::string appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AA"
+//                            "A65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
+//        response = std::make_shared<std::vector<uint8_t>>(appId.begin(), appId.end());
+        response.reset(); // return null will use `DidFriend`
         break;
     }
     case ElaphantContact::Listener::AcquireType::DidAgentAuthHeader:

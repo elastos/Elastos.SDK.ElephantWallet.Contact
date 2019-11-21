@@ -53,7 +53,8 @@ private:
 
     static int GetUserInfo(const std::vector<std::string>& args,
                            std::string& errMsg);
-
+    static int SyncUpload(const std::vector<std::string>& args,
+                          std::string& errMsg);
 
     static int ListFriendInfo(const std::vector<std::string>& args,
                               std::string& errMsg);
@@ -73,6 +74,8 @@ private:
     static int NewAndSaveMnemonic(const std::vector<std::string>& args,
                                   std::string& errMsg);
 
+    static int ShowCachedDidProp(const std::vector<std::string>& args,
+                                 std::string& errMsg);
     static int ThreadSendMessage(const std::vector<std::string>& args,
                                  std::string& errMsg);
 

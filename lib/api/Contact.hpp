@@ -17,6 +17,7 @@
 #include <ContactBridge.hpp>
 #include <ContactChannel.hpp>
 #include <ContactDataListener.hpp>
+#include <ContactDebug.hpp>
 #include <ContactFactory.hpp>
 #include <ContactListener.hpp>
 #include <ContactMessage.hpp>
@@ -143,6 +144,9 @@ public:
 
     class DataListener: public ContactDataListener {
     }; // class DataListener
+
+    class Debug: public ContactDebug {
+    }; // class ContactDebug
 
     /*** static function and variable ***/
     static std::shared_ptr<Message> MakeTextMessage(const std::string& text, const std::string& cryptoAlgorithm = "") {

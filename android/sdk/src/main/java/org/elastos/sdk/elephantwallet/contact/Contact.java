@@ -69,7 +69,7 @@ public final class Contact extends ContactBridge {
 
     public abstract static class Debug extends ContactDebug {
         static { ensureNativeLibrary(); }
-    } // class Listener
+    } // class Debug
 
     private Contact() {
     }

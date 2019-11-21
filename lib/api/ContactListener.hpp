@@ -154,6 +154,7 @@ public:
     };
 
     /*** static function and variable ***/
+    const std::string DIDPROP_APPID_DEFVAL = "DidFriend";
 
     /*** class function and variable ***/
     explicit ContactListener();

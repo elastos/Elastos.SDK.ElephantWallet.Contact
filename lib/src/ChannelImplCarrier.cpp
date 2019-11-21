@@ -495,9 +495,10 @@ void ChannelImplCarrier::OnCarrierFriendMessage(ElaCarrier *carrier, const char 
 
         auto& dataCache = thiz->mRecvDataCache[from];
         if(dataCache.timestamp > pkgTimestamp) { // if new message is too old, ignore it.
-            Log::W(Log::TAG, "Ignore to process carrier old message!");
+            Log::W(Log::TAG, "Ignore to process received carrier old message!");
             return;
         } else if(dataCache.timestamp < pkgTimestamp) { // if new message is too new, clear cached
+            Log::W(Log::TAG, "Ignore to process cached carrier old message!");
             dataCache.dataMap.clear();
             dataCache.timestamp = pkgTimestamp;
         }

@@ -54,7 +54,7 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { ' ', "set-uid",        ContactTestCmd::Unimplemention,      "\t\tSet User Identifycode" },
     { ' ', "set-udetails",   ContactTestCmd::Unimplemention,      "\tSet User Details" },
     { ' ', "set-uwaddr",     ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
-    { 'u', "sync-upload",    ContactTestCmd::Unimplemention,      "\tSync Upload" },
+    { 'u', "sync-upload",    ContactTestCmd::SyncUpload,          "\tSync Upload" },
     { ' ', "sync-download",  ContactTestCmd::Unimplemention,      "\tSync Download" },
 
     { '-', "",               nullptr,                             "\n Friend" },
@@ -72,7 +72,9 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { '-', "",               nullptr,                              "\n Mnemonic" },
     { 'm', "new-mnemonic",   ContactTestCmd::NewAndSaveMnemonic,   "\t\tnew mnemonic" },
 
-    { '-', "",               nullptr,                              "\n Benchmark" },
+    { '-', "",               nullptr,                              "\n Debug" },
+
+    { 'y', "cached-didprop", ContactTestCmd::ShowCachedDidProp,    "\t\tShow Cached DidProp [y]" },
     { 'z', "thread-sendmsg", ContactTestCmd::ThreadSendMessage,    "\t\tLoop Send Message in new thread [z fid]" },
 };
 
@@ -268,6 +270,14 @@ int ContactTestCmd::GetUserInfo(const std::vector<std::string>& args,
     return ret;
 }
 
+int ContactTestCmd::SyncUpload(const std::vector<std::string>& args,
+                               std::string& errMsg)
+{
+    auto ret = ContactTest::GetInstance()->doSyncUpload();
+
+    return ret;
+}
+
 int ContactTestCmd::ListFriendInfo(const std::vector<std::string>& args,
                                    std::string& errMsg)
 {
@@ -355,6 +365,13 @@ int ContactTestCmd::NewAndSaveMnemonic(const std::vector<std::string>& args,
     auto ret = ContactTest::GetInstance()->newAndSaveMnemonic();
     return ret;
 }
+
+int ContactTestCmd::ShowCachedDidProp(const std::vector<std::string>& args,
+                                      std::string& errMsg) {
+    auto ret = ContactTest::GetInstance()->showCachedProp();
+    return ret;
+}
+
 
 int ContactTestCmd::ThreadSendMessage(const std::vector<std::string>& args,
                       std::string& errMsg) {
