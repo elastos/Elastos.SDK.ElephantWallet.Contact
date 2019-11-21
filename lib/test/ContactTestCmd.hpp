@@ -51,11 +51,10 @@ private:
     static int RestartContact(const std::vector<std::string>& args,
                               std::string& errMsg);
 
-    static int SetHumanDetails(const std::vector<std::string>& args,
-                               std::string& errMsg);
-
     static int GetUserInfo(const std::vector<std::string>& args,
                            std::string& errMsg);
+    static int SetUserDetails(const std::vector<std::string>& args,
+                              std::string& errMsg);
     static int SyncUpload(const std::vector<std::string>& args,
                           std::string& errMsg);
 
@@ -67,6 +66,8 @@ private:
                          std::string& errMsg);
     static int DelFriend(const std::vector<std::string>& args,
                          std::string& errMsg);
+    static int SetFriendDetails(const std::vector<std::string>& args,
+                                std::string& errMsg);
     static int SendTextMessage(const std::vector<std::string>& args,
                                std::string& errMsg);
     static int SendBinaryMessage(const std::vector<std::string>& args,

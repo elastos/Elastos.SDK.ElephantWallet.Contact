@@ -52,7 +52,7 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { '-', "",               nullptr,                             "\n User" },
     { 'g', "get-uinfo",      ContactTestCmd::GetUserInfo,         "\tGet User Info [g]" },
     { ' ', "set-uid",        ContactTestCmd::Unimplemention,      "\t\tSet User Identifycode" },
-    { 's', "set-udetails",   ContactTestCmd::Unimplemention,      "\tSet User Details" },
+    { 's', "set-udetails",   ContactTestCmd::SetUserDetails,      "\tSet User Details [s [4:Nickname|7:Description|8:Addition] ${text}]" },
     { ' ', "set-uwaddr",     ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
     { 'u', "sync-upload",    ContactTestCmd::SyncUpload,          "\tSync Upload" },
     { ' ', "sync-download",  ContactTestCmd::Unimplemention,      "\tSync Download" },
@@ -62,7 +62,7 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { 'e', "accept-frd",     ContactTestCmd::AcceptFriend,        "\tAccept Friend [e fid]" },
     { 'a', "add-friend",     ContactTestCmd::AddFriend,           "\tAdd Friend [a fid ${summary}]" },
     { 'd', "del-friend",     ContactTestCmd::DelFriend,           "\tDel Friend" },
-    { 'i', "set-fdetails",   ContactTestCmd::SetHumanDetails,     "\tSet Friend Details [t fid [4:Nickname|7:Description|8:Addition] ${text}]" },
+    { 'i', "set-fdetails",   ContactTestCmd::SetFriendDetails,    "\tSet Friend Details [t fid [4:Nickname|7:Description|8:Addition] ${text}]" },
     { 't', "send-tmsg",      ContactTestCmd::SendTextMessage,     "\tSend Text Message [t fid ${text}]" },
     { 'b', "send-bmsg",      ContactTestCmd::SendBinaryMessage,   "\tSend Binary Message [b fid ${binary}]" },
     { 'f', "send-fmsg",      ContactTestCmd::SendFileMessage,     "\tSend File Message [f fid ${filepath}]" },
@@ -263,28 +263,26 @@ int ContactTestCmd::RestartContact(const std::vector<std::string>& args,
     return ret;
 }
 
-int ContactTestCmd::SetHumanDetails(const std::vector<std::string>& args,
-                                    std::string& errMsg)
-{
-    if(args.size() < 4) {
-        errMsg = "Bad input count: " + std::to_string(args.size());
-        return -1;
-    }
-
-    auto fid = args[1];
-    auto infoType = std::stoi(args[2]);
-    auto infoData = args[3];
-
-    auto ret = ContactTest::GetInstance()->doSetHumanDetails(fid, infoType, infoData);
-    return ret;
-
-}
-
 int ContactTestCmd::GetUserInfo(const std::vector<std::string>& args,
                                 std::string& errMsg)
 {
     auto ret = ContactTest::GetInstance()->showGetUserInfo();
 
+    return ret;
+}
+
+int ContactTestCmd::SetUserDetails(const std::vector<std::string>& args,
+                                     std::string& errMsg)
+{
+    if(args.size() < 3) {
+        errMsg = "Bad input count: " + std::to_string(args.size());
+        return -1;
+    }
+
+    auto infoType = std::stoi(args[1]);
+    auto infoData = args[2];
+
+    auto ret = ContactTest::GetInstance()->doSetHumanDetails("-user-info-", infoType, infoData);
     return ret;
 }
 
@@ -338,6 +336,23 @@ int ContactTestCmd::DelFriend(const std::vector<std::string>& args,
 
     auto ret = ContactTest::GetInstance()->doDelFriend(args[1]);
     return ret;
+}
+
+int ContactTestCmd::SetFriendDetails(const std::vector<std::string>& args,
+                                     std::string& errMsg)
+{
+    if(args.size() < 4) {
+        errMsg = "Bad input count: " + std::to_string(args.size());
+        return -1;
+    }
+
+    auto fid = args[1];
+    auto infoType = std::stoi(args[2]);
+    auto infoData = args[3];
+
+    auto ret = ContactTest::GetInstance()->doSetHumanDetails(fid, infoType, infoData);
+    return ret;
+
 }
 
 int ContactTestCmd::SendTextMessage(const std::vector<std::string>& args,

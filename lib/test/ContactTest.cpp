@@ -207,6 +207,12 @@ int ContactTest::doSetHumanDetails(const std::string& friendCode, int key, const
         return -1;
     }
 
+    int ret = mContact->setHumanInfo(friendCode, key, value);
+    CHECK_ERROR(ret);
+
+    Log::V(Log::TAG, "Success to set human details");
+
+    return 0;
 
 }
 
