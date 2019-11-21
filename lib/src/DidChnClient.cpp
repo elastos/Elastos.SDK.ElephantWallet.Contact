@@ -120,7 +120,8 @@ int DidChnClient::cacheDidProp(const std::string& key, const std::string& value)
         }
     }
     if(needCache == false) {
-        return ErrCode::BlkChnIgnoreCacheProp;
+        Log::W(Log::TAG, "DidChnClient::cacheDidProp() Ignore to cache key=%s, value=%s", key.c_str(), value.c_str());
+        return 0;
     }
 
     Log::I(Log::TAG, "DidChnClient::cacheDidProp() key=%s, value=%s", key.c_str(), value.c_str());
@@ -720,41 +721,28 @@ int DidChnClient::saveLocalData()
     return 0;
 }
 
-int DidChnClient::getPropKeyPathPrefix(std::string& keyPathPrefix)
-{
-    std::lock_guard<std::recursive_mutex> lock(mMutex);
-
-    if(mPropKeyPathPrefix.empty() == true) {
-        auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
-
-        std::string appId;
-        int ret = sectyMgr->getDidPropAppId(appId);
-        if (ret == ErrCode::BadSecurityValue) {
-            appId = "DidFriend"; //
-        } else {
-            return ret;
-        }
-
-        mPropKeyPathPrefix = "Apps/" + appId + "/";
-    }
-
-    keyPathPrefix = mPropKeyPathPrefix;
-
-    return 0;
-}
-
 int DidChnClient::getPropKeyPath(const std::string& key, std::string& keyPath)
 {
-    if(key == "PublicKey") {
+    if(key == NamePublicKey) {
         keyPath = key;
-        return 0;
+    } else if(key == NameCarrierKey) {
+        auto keyPathPrefix = "DID/DidFriend/";
+        keyPath = (keyPathPrefix + key);
+    } else {
+        if(mPropKeyPathPrefix.empty() == true) {
+            auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+
+            std::string appId;
+            int ret = sectyMgr->getDidPropAppId(appId);
+            CHECK_ERROR(ret)
+
+            std::lock_guard<std::recursive_mutex> lock(mMutex);
+            mPropKeyPathPrefix = "Apps/" + appId + "/";
+        }
+
+        keyPath = (mPropKeyPathPrefix + key);
     }
 
-    std::string keyPathPrefix;
-    int ret = getPropKeyPathPrefix(keyPathPrefix);
-    CHECK_ERROR(ret)
-
-    keyPath = (keyPathPrefix + key);
     return 0;
 }
 

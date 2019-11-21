@@ -55,13 +55,13 @@ public class ContactBridge extends CrossBase {
         setDataListener(mDataListener);
     }
 
-    public int setUserInfo(UserInfo.Item item, String value) {
-        int ret = setUserInfo(item.id(), value);
+    public int setIdentifyCode(IdentifyCode.Type type, String value) {
+        int ret = setIdentifyCode(type.id(), value);
         return ret;
     }
 
-    public int setIdentifyCode(IdentifyCode.Type type, String value) {
-        int ret = setIdentifyCode(type.id(), value);
+    public int setUserInfo(HumanInfo.Item item, String value) {
+        int ret = setHumanInfo("-user-info-", item.id(), value);
         return ret;
     }
 
@@ -126,6 +126,11 @@ public class ContactBridge extends CrossBase {
         }
 
         return friendCodeList;
+    }
+
+    public int setHumanInfo(String humanCode, HumanInfo.Item item, String value) {
+        int ret = setHumanInfo(humanCode, item.id(), value);
+        return ret;
     }
 
     public ContactStatus getStatus(String humanCode) {
@@ -229,10 +234,10 @@ public class ContactBridge extends CrossBase {
     private native void setDataListener(CrossBase listener);
 
     @CrossInterface
-    private native int setUserInfo(int item, String value);
+    private native int setIdentifyCode(int item, String value);
 
     @CrossInterface
-    private native int setIdentifyCode(int item, String value);
+    private native int setHumanInfo(String humanCode, int item, String value);
 
     @CrossInterface
     private native int getHumanInfo(String humanCode, StringBuffer info);

@@ -33,7 +33,7 @@ public:
     static std::shared_ptr<DidChnClient> GetInstance();
 
     static constexpr const char* NamePublicKey     = "PublicKey";
-    static constexpr const char* NameCarrierKey    = "CarrierKey";
+    static constexpr const char* NameCarrierKey    = "CarrierInfo";
     static constexpr const char* NameDetailKey     = "DetailKey";
     static constexpr const char* NameIdentifyKey   = "IdentifyKey";
     static constexpr const char* NameFriendKey     = "FriendKey";
@@ -126,7 +126,6 @@ private:
     int loadLocalData();
     int saveLocalData();
 
-    int getPropKeyPathPrefix(std::string& keyPathPrefix);
     int getPropKeyPath(const std::string& key, std::string& keyPath);
 
     std::weak_ptr<Config> mConfig;

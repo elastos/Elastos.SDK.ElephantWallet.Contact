@@ -43,10 +43,10 @@ public:
     int start();
     int stop();
 
-    int setUserInfo(int item, const char* value);
     int setIdentifyCode(int type, const char* value);
 
-    int getHumanInfo(const char* humanCode, std::stringstream* info);
+    int setHumanInfo(const std::string& humanCode, int item, const std::string& value);
+    int getHumanInfo(const std::string& humanCode, std::stringstream* info);
     int getHumanStatus(const char* humanCode);
 
     int addFriend(const std::string& friendCode, const std::string& summary);

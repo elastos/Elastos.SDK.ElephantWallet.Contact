@@ -29,6 +29,8 @@ public:
     int testStopContact();
     int testDelContact();
 
+    int doSetHumanDetails(const std::string& friendCode, int key, const std::string& value);
+
     int showGetUserInfo();
     int doSyncUpload();
 

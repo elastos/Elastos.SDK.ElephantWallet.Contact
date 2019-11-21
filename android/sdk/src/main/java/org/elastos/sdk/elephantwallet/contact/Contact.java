@@ -35,6 +35,10 @@ public final class Contact extends ContactBridge {
         static { ensureNativeLibrary(); }
     } // class DataListener
 
+    public static final class HumanInfo extends org.elastos.sdk.elephantwallet.contact.internal.HumanInfo {
+        static { ensureNativeLibrary(); }
+    } // class HumanInfo
+
     public static final class UserInfo extends org.elastos.sdk.elephantwallet.contact.internal.UserInfo {
         static { ensureNativeLibrary(); }
     } // class UserInfo

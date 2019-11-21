@@ -51,6 +51,9 @@ private:
     static int RestartContact(const std::vector<std::string>& args,
                               std::string& errMsg);
 
+    static int SetHumanDetails(const std::vector<std::string>& args,
+                               std::string& errMsg);
+
     static int GetUserInfo(const std::vector<std::string>& args,
                            std::string& errMsg);
     static int SyncUpload(const std::vector<std::string>& args,

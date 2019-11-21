@@ -221,7 +221,7 @@ int SecurityManager::getDidPropAppId(std::string& appId)
 
     appId = mSecurityListener->onAcquireDidPropAppId();
     if(appId.empty() == true) {
-        return ErrCode::BadSecurityValue;
+        return ErrCode::EmptyInfoError;
     }
 
     return 0;

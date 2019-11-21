@@ -44,6 +44,8 @@
         android:title="   |- Add Friend" />
     <item android:id="@+id/del_friend"
         android:title="   |- Del Friend" />
+    <item android:id="@+id/set_friend_details"
+        android:title="   |- Set Friend Details" />
     <item android:id="@+id/send_text_message"
         android:title="   |- Send Text Message" />
     <item android:id="@+id/send_binary_message"

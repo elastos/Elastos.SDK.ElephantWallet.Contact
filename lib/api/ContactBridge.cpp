@@ -106,21 +106,21 @@ int ContactBridge::stop()
     return ret;
 }
 
-int ContactBridge::setUserInfo(int item, const char* value)
-{
-    if(mContactImpl->isStarted() == false) {
-        return elastos::ErrCode::NotReadyError;
-    }
-
-    auto weakUserMgr = mContactImpl->getUserManager();
-    auto userMgr =  SAFE_GET_PTR(weakUserMgr);                                                                      \
-
-    int ret = userMgr->setUserInfo(static_cast<elastos::UserInfo::Item>(item), value);
-    CHECK_ERROR(ret);
-
-    return 0;
-}
-
+//int ContactBridge::setUserInfo(int item, const char* value)
+//{
+//    if(mContactImpl->isStarted() == false) {
+//        return elastos::ErrCode::NotReadyError;
+//    }
+//
+//    auto weakUserMgr = mContactImpl->getUserManager();
+//    auto userMgr =  SAFE_GET_PTR(weakUserMgr);                                                                      \
+//
+//    int ret = userMgr->setUserInfo(static_cast<elastos::UserInfo::Item>(item), value);
+//    CHECK_ERROR(ret);
+//
+//    return 0;
+//}
+//
 int ContactBridge::setIdentifyCode(int type, const char* value)
 {
     if(mContactImpl->isStarted() == false) {
@@ -136,13 +136,45 @@ int ContactBridge::setIdentifyCode(int type, const char* value)
     return 0;
 }
 
-int ContactBridge::getHumanInfo(const char* humanCode, std::stringstream* info)
+int ContactBridge::setHumanInfo(const std::string& humanCode, int item, const std::string& value)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
     }
 
-    if(humanCode == nullptr) {
+    if(humanCode.empty()) {
+        return elastos::ErrCode::InvalidArgument;
+    }
+
+    auto weakUserMgr = mContactImpl->getUserManager();
+    auto userMgr =  SAFE_GET_PTR(weakUserMgr);                                                                      \
+    auto weakFriendMgr = mContactImpl->getFriendManager();
+    auto friendMgr =  SAFE_GET_PTR(weakFriendMgr);                                                                      \
+
+    if(std::string("-user-info-") == humanCode
+    || userMgr->contains(humanCode) == true) {
+        int ret = userMgr->setUserInfo(static_cast<elastos::UserInfo::Item>(item), value);
+        CHECK_ERROR(ret);
+    } else if (friendMgr->contains(humanCode) == true) {
+        std::shared_ptr<elastos::FriendInfo> friendInfo;
+        int ret = friendMgr->tryGetFriendInfo(humanCode, friendInfo);
+        CHECK_ERROR(ret);
+        ret = friendInfo->setHumanInfo(static_cast<elastos::UserInfo::Item>(item), value);
+        CHECK_ERROR(ret);
+    } else {
+        return elastos::ErrCode::NotFoundError;
+    }
+
+    return 0;
+}
+
+int ContactBridge::getHumanInfo(const std::string& humanCode, std::stringstream* info)
+{
+    if(mContactImpl->isStarted() == false) {
+        return elastos::ErrCode::NotReadyError;
+    }
+
+    if(humanCode.empty() == true) {
         return elastos::ErrCode::InvalidArgument;
     }
 

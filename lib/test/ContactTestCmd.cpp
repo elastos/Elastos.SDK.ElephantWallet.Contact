@@ -52,7 +52,7 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { '-', "",               nullptr,                             "\n User" },
     { 'g', "get-uinfo",      ContactTestCmd::GetUserInfo,         "\tGet User Info [g]" },
     { ' ', "set-uid",        ContactTestCmd::Unimplemention,      "\t\tSet User Identifycode" },
-    { ' ', "set-udetails",   ContactTestCmd::Unimplemention,      "\tSet User Details" },
+    { 's', "set-udetails",   ContactTestCmd::Unimplemention,      "\tSet User Details" },
     { ' ', "set-uwaddr",     ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
     { 'u', "sync-upload",    ContactTestCmd::SyncUpload,          "\tSync Upload" },
     { ' ', "sync-download",  ContactTestCmd::Unimplemention,      "\tSync Download" },
@@ -60,11 +60,12 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { '-', "",               nullptr,                             "\n Friend" },
     { 'l', "list-finfo",     ContactTestCmd::ListFriendInfo,      "\tList Friend Info [e]" },
     { 'e', "accept-frd",     ContactTestCmd::AcceptFriend,        "\tAccept Friend [e fid]" },
-    { 'a', "add-friend",     ContactTestCmd::AddFriend,           "\tAdd Friend [a fid summary]" },
+    { 'a', "add-friend",     ContactTestCmd::AddFriend,           "\tAdd Friend [a fid ${summary}]" },
     { 'd', "del-friend",     ContactTestCmd::DelFriend,           "\tDel Friend" },
-    { 't', "send-tmsg",      ContactTestCmd::SendTextMessage,     "\tSend Text Message [t fid text]" },
-    { 'b', "send-bmsg",      ContactTestCmd::SendBinaryMessage,   "\tSend Binary Message [b fid binary]" },
-    { 'f', "send-fmsg",      ContactTestCmd::SendFileMessage,     "\tSend File Message [f fid filepath]" },
+    { 'i', "set-fdetails",   ContactTestCmd::SetHumanDetails,     "\tSet Friend Details [t fid [4:Nickname|7:Description|8:Addition] ${text}]" },
+    { 't', "send-tmsg",      ContactTestCmd::SendTextMessage,     "\tSend Text Message [t fid ${text}]" },
+    { 'b', "send-bmsg",      ContactTestCmd::SendBinaryMessage,   "\tSend Binary Message [b fid ${binary}]" },
+    { 'f', "send-fmsg",      ContactTestCmd::SendFileMessage,     "\tSend File Message [f fid ${filepath}]" },
     { 'p', "pull-file",      ContactTestCmd::Unimplemention,      "\tPull File" },
     { 'c', "cancel-pfile",   ContactTestCmd::Unimplemention,      "\tCancel Pull File" },
 
@@ -260,6 +261,23 @@ int ContactTestCmd::RestartContact(const std::vector<std::string>& args,
     ret = ContactTest::GetInstance()->testStartContact();
 
     return ret;
+}
+
+int ContactTestCmd::SetHumanDetails(const std::vector<std::string>& args,
+                                    std::string& errMsg)
+{
+    if(args.size() < 4) {
+        errMsg = "Bad input count: " + std::to_string(args.size());
+        return -1;
+    }
+
+    auto fid = args[1];
+    auto infoType = std::stoi(args[2]);
+    auto infoData = args[3];
+
+    auto ret = ContactTest::GetInstance()->doSetHumanDetails(fid, infoType, infoData);
+    return ret;
+
 }
 
 int ContactTestCmd::GetUserInfo(const std::vector<std::string>& args,

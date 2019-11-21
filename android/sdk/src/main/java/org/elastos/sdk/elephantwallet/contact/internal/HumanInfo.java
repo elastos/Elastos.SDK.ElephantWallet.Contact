@@ -13,7 +13,8 @@ public class HumanInfo {
         Nickname(4),
         Avatar(5),
         Gender(6),
-        Description(7);
+        Description(7),
+        Addition(8);
 
         public static Item valueOf(int id) {
             Item[] values = Item.values();
@@ -85,6 +86,7 @@ public class HumanInfo {
     public String avatar;
     public String gender;
     public String description;
+    public String addition;
 
     protected int fromJsonObj(HumanJson info) {
         this.commonInfoMap = null;
@@ -101,6 +103,7 @@ public class HumanInfo {
         this.avatar = info.humanInfo.avatar;
         this.gender = info.humanInfo.gender;
         this.description = info.humanInfo.description;
+        this.addition = info.humanInfo.addition;
 
         if(info.humanInfo.commonInfoMap != null) {
             this.chainPubKey = info.humanInfo.commonInfoMap.get(Item.ChainPubKey.id());
@@ -110,6 +113,7 @@ public class HumanInfo {
             this.avatar = info.humanInfo.commonInfoMap.get(Item.Avatar.id());
             this.gender = info.humanInfo.commonInfoMap.get(Item.Gender.id());
             this.description = info.humanInfo.commonInfoMap.get(Item.Description.id());
+            this.addition = info.humanInfo.commonInfoMap.get(Item.Addition.id());
         }
 
         return 0;
@@ -132,6 +136,7 @@ public class HumanInfo {
         json.humanInfo.avatar = this.avatar;
         json.humanInfo.gender = this.gender;
         json.humanInfo.description = this.description;
+        json.humanInfo.addition = this.addition;
 
         if(this.commonInfoMap != null) {
             json.humanInfo.chainPubKey = this.commonInfoMap.get(Item.ChainPubKey.id());
@@ -141,6 +146,7 @@ public class HumanInfo {
             json.humanInfo.avatar = this.commonInfoMap.get(Item.Avatar.id());
             json.humanInfo.gender = this.commonInfoMap.get(Item.Gender.id());
             json.humanInfo.description = this.commonInfoMap.get(Item.Description.id());
+            json.humanInfo.addition = this.commonInfoMap.get(Item.Addition.id());
         }
 
         return 0;

@@ -22,6 +22,7 @@ public:
         Avatar,
         Gender,
         Description,
+        Addition,
     };
 
     enum class HumanKind: int {

@@ -28,6 +28,7 @@ import org.elastos.sdk.elephantwallet.contact.internal.ContactMessage;
 import org.elastos.sdk.elephantwallet.contact.internal.ContactStatus;
 import org.elastos.sdk.elephantwallet.contact.internal.EventArgs;
 import org.elastos.sdk.elephantwallet.contact.internal.AcquireArgs;
+import org.elastos.sdk.elephantwallet.contact.internal.HumanInfo;
 import org.elastos.sdk.elephantwallet.contact.internal.Utils;
 import org.elastos.sdk.keypair.ElastosKeypair;
 import org.json.JSONObject;
@@ -178,6 +179,9 @@ public class MainActivity extends Activity {
                 break;
             case R.id.del_friend:
                 message = removeFriend();
+                break;
+            case R.id.set_friend_details:
+                message = showSetFriendDetails();
                 break;
             case R.id.send_text_message:
                 message = sendTextMessage();
@@ -533,38 +537,55 @@ public class MainActivity extends Activity {
             return ErrorPrefix + "Contact is null.";
         }
 
-        LinkedList<String> checkList = new LinkedList<>(Arrays.asList(
-            Contact.UserInfo.Item.Nickname.name(),
-            Contact.UserInfo.Item.Avatar.name(),
-            Contact.UserInfo.Item.Gender.name(),
-            Contact.UserInfo.Item.Description.name()
-        ));
-        String separator = ":-:-:";
-
-        Helper.showSetDetails(this, checkList, separator, (result) -> {
-            HashMap<String, Contact.UserInfo.Item> details = new HashMap<String, Contact.UserInfo.Item>() {{
-                put(Contact.UserInfo.Item.Nickname.name(), Contact.UserInfo.Item.Nickname);
-                put(Contact.UserInfo.Item.Avatar.name(), Contact.UserInfo.Item.Avatar);
-                put(Contact.UserInfo.Item.Gender.name(), Contact.UserInfo.Item.Gender);
-                put(Contact.UserInfo.Item.Description.name(), Contact.UserInfo.Item.Description);
-            }};
-
-            String[] keyValue = result.split(separator);
-            Contact.UserInfo.Item item = details.get(keyValue[0]);
-            String value = keyValue[1];
-
-            int ret = mContact.setUserInfo(item, value);
-            if(ret < 0) {
-                showMessage(ErrorPrefix + "Failed to set " + result + ". ret=" + ret);
-            }
-        });
-
         Contact.UserInfo info = mContact.getUserInfo();
         if(info == null) {
             return ErrorPrefix + "Failed to get user info.";
         }
 
+        setHumanDetails(info.humanCode);
+
+        info = mContact.getUserInfo();
+        if(info == null) {
+            return ErrorPrefix + "Failed to get user info.";
+        }
+
         return info.toString();
+    }
+
+    private String setHumanDetails(String humanCode) {
+        if (mContact == null) {
+            return ErrorPrefix + "Contact is null.";
+        }
+
+        LinkedList<String> checkList = new LinkedList<>(Arrays.asList(
+                Contact.HumanInfo.Item.Nickname.name(),
+                Contact.HumanInfo.Item.Avatar.name(),
+                Contact.HumanInfo.Item.Gender.name(),
+                Contact.HumanInfo.Item.Description.name(),
+                Contact.HumanInfo.Item.Addition.name()
+        ));
+        String separator = ":-:-:";
+
+        Helper.showSetDetails(this, checkList, separator, (result) -> {
+            HashMap<String, Contact.HumanInfo.Item> details = new HashMap<String, Contact.HumanInfo.Item>() {{
+                put(Contact.HumanInfo.Item.Nickname.name(), Contact.HumanInfo.Item.Nickname);
+                put(Contact.HumanInfo.Item.Avatar.name(), Contact.HumanInfo.Item.Avatar);
+                put(Contact.HumanInfo.Item.Gender.name(), Contact.HumanInfo.Item.Gender);
+                put(Contact.HumanInfo.Item.Description.name(), Contact.HumanInfo.Item.Description);
+                put(Contact.HumanInfo.Item.Addition.name(), Contact.HumanInfo.Item.Addition);
+            }};
+
+            String[] keyValue = result.split(separator);
+            Contact.HumanInfo.Item item = details.get(keyValue[0]);
+            String value = keyValue[1];
+
+            int ret = mContact.setHumanInfo(humanCode, item, value);
+            if(ret < 0) {
+                showMessage(ErrorPrefix + "Failed to set " + result + ". ret=" + ret);
+            }
+        });
+
+        return "";
     }
 
     private String showSetWalletAddress() {
@@ -678,6 +699,22 @@ public class MainActivity extends Activity {
             new Handler(Looper.getMainLooper()).post(() -> {
                 builder.create().show();
             });
+        });
+        return "Success to send message.";
+    }
+
+    private String showSetFriendDetails() {
+        if (mContact == null) {
+            return ErrorPrefix + "Contact is null.";
+        }
+
+        List<String> friendCodeList = new ArrayList<>();
+        List<Contact.FriendInfo> friendList = mContact.listFriendInfo();
+        for(Contact.FriendInfo friendInfo : friendList) {
+            friendCodeList.add(friendInfo.humanCode);
+        }
+        Helper.showFriendList(this, friendCodeList, (friendCode) -> {
+            setHumanDetails(friendCode);
         });
         return "Success to send message.";
     }

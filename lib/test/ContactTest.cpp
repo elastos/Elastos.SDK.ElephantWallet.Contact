@@ -200,6 +200,16 @@ int ContactTest::testDelContact()
     return 0;
 }
 
+int ContactTest::doSetHumanDetails(const std::string& friendCode, int key, const std::string& value)
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+
+}
+
 int ContactTest::showGetUserInfo()
 {
     if (mContact == nullptr) {
