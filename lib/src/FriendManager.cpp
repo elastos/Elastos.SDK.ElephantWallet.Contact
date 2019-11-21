@@ -11,6 +11,7 @@
 //#include "BlkChnClient.hpp"
 #include "DidChnClient.hpp"
 #include "DidChnDataListener.hpp"
+#include "ElaChnClient.hpp"
 #include <CompatibleFileSystem.hpp>
 #include <DateTime.hpp>
 #include <Elastos.SDK.Keypair.C/Elastos.Wallet.Utility.h>
@@ -594,24 +595,34 @@ int FriendManager::addFriendByEla(const std::string& elaAddress, const std::stri
         return ErrCode::InvalidArgument;
     }
 
-//    auto msgMgr = SAFE_GET_PTR(mMessageManager);
-//    int ret = msgMgr->requestFriend(elaAddress, MessageManager::ChannelType::ElaChain, summary);
+    auto ecClient = ElaChnClient::GetInstance();
+
+    std::string publicKey;
+    int ret = ecClient->downloadPublicKey(elaAddress, publicKey);
+    CHECK_ERROR(ret);
+
+    std::string did;
+    ret = SecurityManager::GetDid(publicKey, did);
+    CHECK_ERROR(ret);
+
+    ret = addFriendByDid(did, summary, remoteRequest, forceRequest);
+    CHECK_ERROR(ret);
+
+
+//    bool hasExists = contains(elaAddress);
+//    if(hasExists == true) {
+//        Log::I(Log::TAG, "Friend %s has been exists.", elaAddress.c_str());
+//        return 0;
+//    }
+//
+//    auto friendInfo = std::make_shared<FriendInfo>(weak_from_this());
+//    int ret = friendInfo->setHumanInfo(HumanInfo::Item::ElaAddress, elaAddress);
 //    CHECK_ERROR(ret)
-
-    bool hasExists = contains(elaAddress);
-    if(hasExists == true) {
-        Log::I(Log::TAG, "Friend %s has been exists.", elaAddress.c_str());
-        return 0;
-    }
-
-    auto friendInfo = std::make_shared<FriendInfo>(weak_from_this());
-    int ret = friendInfo->setHumanInfo(HumanInfo::Item::ElaAddress, elaAddress);
-    CHECK_ERROR(ret)
-
-    ret = friendInfo->setHumanStatus(HumanInfo::HumanKind ::Ela, HumanInfo::Status::Offline);
-    CHECK_ERROR(ret)
-
-    mFriendList.push_back(friendInfo);
+//
+//    ret = friendInfo->setHumanStatus(HumanInfo::HumanKind ::Ela, HumanInfo::Status::Offline);
+//    CHECK_ERROR(ret)
+//
+//    mFriendList.push_back(friendInfo);
 
     return 0;
 }

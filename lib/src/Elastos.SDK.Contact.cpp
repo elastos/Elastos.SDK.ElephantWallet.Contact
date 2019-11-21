@@ -12,6 +12,7 @@
 #include "DateTime.hpp"
 #include "DidChnClient.hpp"
 #include "DidChnDataListener.hpp"
+#include "ElaChnClient.hpp"
 #include "Log.hpp"
 #include "Platform.hpp"
 #include "SafePtr.hpp"
@@ -272,6 +273,9 @@ int Contact::initGlobal()
 
     mUserManager->setConfig(mConfig, mMessageManager);
     mFriendManager->setConfig(mConfig, mMessageManager);
+
+    ret = ElaChnClient::InitInstance(mConfig, mSecurityManager);
+    CHECK_ERROR(ret)
 
     ret = DidChnClient::InitInstance(mConfig, mSecurityManager);
     CHECK_ERROR(ret)

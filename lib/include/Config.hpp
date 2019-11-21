@@ -39,6 +39,7 @@ public:
             std::string mGetTx;
             std::string mGetAllTxs;
             std::string mGetHistory;
+            std::string mGetPubKey;
         };
 
         std::string mUrl;
