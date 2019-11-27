@@ -1,6 +1,10 @@
 file( GLOB Elastos.SDK.Contact-SOURCES "*.cpp" )
 file( GLOB Elastos.SDK.Contact-HEADERS "*.hpp" "../include/*.hpp" )
 
+if((NOT "${CFG_TARGET_PLATFORM}" STREQUAL "Android") AND (NOT "${CFG_TARGET_PLATFORM}" STREQUAL "iOS"))
+file( GLOB Elastos.SDK.Contact-DEPHEADERS "../crosspl/*.hpp" "../wrapper/json/*.hpp")
+endif()
+
 if(("${CFG_TARGET_PLATFORM}" STREQUAL "Android") OR ("${CFG_TARGET_PLATFORM}" STREQUAL "iOS"))
 list(FILTER Elastos.SDK.Contact-SOURCES EXCLUDE REGEX "Contact.cpp")
 endif()
@@ -25,6 +29,7 @@ elseif("${CFG_TARGET_PLATFORM}" STREQUAL "iOS")
 endif()
 
 set_target_properties(Elastos.SDK.Contact PROPERTIES PUBLIC_HEADER "${Elastos.SDK.Contact-HEADERS}")
+set_target_properties(Elastos.SDK.Contact PROPERTIES PUBLIC_HEADER "${Elastos.SDK.Contact-DEPHEADERS}")
 install(TARGETS Elastos.SDK.Contact
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
