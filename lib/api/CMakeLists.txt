@@ -28,10 +28,11 @@ elseif("${CFG_TARGET_PLATFORM}" STREQUAL "iOS")
     target_link_libraries(Elastos.SDK.Contact PRIVATE "-framework CFNetwork")
 endif()
 
-set_target_properties(Elastos.SDK.Contact PROPERTIES PUBLIC_HEADER "${Elastos.SDK.Contact-HEADERS}")
-set_target_properties(Elastos.SDK.Contact PROPERTIES PUBLIC_HEADER "${Elastos.SDK.Contact-DEPHEADERS}")
+file( GLOB Elastos.SDK.Contact-PUBLIC_HEADER ${Elastos.SDK.Contact-HEADERS} ${Elastos.SDK.Contact-DEPHEADERS})
+set_target_properties(Elastos.SDK.Contact PROPERTIES PUBLIC_HEADER "${Elastos.SDK.Contact-PUBLIC_HEADER}")
 install(TARGETS Elastos.SDK.Contact
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         PUBLIC_HEADER DESTINATION include/Elastos.SDK.Contact)
+
