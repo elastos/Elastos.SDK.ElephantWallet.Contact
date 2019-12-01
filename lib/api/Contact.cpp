@@ -5,7 +5,6 @@
 //  Copyright © 2016 mengxk. All rights reserved.
 //
 
-#ifndef WITH_CROSSPL
 
 #include <Contact.hpp>
 
@@ -14,6 +13,11 @@
 #include <CompatibleFileSystem.hpp>
 #include <Platform.hpp>
 #include <MD5.hpp>
+
+#ifdef WITH_CROSSPL
+namespace crosspl {
+namespace native {
+#endif // WITH_CROSSPL
 
 /***********************************************/
 /***** static variables initialize *************/
@@ -172,4 +176,9 @@ void ElaphantContact::Message::FileData::fromData(const std::vector<uint8_t>& da
 /***** class private function implement  *******/
 /***********************************************/
 
+
+#ifdef WITH_CROSSPL
+} //namespace native
+} //namespace crosspl
 #endif // WITH_CROSSPL
+

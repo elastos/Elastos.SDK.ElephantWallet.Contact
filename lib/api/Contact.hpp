@@ -11,7 +11,10 @@
 #ifndef _ELASTOS_SDK_CONTACT_HPP_
 #define _ELASTOS_SDK_CONTACT_HPP_
 
-#ifndef WITH_CROSSPL
+#ifdef WITH_CROSSPL
+namespace crosspl {
+namespace native {
+#endif // WITH_CROSSPL
 
 #include <Elastos.SDK.Contact.hpp>
 #include <ContactBridge.hpp>
@@ -185,6 +188,9 @@ private:
 
 }; // class Contact
 
+#ifdef WITH_CROSSPL
+} //namespace native
+} //namespace crosspl
 #endif // WITH_CROSSPL
 
 #endif /* _ELASTOS_SDK_CONTACT_HPP_ */
