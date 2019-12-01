@@ -11,11 +11,6 @@
 #ifndef _ELASTOS_SDK_CONTACT_HPP_
 #define _ELASTOS_SDK_CONTACT_HPP_
 
-#ifdef WITH_CROSSPL
-namespace crosspl {
-namespace native {
-#endif // WITH_CROSSPL
-
 #include <Elastos.SDK.Contact.hpp>
 #include <ContactBridge.hpp>
 #include <ContactChannel.hpp>
@@ -25,6 +20,11 @@ namespace native {
 #include <ContactListener.hpp>
 #include <ContactMessage.hpp>
 #include <memory>
+
+#ifdef WITH_CROSSPL
+namespace crosspl {
+namespace native {
+#endif // WITH_CROSSPL
 
 class ElaphantContact : public ContactBridge {
 public:
