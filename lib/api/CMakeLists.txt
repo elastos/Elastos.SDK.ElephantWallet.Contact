@@ -1,8 +1,8 @@
 file( GLOB Elastos.SDK.Contact-SOURCES "*.cpp" )
-file( GLOB Elastos.SDK.Contact-HEADERS "*.hpp" "../include/*.hpp" )
+file( GLOB Elastos.SDK.Contact-HEADERS "*.hpp" "../include/*.hpp" "../wrapper/json/*.hpp")
 
 if((NOT "${CFG_TARGET_PLATFORM}" STREQUAL "Android") AND (NOT "${CFG_TARGET_PLATFORM}" STREQUAL "iOS"))
-file( GLOB Elastos.SDK.Contact-DEPHEADERS "../crosspl/*.hpp" "../wrapper/json/*.hpp")
+file( GLOB Elastos.SDK.Contact-DEPHEADERS "../crosspl/*.hpp" )
 endif()
 
 if(("${CFG_TARGET_PLATFORM}" STREQUAL "Android") OR ("${CFG_TARGET_PLATFORM}" STREQUAL "iOS"))
