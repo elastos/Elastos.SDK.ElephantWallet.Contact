@@ -151,6 +151,8 @@
 		DE978FDB233BB47B00F5B5F9 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE978FDA233BB47B00F5B5F9 /* Helper.swift */; };
 		DECA49C6232CA40D00C98A0D /* CrossPLUtils.mm in Sources */ = {isa = PBXBuildFile; fileRef = DECA49C4232CA40D00C98A0D /* CrossPLUtils.mm */; };
 		DECA49C7232CA40D00C98A0D /* CrossPLUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = DECA49C5232CA40D00C98A0D /* CrossPLUtils.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		DECBB57C2397F2D90068BB01 /* ElaChnClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DECBB57A2397F2D90068BB01 /* ElaChnClient.hpp */; };
+		DECBB57D2397F2D90068BB01 /* ElaChnClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DECBB57B2397F2D90068BB01 /* ElaChnClient.cpp */; };
 		DEDA63672338A38E0024EA12 /* ContactBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEDA63662338A38E0024EA12 /* ContactBridge.swift */; };
 		DEDA639A2338CB540024EA12 /* ContactListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEDA63992338CB540024EA12 /* ContactListener.swift */; };
 		DEEFCF1E233B68A3008E240B /* UserInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEEFCF1D233B68A3008E240B /* UserInfo.swift */; };
@@ -349,6 +351,8 @@
 		DE978FDA233BB47B00F5B5F9 /* Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
 		DECA49C4232CA40D00C98A0D /* CrossPLUtils.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CrossPLUtils.mm; sourceTree = "<group>"; };
 		DECA49C5232CA40D00C98A0D /* CrossPLUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CrossPLUtils.h; sourceTree = "<group>"; };
+		DECBB57A2397F2D90068BB01 /* ElaChnClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ElaChnClient.hpp; path = ../../../../../lib/src/ElaChnClient.hpp; sourceTree = "<group>"; };
+		DECBB57B2397F2D90068BB01 /* ElaChnClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ElaChnClient.cpp; path = ../../../../../lib/src/ElaChnClient.cpp; sourceTree = "<group>"; };
 		DED5255D218DF4C800619F59 /* CrossPL.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = CrossPL.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DED52561218DF4C800619F59 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DEDA63662338A38E0024EA12 /* ContactBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactBridge.swift; sourceTree = "<group>"; };
@@ -537,6 +541,8 @@
 				DE2757BD2333486B001B635B /* DidChnClient.hpp */,
 				DE2757BB2333486B001B635B /* DidChnDataListener.cpp */,
 				DE2757CB2333486B001B635B /* DidChnDataListener.hpp */,
+				DECBB57B2397F2D90068BB01 /* ElaChnClient.cpp */,
+				DECBB57A2397F2D90068BB01 /* ElaChnClient.hpp */,
 				DE2757CC2333486B001B635B /* Elastos.SDK.Contact.cpp */,
 				DE2757B92333486B001B635B /* ErrCode.cpp */,
 				DE2757B72333486B001B635B /* FriendInfo.cpp */,
@@ -766,8 +772,8 @@
 		DED5255F218DF4C800619F59 /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				DE357380231F642D00496E41 /* cpp */,
 				DE76DD6B2328A26B0041A703 /* crosspl */,
+				DE357380231F642D00496E41 /* cpp */,
 				DE76DD59232889A60041A703 /* swift */,
 				DEDB2484218DF5F200F07F42 /* CrossPL-Bridging-Header.h */,
 				DED52561218DF4C800619F59 /* Info.plist */,
@@ -813,6 +819,7 @@
 				DE3C538E2339AAE70053196E /* CrossBase.proxy.h in Headers */,
 				DE2757E82333486B001B635B /* UserInfo.hpp in Headers */,
 				DE2757E92333486B001B635B /* FriendManager.hpp in Headers */,
+				DECBB57C2397F2D90068BB01 /* ElaChnClient.hpp in Headers */,
 				DE60EC1D237F7F07001E4493 /* CrossPLFactory.ContactSDK.h in Headers */,
 				DE27581E2333486C001B635B /* DidChnDataListener.hpp in Headers */,
 				DE8A33FC23713AF6008F5FA5 /* ChannelImplCarrierDataTrans.hpp in Headers */,
@@ -1057,6 +1064,7 @@
 				DE27582823335014001B635B /* ContactFactory.swift in Sources */,
 				DE3C53CA233B1A220053196E /* HumanInfo.swift in Sources */,
 				DE27581B2333486C001B635B /* MessageChannelStrategy.cpp in Sources */,
+				DECBB57D2397F2D90068BB01 /* ElaChnClient.cpp in Sources */,
 				DE8A33F223712C77008F5FA5 /* ContactDataListener.swift in Sources */,
 				DEEFCF1E233B68A3008E240B /* UserInfo.swift in Sources */,
 				DE5EA248234EF7B10055F587 /* ContactDebug.swift in Sources */,

@@ -18,5 +18,7 @@ set -o nounset
 mkdir -p "$CROSSPL_TMP_DIR";
 echo "Make dir: $CROSSPL_TMP_DIR"
 
-xcodebuild -target "anno";
+if [ ! -f "$CROSSPL_OUT_DIR"/anno ]; then
+  xcodebuild -target "anno";
+fi
 "$CROSSPL_OUT_DIR"/anno "$CROSSPL_MOD_DIR/resources" "$PRODUCT_NAME" "$PRODUCT_BUNDLE_IDENTIFIER" "$PROJECT_DIR/$TARGET_PATH/" "$CROSSPL_TMP_DIR/crosspl/";

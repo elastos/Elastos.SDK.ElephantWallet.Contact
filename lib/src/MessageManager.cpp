@@ -489,15 +489,17 @@ int MessageManager::sendMessage(const std::shared_ptr<HumanInfo> humanInfo,
 
         ret = ErrCode::ChannelNotOnline;
         for(auto& it: infoArray) {
+            if(it.mDevInfo.mDevId == currDevId) { // current device, ignore send
+                continue;
+            }
+
             HumanInfo::Status status1 = HumanInfo::Status::Invalid;
             HumanInfo::Status status2 = HumanInfo::Status::Invalid;
             userInfo->getCarrierStatus(it.mUsrId, status1);
             humanInfo->getCarrierStatus(it.mUsrId, status2);
+            Log::I(Log::TAG, "=========== send message status: %d:%d", static_cast<int>(status1), static_cast<int>(status1));
             if(status1 != HumanInfo::Status::Online
             && status2 != HumanInfo::Status::Online) {
-                continue;
-            }
-            if(it.mDevInfo.mDevId == currDevId) { // current device, ignore send
                 continue;
             }
 

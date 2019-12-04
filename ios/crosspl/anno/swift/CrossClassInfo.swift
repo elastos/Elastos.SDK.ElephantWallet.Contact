@@ -158,8 +158,9 @@ class CrossClassInfo {
 
   private static func printAst(filePath: String) -> String {
     let task = Process()
+    task.environment = nil
     task.launchPath = "/bin/bash"
-    task.arguments = ["-c", "swiftc -target x86_64-apple-ios8.0-macabi -print-ast \(filePath) 2>/dev/null"]
+    task.arguments = ["-c", "swiftc -print-ast \(filePath)"]
     
     let outputPipe = Pipe()
     let errorPipe = Pipe()

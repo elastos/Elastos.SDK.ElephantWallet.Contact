@@ -35,7 +35,7 @@ open class ContactBridge: CrossBase {
   }
 
   public func setUserInfo(item: UserInfo.Item, value: String) -> Int {
-    let ret = setUserInfo(item: item.rawValue, value: value);
+    let ret = setHumanInfo(humanCode: "-user-info-", item: item.rawValue, value: value);
     return ret
   }
 
@@ -229,8 +229,8 @@ open class ContactBridge: CrossBase {
   }
   
   /* @CrossNativeInterface */
-  private func setUserInfo(item: Int, value: String) -> Int {
-    let ret = crosspl_Proxy_ContactBridge_setUserInfo(nativeHandle, Int32(item), value)
+  private func setHumanInfo(humanCode: String, item: Int, value: String) -> Int {
+    let ret = crosspl_Proxy_ContactBridge_setHumanInfo(nativeHandle, humanCode, Int32(item), value)
     return Int(ret)
   }
   
