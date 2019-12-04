@@ -14,10 +14,7 @@
 #include <Platform.hpp>
 #include <MD5.hpp>
 
-#ifdef WITH_CROSSPL
-namespace crosspl {
-namespace native {
-#endif // WITH_CROSSPL
+#ifndef WITH_CROSSPL
 
 /***********************************************/
 /***** static variables initialize *************/
@@ -177,8 +174,5 @@ void ElaphantContact::Message::FileData::fromData(const std::vector<uint8_t>& da
 /***********************************************/
 
 
-#ifdef WITH_CROSSPL
-} //namespace native
-} //namespace crosspl
 #endif // WITH_CROSSPL
 

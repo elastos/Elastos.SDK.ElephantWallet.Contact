@@ -21,10 +21,7 @@
 #include <ContactMessage.hpp>
 #include <memory>
 
-#ifdef WITH_CROSSPL
-namespace crosspl {
-namespace native {
-#endif // WITH_CROSSPL
+#ifndef WITH_CROSSPL
 
 class ElaphantContact : public ContactBridge {
 public:
@@ -188,9 +185,6 @@ private:
 
 }; // class Contact
 
-#ifdef WITH_CROSSPL
-} //namespace native
-} //namespace crosspl
 #endif // WITH_CROSSPL
 
 #endif /* _ELASTOS_SDK_CONTACT_HPP_ */
