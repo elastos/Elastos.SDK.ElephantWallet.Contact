@@ -12,7 +12,7 @@ android {
 
                 // TODO: not perfect
                 arguments "-DCROSSPL_LIB_HEADERDIR=" + project(':crosspl:lib').projectDir + "/src/main/cpp"
-                arguments "-DCROSSPL_LIB_LIBS=" + project(':crosspl:lib').buildDir + "/intermediates/intermediate-jars/debug/jni/armeabi-v7a/libcrosspl.so"
+                arguments "-DCROSSPL_LIB_LIBPATHS=" + project(':crosspl:lib').buildDir + "/intermediates/intermediate-jars/debug/jni/"
             }
         }
     }
