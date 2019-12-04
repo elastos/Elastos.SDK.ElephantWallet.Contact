@@ -491,7 +491,16 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const Elaphant
         break;
     }
     case ElaphantContact::Listener::AcquireType::SignData:
+    {
+        uint8_t* signedData = nullptr;
+        auto privKey = getPrivateKey();
+        int signedSize = sign(privKey.c_str(), request.data.data(), request.data.size(), (void**)&signedData);
+        if(signedSize > 0 && signedData != nullptr) {
+            response = std::make_shared<std::vector<uint8_t>>(signedData, signedData + signedSize);
+            freeBuf(signedData);
+        }
         break;
+    }
     }
 
     return response;
