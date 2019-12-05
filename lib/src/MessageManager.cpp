@@ -468,6 +468,17 @@ int MessageManager::sendMessage(const std::shared_ptr<HumanInfo> humanInfo,
             if (ret < 0) {
                 return ErrCode::ChannelNotEstablished;
             }
+
+            std::string currDevId;
+            ret = Platform::GetCurrentDevId(currDevId);
+            CHECK_ERROR(ret);
+            for(auto it = infoArray.begin(); it != infoArray.end(); /*it++*/) {
+                if (it->mDevInfo.mDevId == currDevId) { // current device, ignore send
+                    it = infoArray.erase(it);
+                } else {
+                    it++;
+                }
+            }
         }
 
         std::vector<HumanInfo::CarrierInfo> friendArray;
@@ -483,16 +494,8 @@ int MessageManager::sendMessage(const std::shared_ptr<HumanInfo> humanInfo,
             Log::I(Log::TAG, "----------- %s", it.mUsrId.c_str());
         }
 
-        std::string currDevId;
-        ret = Platform::GetCurrentDevId(currDevId);
-        CHECK_ERROR(ret);
-
         ret = ErrCode::ChannelNotOnline;
         for(auto& it: infoArray) {
-            if(it.mDevInfo.mDevId == currDevId) { // current device, ignore send
-                continue;
-            }
-
             HumanInfo::Status status1 = HumanInfo::Status::Invalid;
             HumanInfo::Status status2 = HumanInfo::Status::Invalid;
             userInfo->getCarrierStatus(it.mUsrId, status1);
