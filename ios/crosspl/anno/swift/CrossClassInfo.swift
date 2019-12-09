@@ -160,7 +160,7 @@ class CrossClassInfo {
     let task = Process()
     task.environment = nil
     task.launchPath = "/bin/bash"
-    task.arguments = ["-c", "swiftc -print-ast \(filePath)"]
+    task.arguments = ["-c", "swiftc -print-ast \(filePath) 2>/dev/null"]
     
     let outputPipe = Pipe()
     let errorPipe = Pipe()

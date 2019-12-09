@@ -1024,7 +1024,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export TARGET_PATH=\"$TARGET_NAME\";\nexport ANNO_PATH=\"crosspl/anno\";\nANNO_RESPATH=\"$PWD/$ANNO_PATH/resources/\";\n\"$ANNO_RESPATH/crosspl.sh\";\n";
+			shellScript = "export TARGET_PATH=\"$TARGET_NAME\";\nexport ANNO_PATH=\"crosspl/anno\";\nANNO_RESPATH=\"$PWD/$ANNO_PATH/resources/\";\n\"$ANNO_RESPATH/crosspl.sh\";\necho \"===========$?\"\n";
 			showEnvVarsInLog = 0;
 		};
 		DE5982ED21D37E8F00998AEF /* Run Script */ = {

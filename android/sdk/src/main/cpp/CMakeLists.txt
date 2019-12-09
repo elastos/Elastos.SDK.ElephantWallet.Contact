@@ -5,6 +5,8 @@ set(ENV{PKG_CONFIG_PATH}  "${CFG_DEPENDS_DIR}/${ANDROID_ABI}/lib/pkgconfig")
 include_directories("${CFG_DEPENDS_DIR}/${ANDROID_ABI}/include")
 add_definitions(-DWITH_CROSSPL)
 
+set(CXX_VISIBILITY_PRESET hidden)
+
 include( "${CROSSPL_CMAKEFILE}" )
 include_directories(base/api)
 include_directories(base/include)

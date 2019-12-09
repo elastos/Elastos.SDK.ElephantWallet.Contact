@@ -293,14 +293,14 @@ class ViewController: UIViewController {
           super.init()
         }
       
-        override func onNotify(humanCode: String, channelType: Int, dataId: String,
+        override func onNotify(humanCode: String, channelType: ContactChannel, dataId: String,
                                status: Status) {
           let msg = "onNotify(): dataId=\(dataId), status=\(status)\n";
           viewCtrl.showEvent(msg);
 
         }
         
-        override func onReadData(humanCode: String, channelType: Int, dataId: String,
+        override func onReadData(humanCode: String, channelType: ContactChannel, dataId: String,
                                  offset: Int64, data: inout Data?) -> Int {
 
           guard let filepath = viewCtrl.mContactSendFileMap[dataId] else {
@@ -347,7 +347,7 @@ class ViewController: UIViewController {
           return size
         }
         
-        override func onWriteData(humanCode: String, channelType: Int, dataId: String,
+        override func onWriteData(humanCode: String, channelType: ContactChannel, dataId: String,
                                   offset: Int64, data: Data?) -> Int {
           var msg = "onWriteData(): dataId=\(dataId), offset=\(offset)\n";
           if(offset == 0 || data!.count == 0) {

@@ -16,15 +16,15 @@ import CrossPL
     case PeerFailed          = 0x1040
   }
 
-  open func onNotify(humanCode: String, channelType: Int, dataId: String,
+  open func onNotify(humanCode: String, channelType: ContactChannel, dataId: String,
                      status: Status) {
     fatalError("\(#function) not implementation.")
   }
-  open func onReadData(humanCode: String, channelType: Int, dataId: String,
+  open func onReadData(humanCode: String, channelType: ContactChannel, dataId: String,
                        offset: Int64, data: inout Data?) -> Int {
     fatalError("\(#function) not implementation.")
   }
-  open func onWriteData(humanCode: String, channelType: Int, dataId: String,
+  open func onWriteData(humanCode: String, channelType: ContactChannel, dataId: String,
                         offset: Int64, data: Data?) -> Int {
     fatalError("\(#function) not implementation.")
   }
@@ -41,8 +41,8 @@ import CrossPL
       id = dataId
     }
     
-    onNotify(humanCode: humanCode, channelType: channelType, dataId: id!,
-             status: Status(rawValue: status)!)
+    onNotify(humanCode: humanCode, channelType: ContactChannel(rawValue: channelType)!,
+             dataId: id!, status: Status(rawValue: status)!)
   }
   
   /* @CrossPlatformInterface */
@@ -54,8 +54,8 @@ import CrossPL
     }
     
     var data: Data? = Data(count: 1024)
-    let ret = onReadData(humanCode: humanCode, channelType: channelType, dataId: id!,
-                         offset: offset, data: &data)
+    let ret = onReadData(humanCode: humanCode, channelType: ContactChannel(rawValue: channelType)!,
+                         dataId: id!, offset: offset, data: &data)
     if(ret < 0) {
         return nil;
     }
@@ -72,8 +72,8 @@ import CrossPL
       id = dataId
     }
     
-    let ret = onWriteData(humanCode: humanCode, channelType: channelType, dataId: id!,
-                          offset: offset, data: data)
+    let ret = onWriteData(humanCode: humanCode, channelType: ContactChannel(rawValue: channelType)!,
+                          dataId: id!, offset: offset, data: data)
     return ret
   }
 }
