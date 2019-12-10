@@ -3,6 +3,8 @@
 //  Copyright © 2018 Elastos. All rights reserved.
 //
 
+#ifdef WITH_CROSSPL
 #import "CrossPLFactory.CrossPL.h"
+#endif // WITH_CROSSPL
 
 

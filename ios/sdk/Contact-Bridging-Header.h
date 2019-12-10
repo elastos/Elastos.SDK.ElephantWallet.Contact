@@ -6,4 +6,6 @@
 //  Copyright © 2019 Elastos. All rights reserved.
 //
 
+#ifdef WITH_CROSSPL
 #import "CrossPLFactory.ContactSDK.h"
+#endif // WITH_CROSSPL
