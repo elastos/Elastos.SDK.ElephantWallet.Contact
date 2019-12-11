@@ -1,5 +1,7 @@
 import CrossPL
 
+extension ContactInternal {
+
 /* @CrossClass */
 open class ContactBridge: CrossBase {
   public static let TAG = "elastos"
@@ -297,4 +299,6 @@ open class ContactBridge: CrossBase {
   
   private var mListener: CrossBase?
   private var mDataListener: CrossBase?
+}
+
 }

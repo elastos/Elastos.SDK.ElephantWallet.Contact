@@ -1,4 +1,6 @@
 
+extension ContactInternal {
+
 open class Log {
   private init() {}
   
@@ -42,4 +44,6 @@ open class Log {
     case LOG_WARN
     case LOG_ERROR
   }
+}
+
 }

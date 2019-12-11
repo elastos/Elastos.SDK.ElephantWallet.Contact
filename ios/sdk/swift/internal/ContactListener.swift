@@ -66,7 +66,7 @@ import CrossPL
         _ = friendInfo.fromJson(info: info)
         humanInfo = friendInfo
       } else {
-        Log.w(tag: Contact.TAG, msg: "InfoEvent: Failed to parse human data.");
+        ContactInternal.Log.w(tag: Contact.TAG, msg: "InfoEvent: Failed to parse human data.");
       }
       
       humanInfo = Contact.HumanInfo()
@@ -91,7 +91,7 @@ import CrossPL
 
   /* @CrossPlatformInterface */
   @objc internal func onAcquire(_ reqType: Int, _ pubKey: String?, _ data: Data?) -> Data? {
-    Log.i(tag: Contact.TAG, msg: "ContactListener.onAcquire()")
+    ContactInternal.Log.i(tag: Contact.TAG, msg: "ContactListener.onAcquire()")
 //
     let args = AcquireArgs(type: reqType, pubKey: pubKey, data: data)
     let ret = onAcquire(request: args);
@@ -119,7 +119,7 @@ import CrossPL
       fatalError("Unimplemented type: \(String(describing: type))");
     }
 
-    Log.i(tag: Contact.TAG, msg: "ContactListener.onEvent() args=\(args.toString())");
+    ContactInternal.Log.i(tag: Contact.TAG, msg: "ContactListener.onEvent() args=\(args.toString())");
     onEvent(event: args);
     return;
   }

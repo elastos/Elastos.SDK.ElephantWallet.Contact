@@ -1,5 +1,7 @@
 import CommonCrypto
 
+extension ContactInternal {
+
 public class Utils {
   private init() {}
   
@@ -54,4 +56,6 @@ public class Utils {
     let hexDigest = digest.map { String(format: "%02hhx", $0) }.joined()
     return hexDigest
   }
+}
+
 }

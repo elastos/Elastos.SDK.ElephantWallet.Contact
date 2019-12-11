@@ -1,5 +1,6 @@
 
 extension ContactInternal {
+
 public class AcquireArgs {
   public enum Kind: Int {
     case PublicKey = 201
@@ -28,4 +29,5 @@ public class AcquireArgs {
   public let publicKey: String?
   public let data: Data?
 }
+  
 }

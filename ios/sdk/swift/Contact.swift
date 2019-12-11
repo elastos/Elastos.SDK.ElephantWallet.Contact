@@ -1,5 +1,5 @@
 
-open class Contact: ContactBridge {
+open class Contact: ContactInternal.ContactBridge {
   public class Factory: ContactInternal.ContactFactory {
     public static func Create() -> Contact {
       return Contact()

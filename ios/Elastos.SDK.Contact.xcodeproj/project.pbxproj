@@ -15,6 +15,7 @@
 		DE1F52662321E43E00A70F78 /* CrossVariableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1F52652321E43E00A70F78 /* CrossVariableType.swift */; };
 		DE1F52692322076C00A70F78 /* CrossProxyGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1F52682322076C00A70F78 /* CrossProxyGenerator.swift */; };
 		DE271CBD23A0F8F300F531A3 /* ContactInternal.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE271CBC23A0F8F300F531A3 /* ContactInternal.swift */; };
+		DE271CBF23A10C7000F531A3 /* Misc.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE271CBE23A10C7000F531A3 /* Misc.swift */; };
 		DE2757DC2333486B001B635B /* HttpClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE2757832333486B001B635B /* HttpClient.hpp */; };
 		DE2757DD2333486B001B635B /* HttpClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE2757842333486B001B635B /* HttpClient.cpp */; };
 		DE2757DF2333486B001B635B /* Json.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE2757872333486B001B635B /* Json.hpp */; };
@@ -210,6 +211,7 @@
 		DE1F52652321E43E00A70F78 /* CrossVariableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossVariableType.swift; sourceTree = "<group>"; };
 		DE1F52682322076C00A70F78 /* CrossProxyGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossProxyGenerator.swift; sourceTree = "<group>"; };
 		DE271CBC23A0F8F300F531A3 /* ContactInternal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactInternal.swift; sourceTree = "<group>"; };
+		DE271CBE23A10C7000F531A3 /* Misc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Misc.swift; sourceTree = "<group>"; };
 		DE27576823334804001B635B /* ContactSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ContactSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE27576B23334805001B635B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DE2757832333486B001B635B /* HttpClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = HttpClient.hpp; sourceTree = "<group>"; };
@@ -574,12 +576,12 @@
 			isa = PBXGroup;
 			children = (
 				DE3C53B5233A0FBD0053196E /* AcquireArgs.swift */,
-				DE271CBC23A0F8F300F531A3 /* ContactInternal.swift */,
 				DEDA63662338A38E0024EA12 /* ContactBridge.swift */,
 				DE3C53BB233AFDDB0053196E /* ContactChannel.swift */,
 				DE8A33F123712C77008F5FA5 /* ContactDataListener.swift */,
 				DE5EA247234EF7B10055F587 /* ContactDebug.swift */,
 				DE27582723335014001B635B /* ContactFactory.swift */,
+				DE271CBC23A0F8F300F531A3 /* ContactInternal.swift */,
 				DEDA63992338CB540024EA12 /* ContactListener.swift */,
 				DE3C53BD233AFF070053196E /* ContactMessage.swift */,
 				DE3C53C3233B16B90053196E /* ContactStatus.swift */,
@@ -600,15 +602,16 @@
 		DE27584C23345AD4001B635B /* test */ = {
 			isa = PBXGroup;
 			children = (
-				DE27585423345AD6001B635B /* Assets.xcassets */,
 				DE27584D23345AD4001B635B /* AppDelegate.swift */,
+				DE27585423345AD6001B635B /* Assets.xcassets */,
 				DE978FDA233BB47B00F5B5F9 /* Helper.swift */,
 				DE598ED92350106800ECA160 /* ImagePicker.swift */,
+				DE27585923345AD6001B635B /* Info.plist */,
 				DE27585623345AD6001B635B /* LaunchScreen.storyboard */,
 				DE27585123345AD4001B635B /* Main.storyboard */,
+				DE271CBE23A10C7000F531A3 /* Misc.swift */,
 				DE371F3C234C72D000011A70 /* RadioGroupView.swift */,
 				DE27584F23345AD4001B635B /* ViewController.swift */,
-				DE27585923345AD6001B635B /* Info.plist */,
 			);
 			path = test;
 			sourceTree = "<group>";
@@ -1130,6 +1133,7 @@
 			files = (
 				DE27585023345AD4001B635B /* ViewController.swift in Sources */,
 				DE27584E23345AD4001B635B /* AppDelegate.swift in Sources */,
+				DE271CBF23A10C7000F531A3 /* Misc.swift in Sources */,
 				DE598EDA2350106800ECA160 /* ImagePicker.swift in Sources */,
 				DE371F3D234C72D000011A70 /* RadioGroupView.swift in Sources */,
 				DE978FDB233BB47B00F5B5F9 /* Helper.swift in Sources */,
