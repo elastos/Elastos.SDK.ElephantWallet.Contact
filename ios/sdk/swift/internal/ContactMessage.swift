@@ -1,5 +1,7 @@
 import CrossPL
 
+extension ContactInternal {
+
 /* @CrossClass */
 open class ContactMessage: CrossBase {
   public enum Kind: Int {
@@ -206,4 +208,6 @@ open class ContactMessage: CrossBase {
     let ret = crosspl_Proxy_ContactMessage_syncMessageToNative(nativeHandle, Int32(type), data, cryptoAlgorithm, timestamp)
     return Int(ret)
   }
+}
+
 }

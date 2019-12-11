@@ -8,9 +8,6 @@ import org.elastos.tools.crosspl.CrossBase;
 import org.elastos.tools.crosspl.annotation.CrossClass;
 import org.elastos.tools.crosspl.annotation.CrossInterface;
 
-import java.nio.ByteBuffer;
-import java.util.concurrent.ConcurrentHashMap;
-
 @CrossClass
 abstract class ContactListener extends CrossBase {
     @CrossInterface

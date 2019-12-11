@@ -1,5 +1,7 @@
 import CrossPL
 
+extension ContactInternal {
+
 /* @CrossClass */
 public class KeypairWrapper: CrossBase {
 
@@ -68,3 +70,5 @@ public class KeypairWrapper: CrossBase {
     super.init(className: String(describing: ContactDebug.self))
   }
 } // class Factory
+
+}

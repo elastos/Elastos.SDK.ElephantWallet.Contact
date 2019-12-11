@@ -262,7 +262,7 @@ class ViewController: UIViewController {
           viewCtrl.showEvent(msg)
         }
         
-        override func onReceivedMessage(humanCode: String, channelType: Int, message: Contact.Message) {
+        override func onReceivedMessage(humanCode: String, channelType: Contact.Channel, message: Contact.Message) {
           var msg = "onRcvdMsg(): data=\(message.data.toString())\n"
           msg += "onRcvdMsg(): type=\(message.type)\n"
           msg += "onRcvdMsg(): crypto=" + (message.cryptoAlgorithm ?? "nil") + "\n"
@@ -293,14 +293,14 @@ class ViewController: UIViewController {
           super.init()
         }
       
-        override func onNotify(humanCode: String, channelType: ContactChannel, dataId: String,
+        override func onNotify(humanCode: String, channelType: Contact.Channel, dataId: String,
                                status: Status) {
           let msg = "onNotify(): dataId=\(dataId), status=\(status)\n";
           viewCtrl.showEvent(msg);
 
         }
         
-        override func onReadData(humanCode: String, channelType: ContactChannel, dataId: String,
+        override func onReadData(humanCode: String, channelType: Contact.Channel, dataId: String,
                                  offset: Int64, data: inout Data?) -> Int {
 
           guard let filepath = viewCtrl.mContactSendFileMap[dataId] else {
@@ -347,7 +347,7 @@ class ViewController: UIViewController {
           return size
         }
         
-        override func onWriteData(humanCode: String, channelType: ContactChannel, dataId: String,
+        override func onWriteData(humanCode: String, channelType: Contact.Channel, dataId: String,
                                   offset: Int64, data: Data?) -> Int {
           var msg = "onWriteData(): dataId=\(dataId), offset=\(offset)\n";
           if(offset == 0 || data!.count == 0) {
@@ -681,7 +681,7 @@ class ViewController: UIViewController {
       return ViewController.ErrorPrefix + "Failed to get user info."
     }
 
-    if (info!.status != ContactStatus.Online) {
+    if (info!.status != Contact.Status.Online) {
       return ViewController.ErrorPrefix + "Contact is not online."
     }
 
@@ -719,7 +719,7 @@ class ViewController: UIViewController {
       return ViewController.ErrorPrefix + "Failed to get user info."
     }
 
-    if (info!.status != ContactStatus.Online) {
+    if (info!.status != Contact.Status.Online) {
       return ViewController.ErrorPrefix + "Contact is not online."
     }
 
@@ -729,13 +729,13 @@ class ViewController: UIViewController {
         let msgInfo = Contact.MakeTextMessage(text: message!, cryptoAlgorithm: nil)
 
         let status = self.mContact!.getStatus(humanCode: friendCode!)
-        if(status != ContactStatus.Online) {
+        if(status != Contact.Status.Online) {
           self.showMessage(ViewController.ErrorPrefix + "Friend is not online.")
           return
         }
 
         let ret = self.mContact!.sendMessage(friendCode: friendCode!,
-                                             channelType: ContactChannel.Carrier,
+                                             channelType: Contact.Channel.Carrier,
                                              message: msgInfo)
         if(ret < 0) {
           self.showMessage(ViewController.ErrorPrefix + "Failed to send message to " + friendCode!)
@@ -755,7 +755,7 @@ class ViewController: UIViewController {
       return ViewController.ErrorPrefix + "Failed to get user info."
     }
 
-    if (info!.status != ContactStatus.Online) {
+    if (info!.status != Contact.Status.Online) {
       return ViewController.ErrorPrefix + "Contact is not online."
     }
 
@@ -770,13 +770,13 @@ class ViewController: UIViewController {
         let msgInfo = Contact.MakeFileMessage(file: URL(string: filepath!)!, cryptoAlgorithm: nil)
 
         let status = self.mContact!.getStatus(humanCode: friendCode!)
-        if(status != ContactStatus.Online) {
+        if(status != Contact.Status.Online) {
           self.showMessage(ViewController.ErrorPrefix + "Friend is not online.")
           return
         }
 
         let ret = self.mContact!.sendMessage(friendCode: friendCode!,
-                                             channelType: ContactChannel.Carrier,
+                                             channelType: Contact.Channel.Carrier,
                                              message: msgInfo)
         if(ret < 0) {
           self.showMessage(ViewController.ErrorPrefix + "Failed to send message to " + friendCode!)
@@ -799,7 +799,7 @@ class ViewController: UIViewController {
       return ViewController.ErrorPrefix + "Failed to get user info."
     }
 
-    if (info!.status != ContactStatus.Online) {
+    if (info!.status != Contact.Status.Online) {
       return ViewController.ErrorPrefix + "Contact is not online."
     }
 
@@ -808,7 +808,7 @@ class ViewController: UIViewController {
       Helper.dismissDialog()
       
       let status = self.mContact!.getStatus(humanCode: friendCode!)
-      if(status != ContactStatus.Online) {
+      if(status != Contact.Status.Online) {
         self.showMessage(ViewController.ErrorPrefix + "Friend is not online.")
         return
       }
@@ -818,7 +818,7 @@ class ViewController: UIViewController {
         return
       }
       let ret = self.mContact!.pullFileAsync(friendCode: friendCode!,
-                                             channelType: ContactChannel.Carrier,
+                                             channelType: Contact.Channel.Carrier,
                                              fileInfo: fileData)
       if(ret < 0) {
         self.showMessage(ViewController.ErrorPrefix + "Failed to pull file from  \(friendCode!)")
@@ -837,7 +837,7 @@ class ViewController: UIViewController {
       return ViewController.ErrorPrefix + "Failed to get user info."
     }
 
-    if (info!.status != ContactStatus.Online) {
+    if (info!.status != Contact.Status.Online) {
       return ViewController.ErrorPrefix + "Contact is not online."
     }
 
@@ -846,7 +846,7 @@ class ViewController: UIViewController {
       Helper.dismissDialog()
       
       let status = self.mContact!.getStatus(humanCode: friendCode!)
-      if(status != ContactStatus.Online) {
+      if(status != Contact.Status.Online) {
         self.showMessage(ViewController.ErrorPrefix + "Friend is not online.")
         return
       }
@@ -856,7 +856,7 @@ class ViewController: UIViewController {
         return
       }
       let ret = self.mContact!.cancelPullFile(friendCode: friendCode!,
-                                              channelType: ContactChannel.Carrier,
+                                              channelType: Contact.Channel.Carrier,
                                               fileInfo: fileData)
       if(ret < 0) {
         self.showMessage(ViewController.ErrorPrefix + "Failed to cancel pull file from  \(friendCode!)")
@@ -880,7 +880,7 @@ class ViewController: UIViewController {
   }
   
   
-  private func processAcquire(request: AcquireArgs) -> Data? {
+  private func processAcquire(request: Contact.Listener.AcquireArgs) -> Data? {
     var response: Data?
   
     switch (request.type) {
@@ -908,7 +908,7 @@ class ViewController: UIViewController {
     return response
   }
 
-  private func processEvent(event: EventArgs) {
+  private func processEvent(event: Contact.Listener.EventArgs) {
     switch (event.type) {
       case .StatusChanged:
         break

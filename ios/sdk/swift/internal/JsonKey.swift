@@ -1,3 +1,4 @@
+extension ContactInternal {
 
 public class JsonKey {
   private init() { }
@@ -50,3 +51,4 @@ public class JsonKey {
   static let DidPropCache       = "DidPropCache"
 }
 
+}

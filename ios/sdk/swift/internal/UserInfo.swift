@@ -1,4 +1,6 @@
 
+extension ContactInternal {
+
 public class UserInfo: HumanInfo {
   public typealias Kind = IdentifyCode.Kind
   
@@ -101,3 +103,4 @@ public class UserInfo: HumanInfo {
   private static var mCurrDevId: String?
 } // class UserInfo
 
+}

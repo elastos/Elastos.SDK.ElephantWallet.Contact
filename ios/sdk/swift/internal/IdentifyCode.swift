@@ -1,4 +1,5 @@
 
+extension ContactInternal {
 
 public class IdentifyCode: Codable {
   public enum Kind: Int {
@@ -62,3 +63,5 @@ public class IdentifyCode: Codable {
     return 0
   }
 } // class Factory
+
+}

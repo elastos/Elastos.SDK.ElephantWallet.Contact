@@ -1,4 +1,6 @@
 
+extension ContactInternal {
+  
 public enum ContactStatus: Int, Codable {
   case Invalid = 0x0
   case WaitForAccept = 0x1
@@ -52,4 +54,6 @@ public enum ContactStatus: Int, Codable {
         break
     }
   }
+}
+
 }

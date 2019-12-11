@@ -1,3 +1,4 @@
+extension ContactInternal {
 
 public class HumanInfo: Codable {
   public enum Item: Int {
@@ -73,7 +74,7 @@ public class HumanInfo: Codable {
   private(set) var boundCarrierArray: [CarrierInfo]? = nil
   public var commonInfoMap: IntStrDictionary? = nil
   private var walletAddressMap: [String: String]? = nil
-  public private(set) var  status: ContactStatus = .Invalid
+  public private(set) var  status: Contact.Status = .Invalid
   public private(set) var humanCode: String? = nil
   public private(set) var updateTime: Int64 = 0
 
@@ -184,4 +185,6 @@ public class HumanInfo: Codable {
   
   init() {
   }
-} // class Factory
+} // class HumanInfo
+
+}

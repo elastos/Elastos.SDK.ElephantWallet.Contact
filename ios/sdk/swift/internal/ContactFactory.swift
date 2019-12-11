@@ -8,6 +8,8 @@
 
 import CrossPL
 
+extension ContactInternal {
+
 /* @CrossClass */
 public class ContactFactory: CrossBase {
   /* @CrossNativeInterface */
@@ -28,4 +30,5 @@ public class ContactFactory: CrossBase {
   init() {
     super.init(className: String(describing: ContactFactory.self))
   }
+}
 }

@@ -16,15 +16,15 @@ import CrossPL
     case PeerFailed          = 0x1040
   }
 
-  open func onNotify(humanCode: String, channelType: ContactChannel, dataId: String,
+  open func onNotify(humanCode: String, channelType: Contact.Channel, dataId: String,
                      status: Status) {
     fatalError("\(#function) not implementation.")
   }
-  open func onReadData(humanCode: String, channelType: ContactChannel, dataId: String,
+  open func onReadData(humanCode: String, channelType: Contact.Channel, dataId: String,
                        offset: Int64, data: inout Data?) -> Int {
     fatalError("\(#function) not implementation.")
   }
-  open func onWriteData(humanCode: String, channelType: ContactChannel, dataId: String,
+  open func onWriteData(humanCode: String, channelType: Contact.Channel, dataId: String,
                         offset: Int64, data: Data?) -> Int {
     fatalError("\(#function) not implementation.")
   }
@@ -41,7 +41,7 @@ import CrossPL
       id = dataId
     }
     
-    onNotify(humanCode: humanCode, channelType: ContactChannel(rawValue: channelType)!,
+    onNotify(humanCode: humanCode, channelType: Contact.Channel(rawValue: channelType)!,
              dataId: id!, status: Status(rawValue: status)!)
   }
   
@@ -54,7 +54,7 @@ import CrossPL
     }
     
     var data: Data? = Data(count: 1024)
-    let ret = onReadData(humanCode: humanCode, channelType: ContactChannel(rawValue: channelType)!,
+    let ret = onReadData(humanCode: humanCode, channelType: Contact.Channel(rawValue: channelType)!,
                          dataId: id!, offset: offset, data: &data)
     if(ret < 0) {
         return nil;
@@ -72,7 +72,7 @@ import CrossPL
       id = dataId
     }
     
-    let ret = onWriteData(humanCode: humanCode, channelType: ContactChannel(rawValue: channelType)!,
+    let ret = onWriteData(humanCode: humanCode, channelType: Contact.Channel(rawValue: channelType)!,
                           dataId: id!, offset: offset, data: data)
     return ret
   }

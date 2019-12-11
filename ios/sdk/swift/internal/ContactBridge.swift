@@ -34,16 +34,16 @@ open class ContactBridge: CrossBase {
     setDataListener(listener: mDataListener);
   }
 
-  public func setHumanInfo(humanCode: String, item: HumanInfo.Item, value: String) -> Int {
+  public func setHumanInfo(humanCode: String, item: Contact.HumanInfo.Item, value: String) -> Int {
     return setHumanInfo(humanCode: humanCode, item: item.rawValue, value: value)
   }
   
-  public func setUserInfo(item: UserInfo.Item, value: String) -> Int {
+  public func setUserInfo(item: Contact.UserInfo.Item, value: String) -> Int {
     let ret = setHumanInfo(humanCode: "-user-info-", item: item.rawValue, value: value);
     return ret
   }
 
-  public func setIdentifyCode(type: IdentifyCode.Kind, value: String) -> Int {
+  public func setIdentifyCode(type: Contact.UserInfo.Kind, value: String) -> Int {
     let ret = setIdentifyCode(type: type.rawValue, value: value);
     return ret;
   }
@@ -114,13 +114,13 @@ open class ContactBridge: CrossBase {
     return friendCodeList
   }
 
-  public func getStatus(humanCode: String) -> ContactStatus? {
+  public func getStatus(humanCode: String) -> Contact.Status? {
     let ret = getHumanStatus(humanCode: humanCode)
     if(ret < 0) {
       return nil
     }
 
-    return ContactStatus(rawValue: ret)
+    return Contact.Status(rawValue: ret)
   }
 
 //  public func makeMessage(type: ContactMessage.Kind, data: Data, cryptoAlgorithm: String?) -> Contact.Message {
@@ -139,7 +139,7 @@ open class ContactBridge: CrossBase {
     return msg
   }
 
-  public func sendMessage(friendCode: String, channelType: ContactChannel, message: Contact.Message) -> Int {
+  public func sendMessage(friendCode: String, channelType: Contact.Channel, message: Contact.Message) -> Int {
     var ret = message.syncMessageToNative()
     if(ret < 0) {
       return ret;
@@ -150,7 +150,7 @@ open class ContactBridge: CrossBase {
     return ret;
   }
   
-  public func pullFileAsync(friendCode: String, channelType: ContactChannel,
+  public func pullFileAsync(friendCode: String, channelType: Contact.Channel,
                             fileInfo: Contact.Message.FileData) -> Int {
     guard fileInfo.devId != nil else {
       return -1;
@@ -162,7 +162,7 @@ open class ContactBridge: CrossBase {
     return ret;
   }
 
-  public func cancelPullFile(friendCode: String, channelType: ContactChannel,
+  public func cancelPullFile(friendCode: String, channelType: Contact.Channel,
                              fileInfo: Contact.Message.FileData) -> Int {
     guard fileInfo.devId != nil else {
       return -1;

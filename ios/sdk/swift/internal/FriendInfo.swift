@@ -1,4 +1,6 @@
 
+extension ContactInternal {
+  
 public class FriendInfo: HumanInfo {
   public class FriendJson: HumanInfo.HumanJson {
     var alias: String? = nil
@@ -62,3 +64,4 @@ public class FriendInfo: HumanInfo {
   }
 } // class FriendInfo
 
+}

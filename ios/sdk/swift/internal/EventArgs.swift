@@ -1,3 +1,4 @@
+extension ContactInternal {
 
 public class EventArgs {
   public enum Kind : Int {
@@ -12,7 +13,7 @@ public class EventArgs {
   public init(type: Int, humanCode: String, channelType: Int, data: Data?) {
     self.type = Kind(rawValue: type)!
     self.humanCode = humanCode
-    self.channelType = ContactChannel(rawValue: channelType)!
+    self.channelType = Contact.Channel(rawValue: channelType)!
     self.data = data
   }
   
@@ -27,6 +28,8 @@ public class EventArgs {
   
   public let type: Kind
   public let humanCode: String
-  public let channelType: ContactChannel
+  public let channelType: Contact.Channel
   public let data: Data?
+}
+
 }

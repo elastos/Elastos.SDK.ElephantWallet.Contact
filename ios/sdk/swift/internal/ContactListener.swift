@@ -11,16 +11,16 @@ import CrossPL
   open func onEvent(event: EventArgs) {
     fatalError("\(#function) not implementation.")
   }
-  open func onReceivedMessage(humanCode: String, channelType: Int, message: Contact.Message) {
+  open func onReceivedMessage(humanCode: String, channelType: Contact.Channel, message: Contact.Message) {
     fatalError("\(#function) not implementation.")
   }
   
-  public class EventArgs: ContactSDK.EventArgs {
-  }
+  public typealias AcquireArgs = ContactInternal.AcquireArgs
+  public typealias EventArgs = ContactInternal.EventArgs
 
   public class StatusEvent: EventArgs {
     public override init(type: Int, humanCode: String, channelType: Int, data: Data?) {
-      status = ContactStatus(rawValue: Int(data![0]))!
+      status = Contact.Status(rawValue: Int(data![0]))!
       super.init(type: type, humanCode: humanCode, channelType: channelType, data: data)
     }
    
@@ -33,7 +33,7 @@ import CrossPL
             + "]"
     }
 
-    public let status: ContactStatus
+    public let status: Contact.Status
   }
 
   public class RequestEvent: EventArgs {
@@ -57,19 +57,19 @@ import CrossPL
   public class InfoEvent: EventArgs {
     public override init(type: Int, humanCode: String, channelType: Int, data: Data?) {
       let info =  Data.ToString(from: data) ?? ""
-      if info.contains(JsonKey.IsMyself) == true {
-        let userInfo = UserInfo()
+      if info.contains(ContactInternal.JsonKey.IsMyself) == true {
+        let userInfo = Contact.UserInfo()
         _ = userInfo.fromJson(info: info)
         humanInfo = userInfo
-      } else if info.contains(JsonKey.IsFriend) == true {
-        let friendInfo = FriendInfo()
+      } else if info.contains(ContactInternal.JsonKey.IsFriend) == true {
+        let friendInfo = Contact.FriendInfo()
         _ = friendInfo.fromJson(info: info)
         humanInfo = friendInfo
       } else {
         Log.w(tag: Contact.TAG, msg: "InfoEvent: Failed to parse human data.");
       }
       
-      humanInfo = HumanInfo()
+      humanInfo = Contact.HumanInfo()
       super.init(type: type, humanCode: humanCode, channelType: channelType, data: data)
     }
 
@@ -82,7 +82,7 @@ import CrossPL
             + "]"
     }
     
-    public private(set) var humanInfo: HumanInfo
+    public private(set) var humanInfo: Contact.HumanInfo
   }
 
   public init() {
@@ -128,12 +128,14 @@ import CrossPL
   @objc internal func onReceivedMessage(_ humanCode: String, _ channelType: Int,
                                        _ type: Int, _ data: Data,
                                        _ cryptoAlgorithm: String, _ timestamp: Int64) {
-    let message = Contact.Message(type: ContactMessage.Kind(rawValue: type)!,
+    let message = Contact.Message(type: Contact.Message.Kind(rawValue: type)!,
                                   data: data,
                                   cryptoAlgorithm: cryptoAlgorithm)
     message.timestamp = timestamp
 
-    onReceivedMessage(humanCode: humanCode, channelType: channelType, message: message);
+    onReceivedMessage(humanCode: humanCode,
+                      channelType: Contact.Channel(rawValue: channelType)!,
+                      message: message);
     return;
   }
   

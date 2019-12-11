@@ -14,6 +14,7 @@
 		DE1F526423214A9400A70F78 /* Annotation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1F526323214A9400A70F78 /* Annotation.swift */; };
 		DE1F52662321E43E00A70F78 /* CrossVariableType.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1F52652321E43E00A70F78 /* CrossVariableType.swift */; };
 		DE1F52692322076C00A70F78 /* CrossProxyGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE1F52682322076C00A70F78 /* CrossProxyGenerator.swift */; };
+		DE271CBD23A0F8F300F531A3 /* ContactInternal.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE271CBC23A0F8F300F531A3 /* ContactInternal.swift */; };
 		DE2757DC2333486B001B635B /* HttpClient.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE2757832333486B001B635B /* HttpClient.hpp */; };
 		DE2757DD2333486B001B635B /* HttpClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE2757842333486B001B635B /* HttpClient.cpp */; };
 		DE2757DF2333486B001B635B /* Json.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE2757872333486B001B635B /* Json.hpp */; };
@@ -208,6 +209,7 @@
 		DE1F526323214A9400A70F78 /* Annotation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Annotation.swift; sourceTree = "<group>"; };
 		DE1F52652321E43E00A70F78 /* CrossVariableType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossVariableType.swift; sourceTree = "<group>"; };
 		DE1F52682322076C00A70F78 /* CrossProxyGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossProxyGenerator.swift; sourceTree = "<group>"; };
+		DE271CBC23A0F8F300F531A3 /* ContactInternal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactInternal.swift; sourceTree = "<group>"; };
 		DE27576823334804001B635B /* ContactSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ContactSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DE27576B23334805001B635B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		DE2757832333486B001B635B /* HttpClient.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = HttpClient.hpp; sourceTree = "<group>"; };
@@ -572,6 +574,7 @@
 			isa = PBXGroup;
 			children = (
 				DE3C53B5233A0FBD0053196E /* AcquireArgs.swift */,
+				DE271CBC23A0F8F300F531A3 /* ContactInternal.swift */,
 				DEDA63662338A38E0024EA12 /* ContactBridge.swift */,
 				DE3C53BB233AFDDB0053196E /* ContactChannel.swift */,
 				DE8A33F123712C77008F5FA5 /* ContactDataListener.swift */,
@@ -1076,6 +1079,7 @@
 				DE60EC21237F7F07001E4493 /* CrossPLFactory.ContactSDK.mm in Sources */,
 				DE8A33FB23713AF6008F5FA5 /* ChannelImplCarrierDataTrans.cpp in Sources */,
 				DE2757F42333486B001B635B /* PlatformAndroid.cpp in Sources */,
+				DE271CBD23A0F8F300F531A3 /* ContactInternal.swift in Sources */,
 				DE978FD9233BA1C000F5B5F9 /* FriendInfo.swift in Sources */,
 				DE3C53C4233B16B90053196E /* ContactStatus.swift in Sources */,
 				DE27580A2333486B001B635B /* FriendInfo.cpp in Sources */,

@@ -1,12 +1,12 @@
 
 open class Contact: ContactBridge {
-  public class Factory: ContactFactory {
+  public class Factory: ContactInternal.ContactFactory {
     public static func Create() -> Contact {
       return Contact()
     }
   
     public class override func SetDeviceId(devId: String) {
-      ContactFactory.SetDeviceId(devId: devId)
+      ContactInternal.ContactFactory.SetDeviceId(devId: devId)
       UserInfo.setCurrDevId(devId: devId)
     }
     
@@ -21,15 +21,15 @@ open class Contact: ContactBridge {
   open class DataListener: ContactDataListener {
   } // class Listener
 
-  public class UserInfo: ContactSDK.UserInfo {
-  } // class UserInfo
-
-  public class FriendInfo: ContactSDK.FriendInfo {
-  } // class FriendInfo
+  public typealias Channel = ContactInternal.ContactChannel
   
-  public class Message: ContactMessage {
-  } // class Message
+  public typealias Status = ContactInternal.ContactStatus
+  
+  public typealias HumanInfo = ContactInternal.HumanInfo
+  public typealias UserInfo = ContactInternal.UserInfo
+  public typealias FriendInfo = ContactInternal.FriendInfo
+  
+  public typealias Message = ContactInternal.ContactMessage
 
-  public class Debug: ContactDebug {
-  } // class Listener
+  public typealias Debug = ContactInternal.ContactDebug
 }
