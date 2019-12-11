@@ -3,6 +3,7 @@ package org.elastos.sdk.elephantwallet.contact.internal;
 import android.util.Log;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
+import org.elastos.sdk.elephantwallet.contact.Utils;
 import org.elastos.tools.crosspl.CrossBase;
 import org.elastos.tools.crosspl.annotation.CrossClass;
 import org.elastos.tools.crosspl.annotation.CrossInterface;
@@ -11,13 +12,13 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.ConcurrentHashMap;
 
 @CrossClass
-public abstract class ContactListener extends CrossBase {
+abstract class ContactListener extends CrossBase {
     @CrossInterface
     public abstract void onError(int errCode, String errStr, String ext);
 
     public abstract byte[] onAcquire(AcquireArgs request);
     public abstract void onEvent(EventArgs event);
-    public abstract void onReceivedMessage(String humanCode, ContactChannel channelType, Contact.Message message);
+    public abstract void onReceivedMessage(String humanCode, Contact.Channel channelType, Contact.Message message);
 
     public class AcquireArgs extends org.elastos.sdk.elephantwallet.contact.internal.AcquireArgs {
         private AcquireArgs(int type, String pubKey, byte[] data) {
@@ -75,7 +76,7 @@ public abstract class ContactListener extends CrossBase {
                 friendInfo.fromJson(info);
                 humanInfo = friendInfo;
             } else {
-               Log.w(Contact.TAG, "InfoEvent: Failed to parse human data.");
+               Log.w(Utils.TAG, "InfoEvent: Failed to parse human data.");
             }
         }
         @Override
@@ -94,7 +95,7 @@ public abstract class ContactListener extends CrossBase {
 
     @CrossInterface
     private byte[] onAcquire(int reqType, String pubKey, byte[] data) {
-        Log.i(Contact.TAG, "ContactListener.onAcquire()");
+        Log.i(Utils.TAG, "ContactListener.onAcquire()");
 
         AcquireArgs args = new AcquireArgs(reqType, pubKey, data);
         byte[] ret = onAcquire(args);
@@ -122,7 +123,7 @@ public abstract class ContactListener extends CrossBase {
                 throw new RuntimeException("Unimplemented type: " + type);
         }
 
-        Log.i(Contact.TAG, "ContactListener.onEvent() args=" + args);
+        Log.i(Utils.TAG, "ContactListener.onEvent() args=" + args);
         onEvent(args);
         return;
     }

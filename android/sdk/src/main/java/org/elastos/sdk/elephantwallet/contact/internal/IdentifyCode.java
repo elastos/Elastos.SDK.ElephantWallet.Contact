@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.HashMap;
 import java.util.List;
 
-public class IdentifyCode implements IdentifyCodeInterface {
+class IdentifyCode implements IdentifyCodeInterface {
     @SerializedName(JsonKey.IdCodeMap)
     protected HashMap<Integer, String> idCodeMap;
     @SerializedName(JsonKey.UpdateTime)

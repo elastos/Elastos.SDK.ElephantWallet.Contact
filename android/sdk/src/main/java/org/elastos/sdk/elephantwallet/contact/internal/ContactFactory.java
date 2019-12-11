@@ -7,7 +7,7 @@ import org.elastos.tools.crosspl.annotation.CrossClass;
 import org.elastos.tools.crosspl.annotation.CrossInterface;
 
 @CrossClass
-public class ContactFactory extends CrossBase {
+class ContactFactory extends CrossBase {
     @CrossInterface
     public static native void SetLogLevel(int level);
 

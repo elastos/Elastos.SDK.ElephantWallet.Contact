@@ -1,6 +1,6 @@
 package org.elastos.sdk.elephantwallet.contact.internal;
 
-public class AcquireArgs {
+class AcquireArgs {
     public enum Type {
         PublicKey(201),
         EncryptData(202),

@@ -9,10 +9,10 @@ import org.elastos.tools.crosspl.annotation.CrossInterface;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import static org.elastos.sdk.elephantwallet.contact.Contact.TAG;
+import org.elastos.sdk.elephantwallet.contact.Utils;
 
 @CrossClass
-public class ContactDebug extends CrossBase {
+class ContactDebug extends CrossBase {
     protected ContactDebug() {
         super(ContactDebug.class.getName(), 0);
     }
@@ -26,7 +26,7 @@ public class ContactDebug extends CrossBase {
             method.invoke(con.newInstance());
         }
         catch(Exception e){
-            Log.i(TAG,"exception="+e.getMessage());
+            Log.i(Utils.TAG,"exception="+e.getMessage());
         }
     }
 

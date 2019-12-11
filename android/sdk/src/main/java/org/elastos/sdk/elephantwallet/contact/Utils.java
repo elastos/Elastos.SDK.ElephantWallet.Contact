@@ -1,4 +1,4 @@
-package org.elastos.sdk.elephantwallet.contact.internal;
+package org.elastos.sdk.elephantwallet.contact;
 
 import android.util.Log;
 
@@ -12,6 +12,17 @@ import java.security.MessageDigest;
 
 public final class Utils {
     private Utils() { }
+
+    public static final String TAG = "elastos";
+
+    public synchronized static void EnsureNativeLibrary() {
+        if(sNativeLibraryLoaded == true) {
+            return;
+        }
+
+        System.loadLibrary("Elastos.SDK.Contact.Jni");
+        sNativeLibraryLoaded = true;
+    }
 
     public static String ToString(Object obj) {
         StringBuilder result = new StringBuilder();
@@ -28,7 +39,7 @@ public final class Utils {
                 Object val = field.get(obj);
                 result.append(val);
             } catch (Exception e) {
-                Log.e(Contact.TAG, "Failed to print object to string", e);
+                Log.e(TAG, "Failed to print object to string", e);
                 result.append("unknown");
             }
             result.append(";");
@@ -53,7 +64,7 @@ public final class Utils {
             String md5 = new BigInteger(1, md.digest()).toString(16);
             return fillMD5(md5);
         } catch (Exception e) {
-            Log.e(Contact.TAG, "Failed to get md5. file:" + file.getAbsolutePath(), e);
+            Log.e(TAG, "Failed to get md5. file:" + file.getAbsolutePath(), e);
         }
 
         return null;
@@ -73,5 +84,7 @@ public final class Utils {
     private static String fillMD5(String md5) {
         return md5.length() == 32 ? md5 : fillMD5("0" + md5);
     }
+
+    private static boolean sNativeLibraryLoaded = false;
 }
 

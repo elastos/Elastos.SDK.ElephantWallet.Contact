@@ -2,10 +2,12 @@ package org.elastos.sdk.elephantwallet.contact.internal;
 
 import com.google.gson.annotations.SerializedName;
 
+import org.elastos.sdk.elephantwallet.contact.Utils;
+
 import java.util.HashMap;
 import java.util.List;
 
-public class HumanInfo {
+class HumanInfo {
     public enum Item {
         ChainPubKey(1),
         Did(2),

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @CrossClass
-public class ContactBridge extends CrossBase {
+class ContactBridge extends CrossBase {
     public static final String TAG = "elastos";
 
     protected ContactBridge() {
@@ -133,13 +133,13 @@ public class ContactBridge extends CrossBase {
         return ret;
     }
 
-    public ContactStatus getStatus(String humanCode) {
+    public Contact.Status getStatus(String humanCode) {
         int ret = getHumanStatus(humanCode);
         if(ret < 0) {
             return null;
         }
 
-        return ContactStatus.valueOf(ret);
+        return Contact.Status.valueOf(ret);
     }
 
     public int sendMessage(String friendCode, ContactChannel channelType, Contact.Message message) {

@@ -10,7 +10,7 @@ import org.elastos.tools.crosspl.annotation.CrossInterface;
 import java.nio.ByteBuffer;
 
 @CrossClass
-public abstract class ContactDataListener extends CrossBase {
+abstract class ContactDataListener extends CrossBase {
     public enum Status {
         Unknown             (0x0100),
         Initialized         (0x0101),
@@ -40,11 +40,11 @@ public abstract class ContactDataListener extends CrossBase {
         private int id;
     }
 
-    public abstract void onNotify(String humanCode, ContactChannel channelType,
+    public abstract void onNotify(String humanCode, Contact.Channel channelType,
                                    String dataId, Status status);
-    public abstract int onReadData(String humanCode, ContactChannel channelType,
+    public abstract int onReadData(String humanCode, Contact.Channel channelType,
                                    String dataId, long offset, ByteBuffer data);
-    public abstract int onWriteData(String humanCode, ContactChannel channelType,
+    public abstract int onWriteData(String humanCode, Contact.Channel channelType,
                                     String dataId, long offset, byte[] data);
 
     protected ContactDataListener() {

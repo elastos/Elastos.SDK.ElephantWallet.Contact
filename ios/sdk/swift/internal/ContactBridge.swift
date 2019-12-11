@@ -34,6 +34,10 @@ open class ContactBridge: CrossBase {
     setDataListener(listener: mDataListener);
   }
 
+  public func setHumanInfo(humanCode: String, item: HumanInfo.Item, value: String) -> Int {
+    return setHumanInfo(humanCode: humanCode, item: item.rawValue, value: value)
+  }
+  
   public func setUserInfo(item: UserInfo.Item, value: String) -> Int {
     let ret = setHumanInfo(humanCode: "-user-info-", item: item.rawValue, value: value);
     return ret
@@ -241,7 +245,7 @@ open class ContactBridge: CrossBase {
   }
   
   /* @CrossNativeInterface */
-  private func getHumanInfo(humanCode: String, info: inout String) -> Int {
+  public func getHumanInfo(humanCode: String, info: inout String) -> Int {
     var nsinfo = info as NSString?
     
     let ret = crosspl_Proxy_ContactBridge_getHumanInfo(nativeHandle, humanCode, &nsinfo)
@@ -254,7 +258,7 @@ open class ContactBridge: CrossBase {
   }
   
   /* @CrossNativeInterface */
-  private func getFriendList(info: inout String) -> Int {
+  public func getFriendList(info: inout String) -> Int {
     var nsinfo = info as NSString?
     let ret = crosspl_Proxy_ContactBridge_getFriendList(nativeHandle, &nsinfo)
     if ret < 0 {
@@ -266,7 +270,7 @@ open class ContactBridge: CrossBase {
   }
   
   /* @CrossNativeInterface */
-  private func getHumanStatus(humanCode: String) -> Int {
+  public func getHumanStatus(humanCode: String) -> Int {
     let ret = crosspl_Proxy_ContactBridge_getHumanStatus(nativeHandle, humanCode)
     return Int(ret)
   }

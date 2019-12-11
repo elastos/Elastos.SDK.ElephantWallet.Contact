@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
-public class UserInfo extends HumanInfo implements IdentifyCodeInterface {
+class UserInfo extends HumanInfo implements IdentifyCodeInterface {
     public class UserJson extends HumanJson {
         @SerializedName(JsonKey.IdentifyCode)
         IdentifyCode identifyCode;

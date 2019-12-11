@@ -1,6 +1,6 @@
 package org.elastos.sdk.elephantwallet.contact.internal;
 
-public class EventArgs {
+class EventArgs {
     public enum Type {
         StatusChanged(101),
 //        ReceivedMessage(102),

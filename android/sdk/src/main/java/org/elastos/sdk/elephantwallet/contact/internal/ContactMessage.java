@@ -6,18 +6,16 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.annotations.SerializedName;
 
-import org.elastos.sdk.elephantwallet.contact.Contact;
+import org.elastos.sdk.elephantwallet.contact.Utils;
 import org.elastos.tools.crosspl.CrossBase;
 import org.elastos.tools.crosspl.annotation.CrossClass;
 import org.elastos.tools.crosspl.annotation.CrossInterface;
 
 import java.io.File;
-import java.io.StringReader;
 
 @CrossClass
-public class ContactMessage extends CrossBase {
+class ContactMessage extends CrossBase {
     public enum Type {
         Empty(0x00000000),
         MsgText(0x00000001),
@@ -139,7 +137,7 @@ public class ContactMessage extends CrossBase {
         public static String ConvertId(String id) {
             FileData fileData = new Gson().fromJson(id, FileData.class);
             if (fileData == null) {
-                Log.w(Contact.TAG, "FileData.ConvertId() 0 Failed to convert " + id);
+                Log.w(Utils.TAG, "FileData.ConvertId() 0 Failed to convert " + id);
             }
 
             return fileData.toString();
@@ -189,7 +187,7 @@ public class ContactMessage extends CrossBase {
                     this.data = new FileData();
                     break;
                 default:
-                    Log.w(Contact.TAG, "Unknown Message Type: " + type);
+                    Log.w(Utils.TAG, "Unknown Message Type: " + type);
                     break;
             }
         }

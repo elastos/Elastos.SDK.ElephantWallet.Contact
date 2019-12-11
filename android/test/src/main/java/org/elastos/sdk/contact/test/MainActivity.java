@@ -23,22 +23,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
-import org.elastos.sdk.elephantwallet.contact.internal.ContactChannel;
-import org.elastos.sdk.elephantwallet.contact.internal.ContactMessage;
-import org.elastos.sdk.elephantwallet.contact.internal.ContactStatus;
-import org.elastos.sdk.elephantwallet.contact.internal.EventArgs;
-import org.elastos.sdk.elephantwallet.contact.internal.AcquireArgs;
-import org.elastos.sdk.elephantwallet.contact.internal.HumanInfo;
-import org.elastos.sdk.elephantwallet.contact.internal.Utils;
+import org.elastos.sdk.elephantwallet.contact.Utils;
 import org.elastos.sdk.keypair.ElastosKeypair;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -47,8 +38,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import com.google.gson.Gson;
 
@@ -288,7 +277,7 @@ public class MainActivity extends Activity {
             }
 
             @Override
-            public void onReceivedMessage(String humanCode, ContactChannel channelType, Contact.Message message) {
+            public void onReceivedMessage(String humanCode, Contact.Channel channel, Contact.Message message) {
                 String msg = "onRcvdMsg(): data=" + message.data + "\n";
                 msg += "onRcvdMsg(): type=" + message.type + "\n";
                 msg += "onRcvdMsg(): crypto=" + message.cryptoAlgorithm + "\n";
@@ -310,7 +299,7 @@ public class MainActivity extends Activity {
 
         mContactDataListener = new Contact.DataListener() {
             @Override
-            public void onNotify(String humanCode, ContactChannel channelType,
+            public void onNotify(String humanCode, Contact.Channel channel,
                                  String dataId, Status status)
             {
                 String msg = "onNotify(): dataId=" + dataId + ", status=" + status + "\n";
@@ -318,7 +307,7 @@ public class MainActivity extends Activity {
             }
 
             @Override
-            public int onReadData(String humanCode, ContactChannel channelType,
+            public int onReadData(String humanCode, Contact.Channel channel,
                                   String dataId, long offset, ByteBuffer data)
             {
                 String filepath = mContactSendFileMap.get(dataId);
@@ -360,7 +349,7 @@ public class MainActivity extends Activity {
             }
 
             @Override
-            public int onWriteData(String humanCode, ContactChannel channelType,
+            public int onWriteData(String humanCode, Contact.Channel channel,
                                    String dataId, long offset, byte[] data)
             {
                 String msg = "onWriteData(): dataId=" + dataId + ", offset=" + offset + "\n";
@@ -370,7 +359,7 @@ public class MainActivity extends Activity {
                     Log.v(TAG, msg);
                 }
 
-                ContactMessage.FileData fileInfo = new Gson().fromJson(dataId, ContactMessage.FileData.class);
+                Contact.Message.FileData fileInfo = new Gson().fromJson(dataId, Contact.Message.FileData.class);
 
                 File file = new File(MainActivity.this.getCacheDir(), fileInfo.name);
                 if(data.length == 0) {
@@ -671,7 +660,7 @@ public class MainActivity extends Activity {
             return ErrorPrefix + "Failed to get user info.";
         }
 
-        if (info.status != ContactStatus.Online) {
+        if (info.status != Contact.Status.Online) {
             return ErrorPrefix + "Contact is not online.";
         }
 
@@ -728,7 +717,7 @@ public class MainActivity extends Activity {
             return ErrorPrefix + "Failed to get user info.";
         }
 
-        if (info.status != ContactStatus.Online) {
+        if (info.status != Contact.Status.Online) {
             return ErrorPrefix + "Contact is not online.";
         }
 
@@ -743,13 +732,13 @@ public class MainActivity extends Activity {
 //                }
 //                Contact.Message msgInfo = Contact.MakeTextMessage(str.toString(), null);
 
-                ContactStatus status = mContact.getStatus(friendCode);
-                if(status != ContactStatus.Online) {
+                Contact.Status status = mContact.getStatus(friendCode);
+                if(status != Contact.Status.Online) {
                     showMessage(ErrorPrefix + "Friend is not online.");
                     return;
                 }
 
-                int ret = mContact.sendMessage(friendCode, ContactChannel.Carrier, msgInfo);
+                int ret = mContact.sendMessage(friendCode, Contact.Channel.Carrier, msgInfo);
                 if(ret < 0) {
                     showMessage(ErrorPrefix + "Failed to send message to " + friendCode);
                 }
@@ -767,21 +756,21 @@ public class MainActivity extends Activity {
             return ErrorPrefix + "Failed to get user info.";
         }
 
-        if (info.status != ContactStatus.Online) {
+        if (info.status != Contact.Status.Online) {
             return ErrorPrefix + "Contact is not online.";
         }
 
 
         List<String> friendCodeList = mContact.listFriendCode();
         Helper.showFriendList(this, friendCodeList, (friendCode) -> {
-            ContactStatus status = mContact.getStatus(friendCode);
-            if(status != ContactStatus.Online) {
+            Contact.Status status = mContact.getStatus(friendCode);
+            if(status != Contact.Status.Online) {
                 showMessage(ErrorPrefix + "Friend is not online.");
                 return;
             }
 
             Contact.Message msgInfo = Contact.MakeBinaryMessage(new byte[]{0, 1, 2, 3}, null);
-            int ret = mContact.sendMessage(friendCode, ContactChannel.Carrier, msgInfo);
+            int ret = mContact.sendMessage(friendCode, Contact.Channel.Carrier, msgInfo);
             if(ret < 0) {
                 showMessage(ErrorPrefix + "Failed to send message to " + friendCode);
             }
@@ -801,7 +790,7 @@ public class MainActivity extends Activity {
             return ErrorPrefix + "Failed to get user info.";
         }
 
-        if (info.status != ContactStatus.Online) {
+        if (info.status != Contact.Status.Online) {
             return ErrorPrefix + "Contact is not online.";
         }
 
@@ -811,13 +800,13 @@ public class MainActivity extends Activity {
             Helper.showFileSendMessage(this, friendCode, (filepath) -> {
                 Contact.Message msgInfo = Contact.MakeFileMessage(new File(filepath), null);
 
-                ContactStatus status = mContact.getStatus(friendCode);
-                if(status != ContactStatus.Online) {
+                Contact.Status status = mContact.getStatus(friendCode);
+                if(status != Contact.Status.Online) {
                     showMessage(ErrorPrefix + "Friend is not online.");
                     return;
                 }
 
-                int ret = mContact.sendMessage(friendCode, ContactChannel.Carrier, msgInfo);
+                int ret = mContact.sendMessage(friendCode, Contact.Channel.Carrier, msgInfo);
                 if(ret < 0) {
                     showMessage(ErrorPrefix + "Failed to send message to " + friendCode);
                 }
@@ -837,7 +826,7 @@ public class MainActivity extends Activity {
             return ErrorPrefix + "Failed to get user info.";
         }
 
-        if (info.status != ContactStatus.Online) {
+        if (info.status != Contact.Status.Online) {
             return ErrorPrefix + "Contact is not online.";
         }
 
@@ -845,14 +834,14 @@ public class MainActivity extends Activity {
         Helper.showFriendList(this, friendCodeList, (friendCode) -> {
             Helper.dismissDialog();
 
-            ContactStatus status = mContact.getStatus(friendCode);
-            if(status != ContactStatus.Online) {
+            Contact.Status status = mContact.getStatus(friendCode);
+            if(status != Contact.Status.Online) {
                 showMessage(ErrorPrefix + "Friend is not online.");
                 return;
             }
 
             Contact.Message.FileData fileData = mContactRecvFileMap.get(friendCode);
-            int ret = mContact.pullFileAsync(friendCode, ContactChannel.Carrier, fileData);
+            int ret = mContact.pullFileAsync(friendCode, Contact.Channel.Carrier, fileData);
             if(ret < 0) {
                 showMessage(ErrorPrefix + "Failed to pull file from " + friendCode);
             }
@@ -869,20 +858,20 @@ public class MainActivity extends Activity {
             return ErrorPrefix + "Failed to get user info.";
         }
 
-        if (info.status != ContactStatus.Online) {
+        if (info.status != Contact.Status.Online) {
             return ErrorPrefix + "Contact is not online.";
         }
 
         List<String> friendCodeList = new ArrayList<>(mContactRecvFileMap.keySet());
         Helper.showFriendList(this, friendCodeList, (friendCode) -> {
-            ContactStatus status = mContact.getStatus(friendCode);
-            if(status != ContactStatus.Online) {
+            Contact.Status status = mContact.getStatus(friendCode);
+            if(status != Contact.Status.Online) {
                 showMessage(ErrorPrefix + "Friend is not online.");
                 return;
             }
 
             Contact.Message.FileData fileData = mContactRecvFileMap.get(friendCode);
-            int ret = mContact.cancelPullFile(friendCode, ContactChannel.Carrier, fileData);
+            int ret = mContact.cancelPullFile(friendCode, Contact.Channel.Carrier, fileData);
             if(ret < 0) {
                 showMessage(ErrorPrefix + "Failed to cancel pull file from " + friendCode);
             }
@@ -929,7 +918,7 @@ public class MainActivity extends Activity {
         return "Success to syncInfoDownloadToDidChain.";
     }
 
-    private byte[] processAcquire(AcquireArgs request) {
+    private byte[] processAcquire(Contact.Listener.AcquireArgs request) {
         byte[] response = null;
 
         switch (request.type) {
@@ -961,11 +950,13 @@ public class MainActivity extends Activity {
         return response;
     }
 
-    private void processEvent(EventArgs event) {
+    private void processEvent(Contact.Listener.EventArgs event) {
         switch (event.type) {
             case StatusChanged:
+                Log.v(TAG, "StatusChanged event: " + event);
                 break;
             case FriendRequest:
+                Log.v(TAG, "FriendRequest event: " + event);
                 Contact.Listener.RequestEvent requestEvent = (Contact.Listener.RequestEvent) event;
                 Helper.showFriendRequest(this, requestEvent.humanCode, requestEvent.summary, v -> {
                     mContact.acceptFriend(requestEvent.humanCode);

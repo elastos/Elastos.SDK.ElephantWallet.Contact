@@ -1,6 +1,6 @@
 package org.elastos.sdk.elephantwallet.contact.internal;
 
-public interface IdentifyCodeInterface {
+interface IdentifyCodeInterface {
     public enum Type {
         PhoneNumber(1),
         EmailAddress(2),
