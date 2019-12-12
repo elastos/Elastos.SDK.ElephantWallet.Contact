@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
+import org.elastos.sdk.elephantwallet.contact.Utils;
+
 class UserInfo extends HumanInfo implements IdentifyCodeInterface {
     public class UserJson extends HumanJson {
         @SerializedName(JsonKey.IdentifyCode)
@@ -37,7 +39,7 @@ class UserInfo extends HumanInfo implements IdentifyCodeInterface {
     }
 
     public int fromJson(String info) {
-        UserJson json = new Gson().fromJson(info, UserJson.class);
+        UserJson json = Utils.GetGsonBuilder().create().fromJson(info, UserJson.class);
 
         int ret = super.fromJsonObj(json);
         if(ret < 0) {
@@ -66,7 +68,7 @@ class UserInfo extends HumanInfo implements IdentifyCodeInterface {
             return null;
         }
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = Utils.GetGsonBuilder().setPrettyPrinting().create();
         String val = gson.toJson(json);
         return val;
     }

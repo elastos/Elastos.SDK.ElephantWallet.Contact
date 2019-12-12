@@ -2,6 +2,7 @@ package org.elastos.sdk.elephantwallet.contact.internal;
 
 import com.google.gson.annotations.SerializedName;
 
+import org.elastos.sdk.elephantwallet.contact.Contact;
 import org.elastos.sdk.elephantwallet.contact.Utils;
 
 import java.util.HashMap;
@@ -75,7 +76,7 @@ class HumanInfo {
     @SerializedName(JsonKey.WalletAddressMap)
     private HashMap<String, String> walletAddressMap;
     @SerializedName(JsonKey.Status)
-    public ContactStatus status;
+    public Contact.Status status;
     @SerializedName(JsonKey.HumanCode)
     public String humanCode;
     @SerializedName(JsonKey.UpdateTime)

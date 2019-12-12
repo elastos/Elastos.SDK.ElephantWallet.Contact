@@ -1,9 +1,11 @@
 package org.elastos.sdk.elephantwallet.contact.internal;
 
+import org.elastos.sdk.elephantwallet.contact.Contact;
+
 class StatusEvent extends EventArgs {
     public StatusEvent(int type, String humanCode, int channelType, byte[] data) {
         super(type, humanCode, channelType, data);
-        status = ContactStatus.valueOf(data[0]);
+        status = Contact.Status.valueOf(data[0]);
     }
 
     @Override
@@ -16,5 +18,5 @@ class StatusEvent extends EventArgs {
                 +"]";
     }
 
-    public ContactStatus status;
+    public Contact.Status status;
 }

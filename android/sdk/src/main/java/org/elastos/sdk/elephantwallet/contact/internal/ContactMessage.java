@@ -43,7 +43,7 @@ class ContactMessage extends CrossBase {
 
     public static abstract class MsgData {
         public String toString() {
-            String str = new Gson().toJson(this);
+            String str = Utils.GetGsonBuilder().create().toJson(this);
             return str;
         }
 
@@ -83,7 +83,7 @@ class ContactMessage extends CrossBase {
 
         @Override
         public String toString() {
-            String str = new Gson().toJson(binary);
+            String str = Utils.GetGsonBuilder().create().toJson(binary);
             return str;
         }
         @Override
@@ -135,7 +135,7 @@ class ContactMessage extends CrossBase {
 
         // fix json decode and encode different issue
         public static String ConvertId(String id) {
-            FileData fileData = new Gson().fromJson(id, FileData.class);
+            FileData fileData = Utils.GetGsonBuilder().create().fromJson(id, FileData.class);
             if (fileData == null) {
                 Log.w(Utils.TAG, "FileData.ConvertId() 0 Failed to convert " + id);
             }

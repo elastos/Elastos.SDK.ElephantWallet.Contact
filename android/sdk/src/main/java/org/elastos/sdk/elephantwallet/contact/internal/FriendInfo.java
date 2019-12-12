@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
 
+import org.elastos.sdk.elephantwallet.contact.Utils;
+
 class FriendInfo extends HumanInfo {
     public class FriendJson extends HumanJson {
         @SerializedName(JsonKey.Alias)
@@ -28,7 +30,7 @@ class FriendInfo extends HumanInfo {
     }
 
     public int fromJson(String info) {
-        FriendJson json = new Gson().fromJson(info, FriendJson.class);
+        FriendJson json = Utils.GetGsonBuilder().create().fromJson(info, FriendJson.class);
 
         int ret = fromJson(json);
         if(ret < 0) {
@@ -48,7 +50,7 @@ class FriendInfo extends HumanInfo {
 
         json.alias = this.alias;
 
-        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        Gson gson = Utils.GetGsonBuilder().setPrettyPrinting().create();
         String val = gson.toJson(json);
         return val;
     }

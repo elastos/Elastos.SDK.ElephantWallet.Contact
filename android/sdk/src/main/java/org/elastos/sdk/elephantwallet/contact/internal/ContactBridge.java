@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
+import org.elastos.sdk.elephantwallet.contact.Utils;
 import org.elastos.tools.crosspl.CrossBase;
 import org.elastos.tools.crosspl.annotation.CrossClass;
 import org.elastos.tools.crosspl.annotation.CrossInterface;
@@ -96,7 +97,7 @@ class ContactBridge extends CrossBase {
         }
 
         TypeToken<List<Contact.FriendInfo.FriendJson>> friendInfoListType = new TypeToken<List<Contact.FriendInfo.FriendJson>>(){};
-        List<Contact.FriendInfo.FriendJson> listJson = new Gson().fromJson(json.toString(), friendInfoListType.getType());
+        List<Contact.FriendInfo.FriendJson> listJson = Utils.GetGsonBuilder().create().fromJson(json.toString(), friendInfoListType.getType());
 
         List<Contact.FriendInfo> list = new ArrayList<>();
         for(Contact.FriendInfo.FriendJson it: listJson) {

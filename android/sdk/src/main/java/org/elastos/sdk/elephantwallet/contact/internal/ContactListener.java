@@ -32,7 +32,7 @@ abstract class ContactListener extends CrossBase {
     public class StatusEvent extends EventArgs {
         public StatusEvent(int type, String humanCode, int channelType, byte[] data) {
             super(type, humanCode, channelType, data);
-            status = ContactStatus.valueOf(data[0]);
+            status = Contact.Status.valueOf(data[0]);
         }
         @Override
         public String toString() {
@@ -41,7 +41,7 @@ abstract class ContactListener extends CrossBase {
                     + ",status=" + status +"]";
         }
 
-        public ContactStatus status;
+        public Contact.Status status;
     }
 
     public class RequestEvent extends EventArgs {

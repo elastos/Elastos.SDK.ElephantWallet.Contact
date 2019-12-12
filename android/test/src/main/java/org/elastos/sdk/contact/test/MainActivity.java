@@ -359,7 +359,7 @@ public class MainActivity extends Activity {
                     Log.v(TAG, msg);
                 }
 
-                Contact.Message.FileData fileInfo = new Gson().fromJson(dataId, Contact.Message.FileData.class);
+                Contact.Message.FileData fileInfo = Utils.GetGsonBuilder().create().fromJson(dataId, Contact.Message.FileData.class);
 
                 File file = new File(MainActivity.this.getCacheDir(), fileInfo.name);
                 if(data.length == 0) {

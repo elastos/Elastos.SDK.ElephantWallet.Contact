@@ -13,9 +13,23 @@ class ContactStatus<T extends ContactStatus> {
         return null;
     }
 
+    public static <T extends ContactStatus> T valueOf(String name) {
+        T[] values = values();
+        for(int idx = 0; idx < values.length; idx++) {
+            if(values[idx].name().equals(name)) {
+                return values[idx];
+            }
+        }
+        return null;
+    }
+
     public static <T extends ContactStatus> T[] values() {
         ContactStatus[] v = valueList.toArray(new ContactStatus[0]);
         return (T[]) v;
+    }
+
+    public String name() {
+        return this.name;
     }
 
     @Override
