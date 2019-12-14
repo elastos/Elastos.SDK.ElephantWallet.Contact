@@ -8,6 +8,9 @@
 
 #include "Base58.hpp"
 
+#include <cstring>
+#include <cassert>
+
 /***********************************************/
 /***** static variables initialize *************/
 /***********************************************/
