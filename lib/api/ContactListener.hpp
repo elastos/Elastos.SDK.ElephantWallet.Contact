@@ -13,9 +13,8 @@
 
 #include <mutex>
 
-#include "CrossBase.hpp"
+#include "ContactTypes.hpp"
 #include <Elastos.SDK.Contact.hpp>
-#include "ContactChannel.hpp"
 #include "experimental-span.hpp"
 
 namespace crosspl {
@@ -70,7 +69,7 @@ public:
     public:
         using Type = EventType;
 
-        explicit EventArgs(Type type, const std::string& humanCode, ContactChannel channelType)
+        explicit EventArgs(Type type, const std::string& humanCode, ChannelType channelType)
                 : type(type)
                 , humanCode(humanCode)
                 , channelType(channelType) {
@@ -87,13 +86,13 @@ public:
 
         Type type;
         std::string humanCode;
-        ContactChannel channelType;
+        ChannelType channelType;
     };
 
     class StatusEvent: public EventArgs {
     public:
         using Status = elastos::HumanInfo::Status;
-        explicit StatusEvent(Type type, const std::string& humanCode, ContactChannel channelType, Status status)
+        explicit StatusEvent(Type type, const std::string& humanCode, ChannelType channelType, Status status)
                 : EventArgs(type, humanCode, channelType)
                 , status(status) {
         }
@@ -111,7 +110,7 @@ public:
 
     class RequestEvent: public EventArgs {
     public:
-        explicit RequestEvent(Type type, const std::string& humanCode, ContactChannel channelType, const std::string& summary)
+        explicit RequestEvent(Type type, const std::string& humanCode, ChannelType channelType, const std::string& summary)
                 : EventArgs(type, humanCode, channelType)
                 , summary(summary) {
         }
@@ -129,7 +128,7 @@ public:
 
     class InfoEvent: public EventArgs {
     public:
-        explicit InfoEvent(Type type, const std::string& humanCode, ContactChannel channelType, std::shared_ptr<elastos::HumanInfo> humanInfo)
+        explicit InfoEvent(Type type, const std::string& humanCode, ChannelType channelType, std::shared_ptr<elastos::HumanInfo> humanInfo)
                 : EventArgs(type, humanCode, channelType) {
             this->humanInfo = humanInfo;
         }
@@ -158,14 +157,14 @@ public:
 
 #ifdef WITH_CROSSPL
     std::shared_ptr<std::span<uint8_t>> onAcquire(AcquireType type, const char* pubKey, const std::span<uint8_t>* data);
-    void onEvent(EventType type, const std::string& humanCode, ContactChannel channelType, const std::span<uint8_t>* data);
-    void onReceivedMessage(const std::string& humanCode, ContactChannel channelType,
+    void onEvent(EventType type, const std::string& humanCode, ChannelType channelType, const std::span<uint8_t>* data);
+    void onReceivedMessage(const std::string& humanCode, ChannelType channelType,
                            std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo);
     void onError(int errCode, const std::string& errStr, const std::string& ext);
 #else
     virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const AcquireArgs& request) = 0;
     virtual void onEvent(EventArgs& event) = 0;
-    virtual void onReceivedMessage(const std::string& humanCode, ContactChannel channelType,
+    virtual void onReceivedMessage(const std::string& humanCode, ChannelType channelType,
                                    std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo) = 0;
     virtual void onError(int errCode, const std::string& errStr, const std::string& ext) = 0;
 #endif // WITH_CROSSPL
@@ -173,11 +172,7 @@ public:
     std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener();
     std::shared_ptr<elastos::MessageManager::MessageListener> getMessageListener();
 
-#ifdef WITH_CROSSPL
-public:
-#else
-protected:
-#endif // WITH_CROSSPL
+PERMISSION:
     explicit ContactListener();
     virtual ~ContactListener();
 

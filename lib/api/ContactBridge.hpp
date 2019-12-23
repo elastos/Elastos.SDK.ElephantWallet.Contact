@@ -13,6 +13,8 @@
 
 #include <sstream>
 
+#include "ContactDataListener.hpp"
+#include "ContactListener.hpp"
 #include <ContactTypes.hpp>
 #include <Elastos.SDK.Contact.hpp>
 
@@ -20,14 +22,9 @@ namespace crosspl {
 namespace native {
 
 class ContactBridge {
-#ifdef WITH_CROSSPL
-public:
-#else
-protected:
-#endif // WITH_CROSSPL
+PERMISSION:
     explicit ContactBridge();
     virtual ~ContactBridge();
-
 
 public:
     /*** type define ***/
@@ -41,20 +38,20 @@ public:
     int start();
     int stop();
 
-    int setIdentifyCode(int type, ConstStringPtr value);
+    int setIdentifyCode(UserIdentifyType type, ConstStringPtr value);
 
-    int setHumanInfo(ConstStringPtr humanCode, int item, ConstStringPtr value);
-    int getHumanInfo(ConstStringPtr humanCode, std::stringstream* info);
-    int getHumanStatus(ConstStringPtr humanCode);
+    int setHumanInfo(ConstStringPtr humanCode, InfoItemType item, ConstStringPtr value);
+    int getHumanInfo(ConstStringPtr humanCode, HumanInfoPtr info);
+    StatusType getHumanStatus(ConstStringPtr humanCode);
 
     int addFriend(ConstStringPtr friendCode, ConstStringPtr summary);
     int removeFriend(ConstStringPtr friendCode);
     int acceptFriend(ConstStringPtr friendCode);
-    int getFriendList(std::stringstream* info);
+    int getFriendList(FriendListPtr info);
 
-    int sendMessage(ConstStringPtr friendCode, int chType, CrossBase* message);
-    int pullData(ConstStringPtr humanCode, int chType, ConstStringPtr devId, ConstStringPtr dataId);
-    int cancelPullData(ConstStringPtr humanCode, int chType, ConstStringPtr devId, ConstStringPtr dataId);
+    int sendMessage(ConstStringPtr friendCode, ChannelType chType, MessagePtr message);
+    int pullData(ConstStringPtr humanCode, ChannelType chType, ConstStringPtr devId, ConstStringPtr dataId);
+    int cancelPullData(ConstStringPtr humanCode, ChannelType chType, ConstStringPtr devId, ConstStringPtr dataId);
 
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
@@ -75,8 +72,8 @@ private:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    ContactListener* mListener;
-    ContactDataListener* mDataListener;
+    ListenerPtr mListener;
+    DataListenerPtr mDataListener;
 
 }; // class Contact
 

@@ -13,7 +13,7 @@
 
 #include <mutex>
 
-#include "CrossBase.hpp"
+#include "ContactTypes.hpp"
 #include <Elastos.SDK.Contact.hpp>
 #include <ContactListener.hpp>
 
@@ -29,30 +29,26 @@ public:
     /*** class function and variable ***/
 
 #ifdef WITH_CROSSPL
-    void onNotify(const std::string& humanCode, ContactChannel channelType,
+    void onNotify(const std::string& humanCode, ChannelType channelType,
                   const std::string& dataId, int status);
-    std::shared_ptr<std::span<uint8_t>> onReadData(const std::string& humanCode, ContactChannel channelType,
+    std::shared_ptr<std::span<uint8_t>> onReadData(const std::string& humanCode, ChannelType channelType,
                                                    const std::string& dataId, uint64_t offset);
-    int onWriteData(const std::string& humanCode, ContactChannel channelType,
+    int onWriteData(const std::string& humanCode, ChannelType channelType,
                     const std::string& dataId, uint64_t offset, const std::span<uint8_t>* data);
 #else
-    virtual void onNotify(const std::string& humanCode, ContactChannel channelType,
+    virtual void onNotify(const std::string& humanCode, ChannelType channelType,
                           const std::string& dataId, int status) = 0;
-    virtual int onReadData(const std::string& humanCode, ContactChannel channelType,
+    virtual int onReadData(const std::string& humanCode, ChannelType channelType,
                            const std::string& dataId, uint64_t offset,
                            std::vector<uint8_t>& data) = 0;
-    virtual int onWriteData(const std::string& humanCode, ContactChannel channelType,
+    virtual int onWriteData(const std::string& humanCode, ChannelType channelType,
                             const std::string& dataId, uint64_t offset,
                             const std::vector<uint8_t>& data) = 0;
 #endif // WITH_CROSSPL
 
     std::shared_ptr<elastos::MessageManager::DataListener> getDataListener();
 
-#ifdef WITH_CROSSPL
-public:
-#else
-protected:
-#endif // WITH_CROSSPL
+PERMISSION:
     explicit ContactDataListener();
     virtual ~ContactDataListener();
 

@@ -11,7 +11,7 @@
 #ifndef _ELASTOS_SDK_JNI_CONTACT_FACTORY_HPP_
 #define _ELASTOS_SDK_JNI_CONTACT_FACTORY_HPP_
 
-#include <string>
+#include <ContactTypes.hpp>
 
 namespace crosspl {
 namespace native {
@@ -28,11 +28,7 @@ public:
     static int SetLocalDataDir(const std::string& dir);
 
     /*** class function and variable ***/
-#ifdef WITH_CROSSPL
-public:
-#else
-protected:
-#endif // WITH_CROSSPL
+PERMISSION:
     explicit ContactFactory() = default;
     virtual ~ContactFactory() = default;
 

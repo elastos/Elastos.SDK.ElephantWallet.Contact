@@ -34,11 +34,7 @@ public:
 
     std::shared_ptr<elastos::MessageManager::MessageInfo> mMessageInfo;
 
-#ifdef WITH_CROSSPL
-public:
-#else
-protected:
-#endif // WITH_CROSSPL
+PERMISSION:
     explicit ContactMessage();
     virtual ~ContactMessage();
 

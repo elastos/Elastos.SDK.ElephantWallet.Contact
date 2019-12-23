@@ -13,7 +13,6 @@
 
 #include <Elastos.SDK.Contact.hpp>
 #include <ContactBridge.hpp>
-#include <ContactChannel.hpp>
 #include <ContactDataListener.hpp>
 #include <ContactDebug.hpp>
 #include <ContactFactory.hpp>
@@ -45,6 +44,9 @@ public:
         virtual ~Factory() = default;
     }; // class Factory
 
+    using Channel = crosspl::native::ChannelType;
+    using Status = crosspl::native::StatusType;
+    using HumanInfo = elastos::HumanInfo;
     using UserInfo = elastos::UserInfo;
     using FriendInfo = elastos::FriendInfo;
 
@@ -131,11 +133,11 @@ public:
 
     class Listener: public crosspl::native::ContactListener {
     public:
-        virtual void onReceivedMessage(const std::string& humanCode, ContactChannel channelType,
+        virtual void onReceivedMessage(const std::string& humanCode, Channel channelType,
                                        std::shared_ptr<Message> msgInfo) = 0;
 
     private:
-        virtual void onReceivedMessage(const std::string& humanCode, ContactChannel channelType,
+        virtual void onReceivedMessage(const std::string& humanCode, Channel channelType,
                                        std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo) override {
             auto message = std::make_shared<Message>(msgInfo->mType, msgInfo->mPlainContent, msgInfo->mCryptoAlgorithm, msgInfo->mTimeStamp);
             onReceivedMessage(humanCode, channelType, message);
@@ -171,7 +173,7 @@ public:
     std::shared_ptr<ElaphantContact::UserInfo> getUserInfo();
     std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> listFriendInfo();
 
-    int sendMessage(const std::string& friendCode, ContactChannel chType, std::shared_ptr<Message> message);
+    int sendMessage(const std::string& friendCode, Channel chType, std::shared_ptr<Message> message);
 
 private:
     /*** type define ***/

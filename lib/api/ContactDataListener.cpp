@@ -75,7 +75,7 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
             CHECK_RETVAL(ret);
 
             sContactDataListenerInstance->onNotify(humanCode,
-                                                   static_cast<ContactChannel>(channelType),
+                                                   static_cast<ChannelType>(channelType),
                                                    dataId, notify);
         }
 
@@ -90,7 +90,7 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
 
 #ifdef WITH_CROSSPL
             auto readData = sContactDataListenerInstance->onReadData(humanCode,
-                                                                     static_cast<ContactChannel>(channelType),
+                                                                     static_cast<ChannelType>(channelType),
                                                                      dataId, offset);
             if(readData.get() == nullptr) {
                 return elastos::ErrCode::ChannelFailedReadData;
@@ -101,7 +101,7 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
             ret = data.size();
 #else
             ret = sContactDataListenerInstance->onReadData(humanCode,
-                                                           static_cast<ContactChannel>(channelType),
+                                                           static_cast<ChannelType>(channelType),
                                                            dataId, offset, data);
 #endif // WITH_CROSSPL
 
@@ -120,11 +120,11 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
 #ifdef WITH_CROSSPL
             std::span<uint8_t> writeData(reinterpret_cast<uint8_t*>(const_cast<uint8_t*>(data.data())), data.size());
             ret = sContactDataListenerInstance->onWriteData(humanCode,
-                                                            static_cast<ContactChannel>(channelType),
+                                                            static_cast<ChannelType>(channelType),
                                                             dataId, offset, &writeData);
 #else
             ret = sContactDataListenerInstance->onWriteData(humanCode,
-                                                            static_cast<ContactChannel>(channelType),
+                                                            static_cast<ChannelType>(channelType),
                                                             dataId, offset, data);
 #endif // WITH_CROSSPL
             return ret;
@@ -136,7 +136,7 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
 
 #ifdef WITH_CROSSPL
 void ContactDataListener::onNotify(const std::string& humanCode,
-                                   ContactChannel channelType,
+                                   ChannelType channelType,
                                    const std::string& dataId,
                                    int status)
 {
@@ -147,7 +147,7 @@ void ContactDataListener::onNotify(const std::string& humanCode,
 }
 
 std::shared_ptr<std::span<uint8_t>> ContactDataListener::onReadData(const std::string& humanCode,
-                                                                    ContactChannel channelType,
+                                                                    ChannelType channelType,
                                                                     const std::string& dataId,
                                                                     uint64_t offset)
 {
@@ -160,7 +160,7 @@ std::shared_ptr<std::span<uint8_t>> ContactDataListener::onReadData(const std::s
 }
 
 int ContactDataListener::onWriteData(const std::string& humanCode,
-                                     ContactChannel channelType,
+                                     ChannelType channelType,
                                      const std::string& dataId,
                                      uint64_t offset,
                                      const std::span<uint8_t>* data)

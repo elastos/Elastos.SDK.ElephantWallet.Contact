@@ -100,7 +100,7 @@ int ContactTest::testNewContact()
             ShowEvent(msg);
         }
         virtual void onReceivedMessage(const std::string& humanCode,
-                                       ContactChannel channelType,
+                                       ElaphantContact::Channel channelType,
                                        std::shared_ptr<ElaphantContact::Message> msgInfo) override {
             auto msg = std::string("onRcvdMsg(): humanCode=") + humanCode.c_str() + "\n";
             msg += "onRcvdMsg(): data=" + msgInfo->data->toString() + "\n";
@@ -120,18 +120,18 @@ int ContactTest::testNewContact()
         }
     };
     mContactListener = std::make_shared<Listener>();
-    mContact->setListener(mContactListener.get());
+    mContact->setListener(mContactListener);
 
     class DataListener: public ElaphantContact::DataListener {
         virtual void onNotify(const std::string& humanCode,
-                              ContactChannel channelType,
+                              ElaphantContact::Channel channelType,
                               const std::string& dataId, int status) override {
             std::string msg = "onNotify(): dataId=" + dataId
                             + ", status=" + std::to_string(status) + "\n";
             ShowEvent(msg);
         }
         virtual int onReadData(const std::string& humanCode,
-                               ContactChannel channelType,
+                               ElaphantContact::Channel channelType,
                                const std::string& dataId, uint64_t offset,
                                std::vector<uint8_t>& data) override {
             std::string msg = "onReadData(): dataId=" + dataId
@@ -139,7 +139,7 @@ int ContactTest::testNewContact()
             ShowEvent(msg);
         }
         virtual int onWriteData(const std::string& humanCode,
-                                ContactChannel channelType,
+                                ElaphantContact::Channel channelType,
                                 const std::string& dataId, uint64_t offset,
                                 const std::vector<uint8_t>& data) override {
             std::string msg = "onWriteData(): dataId=" + dataId
@@ -148,7 +148,7 @@ int ContactTest::testNewContact()
         }
     };
     mContactDataListener = std::make_shared<DataListener>();
-    mContact->setDataListener(mContactDataListener.get());
+    mContact->setDataListener(mContactDataListener);
 
     Log::I(Log::TAG, "Success to create a contact instance.");
     return 0;
@@ -207,7 +207,7 @@ int ContactTest::doSetHumanDetails(const std::string& friendCode, int key, const
         return -1;
     }
 
-    int ret = mContact->setHumanInfo(friendCode, key, value);
+    int ret = mContact->setHumanInfo(friendCode, static_cast<ElaphantContact::UserInfo::Item>(key), value);
     CHECK_ERROR(ret);
 
     Log::V(Log::TAG, "Success to set human details");
@@ -329,7 +329,7 @@ int ContactTest::doSendMessage(const std::string& friendCode, const std::string&
         return -1;
     }
 
-    auto ret = mContact->sendMessage(friendCode, ContactChannel::Carrier, msgInfo);
+    auto ret = mContact->sendMessage(friendCode, ElaphantContact::Channel::Carrier, msgInfo);
 
     Log::V(Log::TAG, "Success send text to friend: %s", friendCode.c_str());
 
@@ -349,7 +349,7 @@ int ContactTest::doSendMessage(const std::string& friendCode, const std::vector<
         return -1;
     }
 
-    auto ret = mContact->sendMessage(friendCode, ContactChannel::Carrier, msgInfo);
+    auto ret = mContact->sendMessage(friendCode, ElaphantContact::Channel::Carrier, msgInfo);
 
     Log::V(Log::TAG, "Success send binary to friend: %s", friendCode.c_str());
 
@@ -369,7 +369,7 @@ int ContactTest::doSendMessage(const std::string& friendCode, const std::filesys
         return -1;
     }
 
-    auto ret = mContact->sendMessage(friendCode, ContactChannel::Carrier, msgInfo);
+    auto ret = mContact->sendMessage(friendCode, ElaphantContact::Channel::Carrier, msgInfo);
 
     Log::V(Log::TAG, "Success send binary to friend: %s", friendCode.c_str());
 

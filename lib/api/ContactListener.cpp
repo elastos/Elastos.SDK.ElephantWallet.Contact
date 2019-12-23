@@ -204,10 +204,10 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
 #ifdef WITH_CROSSPL
             std::span<uint8_t> data {reinterpret_cast<uint8_t*>(&status), 1 };
             sContactListenerInstance->onEvent(EventType::StatusChanged, humanCode,
-                                              static_cast<ContactChannel>(channelType), &data);
+                                              static_cast<ChannelType>(channelType), &data);
 #else
             auto event = StatusEvent{EventType::StatusChanged, humanCode,
-                                     static_cast<ContactChannel>(channelType),
+                                     static_cast<ChannelType>(channelType),
                                      status};
             sContactListenerInstance->onEvent(event);
 #endif // WITH_CROSSPL
@@ -221,7 +221,7 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
 
-            sContactListenerInstance->onReceivedMessage(humanCode, static_cast<ContactChannel>(channelType), msgInfo);
+            sContactListenerInstance->onReceivedMessage(humanCode, static_cast<ChannelType>(channelType), msgInfo);
         }
 
         virtual void onSentMessage(int msgIndex, int errCode) override {
@@ -240,10 +240,10 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             std::span<uint8_t> data {reinterpret_cast<uint8_t*>(const_cast<char*>(summary.c_str())),
                                      summary.length() };
             sContactListenerInstance->onEvent(EventType::FriendRequest, humanCode,
-                                              static_cast<ContactChannel>(channelType), &data);
+                                              static_cast<ChannelType>(channelType), &data);
 #else
             auto event = RequestEvent{EventType::FriendRequest, humanCode,
-                                      static_cast<ContactChannel>(channelType),
+                                      static_cast<ChannelType>(channelType),
                                       summary};
             sContactListenerInstance->onEvent(event);
 #endif // WITH_CROSSPL
@@ -260,10 +260,10 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
 #ifdef WITH_CROSSPL
             std::span<uint8_t> data {reinterpret_cast<uint8_t*>(&status), 1 };
             sContactListenerInstance->onEvent(EventType::StatusChanged, humanCode,
-                                              static_cast<ContactChannel>(channelType), &data);
+                                              static_cast<ChannelType>(channelType), &data);
 #else
             auto event = StatusEvent{EventType::StatusChanged, humanCode,
-                                     static_cast<ContactChannel>(channelType),
+                                     static_cast<ChannelType>(channelType),
                                      status};
             sContactListenerInstance->onEvent(event);
 #endif // WITH_CROSSPL
@@ -284,10 +284,10 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
 
             std::span<uint8_t> data(reinterpret_cast<uint8_t*>(info.data()), info.size());
             sContactListenerInstance->onEvent(EventType::HumanInfoChanged, humanCode,
-                                              static_cast<ContactChannel>(channelType), &data);
+                                              static_cast<ChannelType>(channelType), &data);
 #else
             auto event = InfoEvent{EventType::HumanInfoChanged, humanCode,
-                                   static_cast<ContactChannel>(channelType),
+                                   static_cast<ChannelType>(channelType),
                                    humanInfo};
             sContactListenerInstance->onEvent(event);
 #endif // WITH_CROSSPL
@@ -311,7 +311,7 @@ std::shared_ptr<std::span<uint8_t>> ContactListener::onAcquire(AcquireType type,
 
 void ContactListener::onEvent(EventType type,
                               const std::string& humanCode,
-                              ContactChannel channelType,
+                              ChannelType channelType,
                               const std::span<uint8_t>* data)
 {
     int64_t platformHandle = getPlatformHandle();
@@ -320,7 +320,7 @@ void ContactListener::onEvent(EventType type,
     return;
 }
 
-void ContactListener::onReceivedMessage(const std::string& humanCode, ContactChannel channelType,
+void ContactListener::onReceivedMessage(const std::string& humanCode, ChannelType channelType,
                                         std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo)
 {
     std::span<uint8_t> data(msgInfo->mPlainContent.data(), msgInfo->mPlainContent.size());

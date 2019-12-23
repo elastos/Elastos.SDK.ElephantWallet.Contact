@@ -61,7 +61,7 @@ std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ElaphantContact::listF
     return friendList;
 }
 
-int ElaphantContact::sendMessage(const std::string& friendCode, ContactChannel chType, std::shared_ptr<Message> message)
+int ElaphantContact::sendMessage(const std::string& friendCode, Channel chType, std::shared_ptr<Message> message)
 {
     auto dataInfo = message->data->toData();
     std::span<uint8_t> data(dataInfo.data(), dataInfo.size());
@@ -70,7 +70,7 @@ int ElaphantContact::sendMessage(const std::string& friendCode, ContactChannel c
                                             message->timestamp);
     CHECK_ERROR(ret);
 
-    ret = ContactBridge::sendMessage(friendCode, static_cast<int>(chType), message.get());
+    ret = ContactBridge::sendMessage(friendCode, chType, message);
     CHECK_ERROR(ret);
 
     return 0;

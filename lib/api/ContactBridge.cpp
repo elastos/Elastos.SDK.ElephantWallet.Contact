@@ -48,15 +48,20 @@ void ContactBridge::setListener(ListenerPtr listener)
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
 
-    mListener = dynamic_cast<ContactListener*>(listener);
+    mListener = listener;
+#ifdef WITH_CROSSPL
+    auto listenerPtr = dynamic_cast<ContactListener*>(mListener);
+#else
+    auto listenerPtr = mListener;
+#endif // WITH_CROSSPL
 //    mListener->onCallback(0, nullptr);
 
-    auto errorListener = std::bind(&ContactListener::onError, mListener,
+    auto errorListener = std::bind(&ContactListener::onError, listenerPtr,
                                    std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
     elastos::ErrCode::SetErrorListener(errorListener);
 
-    auto sectyListener = mListener->getSecurityListener();
-    auto msgListener = mListener->getMessageListener();
+    auto sectyListener = listenerPtr->getSecurityListener();
+    auto msgListener = listenerPtr->getMessageListener();
     mContactImpl->setListener(sectyListener, nullptr, nullptr, msgListener);
 
     return;
@@ -66,10 +71,15 @@ void ContactBridge::setDataListener(DataListenerPtr listener)
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
 
-    mDataListener = dynamic_cast<ContactDataListener*>(listener);
+    mDataListener = listener;
+#ifdef WITH_CROSSPL
+    auto listenerPtr = dynamic_cast<ContactDataListener*>(mDataListener);
+#else
+    auto listenerPtr = mDataListener;
+#endif // WITH_CROSSPL
 //    mDataListener->onCallback(0, nullptr);
 
-    auto msgDataListener = mDataListener->getDataListener();
+    auto msgDataListener = listenerPtr->getDataListener();
 
     auto weakMsgMgr = mContactImpl->getMessageManager();
     auto msgMgr =  SAFE_GET_PTR_NO_RETVAL(weakMsgMgr);                                                                      \
@@ -111,7 +121,7 @@ int ContactBridge::stop()
 //    return 0;
 //}
 //
-int ContactBridge::setIdentifyCode(int type, ConstStringPtr value)
+int ContactBridge::setIdentifyCode(UserIdentifyType type, ConstStringPtr value)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -126,7 +136,7 @@ int ContactBridge::setIdentifyCode(int type, ConstStringPtr value)
     return 0;
 }
 
-int ContactBridge::setHumanInfo(ConstStringPtr humanCode, int item, ConstStringPtr value)
+int ContactBridge::setHumanInfo(ConstStringPtr humanCode, InfoItemType item, ConstStringPtr value)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -158,7 +168,7 @@ int ContactBridge::setHumanInfo(ConstStringPtr humanCode, int item, ConstStringP
     return 0;
 }
 
-int ContactBridge::getHumanInfo(ConstStringPtr humanCode, std::stringstream* info)
+int ContactBridge::getHumanInfo(ConstStringPtr humanCode, HumanInfoPtr info)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -190,44 +200,48 @@ int ContactBridge::getHumanInfo(ConstStringPtr humanCode, std::stringstream* inf
         return elastos::ErrCode::NotFoundError;
     }
 
+#ifdef WITH_CROSSPL
     auto jsonInfo = std::make_shared<elastos::Json>();
     ret = humanInfo->toJson(jsonInfo);
     CHECK_ERROR(ret);
-
     info->str(jsonInfo->dump());
+#else
+    info = humanInfo;
+#endif // WITH_CROSSPL
     return 0;
 }
 
-int ContactBridge::getHumanStatus(ConstStringPtr humanCode)
+StatusType ContactBridge::getHumanStatus(ConstStringPtr humanCode)
 {
+    auto invalidStatus = static_cast<StatusType>(elastos::HumanInfo::Status::Invalid);
     if(mContactImpl->isStarted() == false) {
-        return elastos::ErrCode::NotReadyError;
+        return invalidStatus;
     }
 
     auto weakUserMgr = mContactImpl->getUserManager();
-    auto userMgr =  SAFE_GET_PTR(weakUserMgr);                                                                      \
+    auto userMgr =  SAFE_GET_PTR_DEF_RETVAL(weakUserMgr, invalidStatus);
     auto weakFriendMgr = mContactImpl->getFriendManager();
-    auto friendMgr =  SAFE_GET_PTR(weakFriendMgr);                                                                      \
+    auto friendMgr =  SAFE_GET_PTR_DEF_RETVAL(weakFriendMgr, invalidStatus);
 
     std::shared_ptr<elastos::HumanInfo> humanInfo;
     if(std::string("-user-info-") == humanCode
     || userMgr->contains(humanCode) == true) {
         std::shared_ptr<elastos::UserInfo> userInfo;
         int ret = userMgr->getUserInfo(userInfo);
-        CHECK_ERROR(ret);
+        CHECK_AND_RETDEF(ret, invalidStatus);
         humanInfo = userInfo;
     } else if (friendMgr->contains(humanCode) == true) {
         std::shared_ptr<elastos::FriendInfo> friendInfo;
         int ret = friendMgr->tryGetFriendInfo(humanCode, friendInfo);
-        CHECK_ERROR(ret);
+        CHECK_AND_RETDEF(ret, invalidStatus);
         humanInfo = friendInfo;
     } else {
-        return elastos::ErrCode::NotFoundError;
+        return invalidStatus;
     }
 
     auto status = humanInfo->getHumanStatus();
 
-    return static_cast<int>(status);
+    return static_cast<StatusType>(status);
 }
 
 int ContactBridge::addFriend(ConstStringPtr friendCode, ConstStringPtr summary)
@@ -275,7 +289,7 @@ int ContactBridge::acceptFriend(ConstStringPtr friendCode)
     return 0;
 }
 
-int ContactBridge::getFriendList(std::stringstream* info)
+int ContactBridge::getFriendList(FriendListPtr info)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -288,6 +302,7 @@ int ContactBridge::getFriendList(std::stringstream* info)
     int ret = friendMgr->getFriendInfoList(friendList);
     CHECK_ERROR(ret);
 
+#ifdef WITH_CROSSPL
     elastos::Json friendJsonArray = elastos::Json::array();
     for(const auto& it: friendList) {
         auto jsonInfo = std::make_shared<elastos::Json>();
@@ -298,16 +313,23 @@ int ContactBridge::getFriendList(std::stringstream* info)
     }
 
     info->str(friendJsonArray.dump());
+#else
+    info = std::move(friendList);
+#endif // WITH_CROSSPL
     return 0;
 }
 
-int ContactBridge::sendMessage(ConstStringPtr friendCode, int chType, CrossBase* message)
+int ContactBridge::sendMessage(ConstStringPtr friendCode, ChannelType chType, MessagePtr message)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
     }
 
+#ifdef WITH_CROSSPL
     auto msgInfo = dynamic_cast<ContactMessage*>(message);
+#else
+    auto msgInfo = message;
+#endif // WITH_CROSSPL
     if(msgInfo == nullptr) {
         return elastos::ErrCode::InvalidArgument;
     }
@@ -327,7 +349,7 @@ int ContactBridge::sendMessage(ConstStringPtr friendCode, int chType, CrossBase*
     return ret;
 }
 
-int ContactBridge::pullData(ConstStringPtr humanCode, int chType,
+int ContactBridge::pullData(ConstStringPtr humanCode, ChannelType chType,
                             ConstStringPtr devId, ConstStringPtr dataId)
 {
     if(IsEmpty(dataId) == true) {
@@ -367,7 +389,7 @@ int ContactBridge::pullData(ConstStringPtr humanCode, int chType,
     return ret;
 }
 
-int ContactBridge::cancelPullData(ConstStringPtr humanCode, int chType,
+int ContactBridge::cancelPullData(ConstStringPtr humanCode, ChannelType chType,
                                   ConstStringPtr devId, ConstStringPtr dataId)
 {
     if(IsEmpty(dataId) == true) {
