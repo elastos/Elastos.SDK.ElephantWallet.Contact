@@ -13,55 +13,53 @@
 
 #include <sstream>
 
-#include <ContactListener.hpp>
-#include <ContactDataListener.hpp>
-#include "CrossBase.hpp"
+#include <ContactTypes.hpp>
 #include <Elastos.SDK.Contact.hpp>
 
-#ifdef WITH_CROSSPL
 namespace crosspl {
 namespace native {
-#endif // WITH_CROSSPL
 
 class ContactBridge {
+#ifdef WITH_CROSSPL
+public:
+#else
+protected:
+#endif // WITH_CROSSPL
+    explicit ContactBridge();
+    virtual ~ContactBridge();
+
+
 public:
     /*** type define ***/
 
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    explicit ContactBridge();
-    virtual ~ContactBridge();
 
-#ifdef WITH_CROSSPL
-    void setListener(CrossBase* listener);
-    void setDataListener(CrossBase* listener);
-#else
-    void setListener(ContactListener* listener);
-    void setDataListener(ContactDataListener* listener);
-#endif // WITH_CROSSPL
+    void setListener(ListenerPtr listener);
+    void setDataListener(DataListenerPtr listener);
     int start();
     int stop();
 
-    int setIdentifyCode(int type, const char* value);
+    int setIdentifyCode(int type, ConstStringPtr value);
 
-    int setHumanInfo(const std::string& humanCode, int item, const std::string& value);
-    int getHumanInfo(const std::string& humanCode, std::stringstream* info);
-    int getHumanStatus(const char* humanCode);
+    int setHumanInfo(ConstStringPtr humanCode, int item, ConstStringPtr value);
+    int getHumanInfo(ConstStringPtr humanCode, std::stringstream* info);
+    int getHumanStatus(ConstStringPtr humanCode);
 
-    int addFriend(const std::string& friendCode, const std::string& summary);
-    int removeFriend(const std::string& friendCode);
-    int acceptFriend(const std::string& friendCode);
+    int addFriend(ConstStringPtr friendCode, ConstStringPtr summary);
+    int removeFriend(ConstStringPtr friendCode);
+    int acceptFriend(ConstStringPtr friendCode);
     int getFriendList(std::stringstream* info);
 
-    int sendMessage(const char* friendCode, int chType, CrossBase* message);
-    int pullData(const char* humanCode, int chType, const char* devId, const char* dataId);
-    int cancelPullData(const char* humanCode, int chType, const char* devId, const char* dataId);
+    int sendMessage(ConstStringPtr friendCode, int chType, CrossBase* message);
+    int pullData(ConstStringPtr humanCode, int chType, ConstStringPtr devId, ConstStringPtr dataId);
+    int cancelPullData(ConstStringPtr humanCode, int chType, ConstStringPtr devId, ConstStringPtr dataId);
 
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
 
-    int setWalletAddress(const char* name, const char* value);
+    int setWalletAddress(ConstStringPtr name, ConstStringPtr value);
 
 protected:
     /*** type define ***/
@@ -82,9 +80,7 @@ private:
 
 }; // class Contact
 
-#ifdef WITH_CROSSPL
 } //namespace native
 } //namespace crosspl
-#endif // WITH_CROSSPL
 
 #endif /* _ELASTOS_SDK_JNI_CONTACT_BRIDGE_HPP_ */

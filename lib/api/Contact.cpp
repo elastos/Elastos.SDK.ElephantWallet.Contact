@@ -66,11 +66,11 @@ int ElaphantContact::sendMessage(const std::string& friendCode, ContactChannel c
     auto dataInfo = message->data->toData();
     std::span<uint8_t> data(dataInfo.data(), dataInfo.size());
     auto ret = message->syncMessageToNative(static_cast<int>(message->type), &data,
-                                            message->cryptoAlgorithm.c_str(),
+                                            message->cryptoAlgorithm,
                                             message->timestamp);
     CHECK_ERROR(ret);
 
-    ret = ContactBridge::sendMessage(friendCode.c_str(), static_cast<int>(chType), message.get());
+    ret = ContactBridge::sendMessage(friendCode, static_cast<int>(chType), message.get());
     CHECK_ERROR(ret);
 
     return 0;

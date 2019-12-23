@@ -13,11 +13,9 @@
 
 #include <sstream>
 
-#ifdef WITH_CROSSPL
 namespace crosspl {
 namespace native {
-#endif // WITH_CROSSPL
-    
+
 class ContactDebug {
 public:
     /*** type define ***/
@@ -37,10 +35,8 @@ private:
     /*** class function and variable ***/
 }; // class Contact
 
-#ifdef WITH_CROSSPL
 } //namespace native
 } //namespace crosspl
-#endif // WITH_CROSSPL
 
 #endif /* _ELASTOS_SDK_JNI_CONTACT_DEBUG_HPP_ */
 

@@ -11,15 +11,12 @@
 #ifndef _ELASTOS_SDK_JNI_CONTACT_MESSAGE_HPP_
 #define _ELASTOS_SDK_JNI_CONTACT_MESSAGE_HPP_
 
-#include <string>
-#include "CrossBase.hpp"
+#include <ContactTypes.hpp>
 #include <MessageManager.hpp>
 #include "experimental-span.hpp"
 
-#ifdef WITH_CROSSPL
 namespace crosspl {
 namespace native {
-#endif // WITH_CROSSPL
 
 class ContactMessage : public CrossBase {
 public:
@@ -29,15 +26,21 @@ public:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    explicit ContactMessage();
-    virtual ~ContactMessage();
 
     int syncMessageToNative(int type,
                             const std::span<uint8_t>* data,
-                            const char* cryptoAlgorithm,
+                            ConstStringPtr cryptoAlgorithm,
                             int64_t timestamp);
 
     std::shared_ptr<elastos::MessageManager::MessageInfo> mMessageInfo;
+
+#ifdef WITH_CROSSPL
+public:
+#else
+protected:
+#endif // WITH_CROSSPL
+    explicit ContactMessage();
+    virtual ~ContactMessage();
 
 private:
     /*** type define ***/
@@ -47,10 +50,8 @@ private:
     /*** class function and variable ***/
 }; // class Contact
 
-#ifdef WITH_CROSSPL
 } //namespace native
 } //namespace crosspl
-#endif // WITH_CROSSPL
 
 #endif /* _ELASTOS_SDK_JNI_CONTACT_MESSAGE_HPP_ */
 

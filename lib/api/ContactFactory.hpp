@@ -13,10 +13,8 @@
 
 #include <string>
 
-#ifdef WITH_CROSSPL
 namespace crosspl {
 namespace native {
-#endif // WITH_CROSSPL
 
 class ContactFactory {
 public:
@@ -30,6 +28,11 @@ public:
     static int SetLocalDataDir(const std::string& dir);
 
     /*** class function and variable ***/
+#ifdef WITH_CROSSPL
+public:
+#else
+protected:
+#endif // WITH_CROSSPL
     explicit ContactFactory() = default;
     virtual ~ContactFactory() = default;
 
@@ -41,10 +44,8 @@ private:
     /*** class function and variable ***/
 }; // class Contact
 
-#ifdef WITH_CROSSPL
 } //namespace native
 } //namespace crosspl
-#endif // WITH_CROSSPL
-  
+
 #endif /* _ELASTOS_SDK_JNI_CONTACT_FACTORY_HPP_ */
 

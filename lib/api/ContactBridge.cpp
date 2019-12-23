@@ -13,10 +13,8 @@
 #include <JsonDefine.hpp>
 #include "ContactMessage.hpp"
 
-#ifdef WITH_CROSSPL
 namespace crosspl {
 namespace native {
-#endif // WITH_CROSSPL
 
 /***********************************************/
 /***** static variables initialize *************/
@@ -46,11 +44,7 @@ ContactBridge::~ContactBridge()
     elastos::ErrCode::SetErrorListener(nullptr);
 }
 
-#ifdef WITH_CROSSPL
-void ContactBridge::setListener(CrossBase* listener)
-#else
-void ContactBridge::setListener(ContactListener* listener)
-#endif // WITH_CROSSPL
+void ContactBridge::setListener(ListenerPtr listener)
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
 
@@ -68,11 +62,7 @@ void ContactBridge::setListener(ContactListener* listener)
     return;
 }
 
-#ifdef WITH_CROSSPL
-void ContactBridge::setDataListener(CrossBase* listener)
-#else
-void ContactBridge::setDataListener(ContactDataListener* listener)
-#endif // WITH_CROSSPL
+void ContactBridge::setDataListener(DataListenerPtr listener)
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
 
@@ -106,7 +96,7 @@ int ContactBridge::stop()
     return ret;
 }
 
-//int ContactBridge::setUserInfo(int item, const char* value)
+//int ContactBridge::setUserInfo(int item, ConstStringPtr value)
 //{
 //    if(mContactImpl->isStarted() == false) {
 //        return elastos::ErrCode::NotReadyError;
@@ -121,7 +111,7 @@ int ContactBridge::stop()
 //    return 0;
 //}
 //
-int ContactBridge::setIdentifyCode(int type, const char* value)
+int ContactBridge::setIdentifyCode(int type, ConstStringPtr value)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -136,13 +126,13 @@ int ContactBridge::setIdentifyCode(int type, const char* value)
     return 0;
 }
 
-int ContactBridge::setHumanInfo(const std::string& humanCode, int item, const std::string& value)
+int ContactBridge::setHumanInfo(ConstStringPtr humanCode, int item, ConstStringPtr value)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
     }
 
-    if(humanCode.empty()) {
+    if(IsEmpty(humanCode) == true) {
         return elastos::ErrCode::InvalidArgument;
     }
 
@@ -168,13 +158,13 @@ int ContactBridge::setHumanInfo(const std::string& humanCode, int item, const st
     return 0;
 }
 
-int ContactBridge::getHumanInfo(const std::string& humanCode, std::stringstream* info)
+int ContactBridge::getHumanInfo(ConstStringPtr humanCode, std::stringstream* info)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
     }
 
-    if(humanCode.empty() == true) {
+    if(IsEmpty(humanCode) == true) {
         return elastos::ErrCode::InvalidArgument;
     }
 
@@ -208,7 +198,7 @@ int ContactBridge::getHumanInfo(const std::string& humanCode, std::stringstream*
     return 0;
 }
 
-int ContactBridge::getHumanStatus(const char* humanCode)
+int ContactBridge::getHumanStatus(ConstStringPtr humanCode)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -240,7 +230,7 @@ int ContactBridge::getHumanStatus(const char* humanCode)
     return static_cast<int>(status);
 }
 
-int ContactBridge::addFriend(const std::string& friendCode, const std::string& summary)
+int ContactBridge::addFriend(ConstStringPtr friendCode, ConstStringPtr summary)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -255,7 +245,7 @@ int ContactBridge::addFriend(const std::string& friendCode, const std::string& s
     return 0;
 }
 
-int ContactBridge::removeFriend(const std::string& friendCode)
+int ContactBridge::removeFriend(ConstStringPtr friendCode)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -270,7 +260,7 @@ int ContactBridge::removeFriend(const std::string& friendCode)
     return 0;
 }
 
-int ContactBridge::acceptFriend(const std::string& friendCode)
+int ContactBridge::acceptFriend(ConstStringPtr friendCode)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -311,7 +301,7 @@ int ContactBridge::getFriendList(std::stringstream* info)
     return 0;
 }
 
-int ContactBridge::sendMessage(const char* friendCode, int chType, CrossBase* message)
+int ContactBridge::sendMessage(ConstStringPtr friendCode, int chType, CrossBase* message)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -337,10 +327,10 @@ int ContactBridge::sendMessage(const char* friendCode, int chType, CrossBase* me
     return ret;
 }
 
-int ContactBridge::pullData(const char* humanCode, int chType,
-                            const char* devId, const char* dataId)
+int ContactBridge::pullData(ConstStringPtr humanCode, int chType,
+                            ConstStringPtr devId, ConstStringPtr dataId)
 {
-    if(dataId == nullptr) {
+    if(IsEmpty(dataId) == true) {
         return elastos::ErrCode::InvalidArgument;
     }
 
@@ -377,10 +367,10 @@ int ContactBridge::pullData(const char* humanCode, int chType,
     return ret;
 }
 
-int ContactBridge::cancelPullData(const char* humanCode, int chType,
-                                  const char* devId, const char* dataId)
+int ContactBridge::cancelPullData(ConstStringPtr humanCode, int chType,
+                                  ConstStringPtr devId, ConstStringPtr dataId)
 {
-    if(dataId == nullptr) {
+    if(IsEmpty(dataId) == true) {
         return elastos::ErrCode::InvalidArgument;
     }
 
@@ -428,7 +418,7 @@ int ContactBridge::syncInfoUploadToDidChain()
     return 0;
 }
 
-int ContactBridge::setWalletAddress(const char* name, const char* value)
+int ContactBridge::setWalletAddress(ConstStringPtr name, ConstStringPtr value)
 {
     if(mContactImpl->isStarted() == false) {
         return elastos::ErrCode::NotReadyError;
@@ -453,7 +443,5 @@ int ContactBridge::setWalletAddress(const char* name, const char* value)
 /***********************************************/
 
 
-#ifdef WITH_CROSSPL
 } //namespace native
 } //namespace crosspl
-#endif // WITH_CROSSPL

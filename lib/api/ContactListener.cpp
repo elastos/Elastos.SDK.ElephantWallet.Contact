@@ -11,11 +11,11 @@
 #ifdef WITH_CROSSPL
 #define ENABLE_PLATFORM_FUNCTION
 #include "ContactListener.proxy.h"
+#endif // WITH_CROSSPL
 
 namespace crosspl {
 namespace native {
-#endif // WITH_CROSSPL
-    
+
 /***********************************************/
 /***** static variables initialize *************/
 /***********************************************/
@@ -342,7 +342,7 @@ void ContactListener::onError(int errCode, const std::string& errStr, const std:
                                           errCode, errStr.c_str(), ext.c_str());
     return;
 }
+#endif // WITH_CROSSPL
 
 } //namespace native
 } //namespace crosspl
-#endif // WITH_CROSSPL

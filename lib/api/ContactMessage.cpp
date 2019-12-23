@@ -12,10 +12,8 @@
 #include "Log.hpp"
 #include "ContactMessage.hpp"
 
-#ifdef WITH_CROSSPL
 namespace crosspl {
 namespace native {
-#endif // WITH_CROSSPL
 
 /***********************************************/
 /***** static variables initialize *************/
@@ -40,11 +38,11 @@ ContactMessage::~ContactMessage()
 
 int ContactMessage::syncMessageToNative(int type,
                                         const std::span<uint8_t>* data,
-                                        const char* cryptoAlgorithm,
+                                        ConstStringPtr cryptoAlgorithm,
                                         int64_t timestamp)
 {
     auto msg = std::vector<uint8_t>(data->data(), data->data() + data->size());
-    auto algorithm = (cryptoAlgorithm != nullptr ? cryptoAlgorithm : "");
+    auto algorithm = (IsEmpty(cryptoAlgorithm) == true ? cryptoAlgorithm : "");
     mMessageInfo = elastos::MessageManager::MakeMessage(static_cast<elastos::MessageManager::MessageType>(type),
                                                         msg,
                                                         algorithm);
@@ -61,7 +59,5 @@ int ContactMessage::syncMessageToNative(int type,
 /***** class private function implement  *******/
 /***********************************************/
 
-#ifdef WITH_CROSSPL
 } //namespace native
 } //namespace crosspl
-#endif // WITH_CROSSPL

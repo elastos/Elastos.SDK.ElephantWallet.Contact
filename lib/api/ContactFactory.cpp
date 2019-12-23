@@ -16,10 +16,8 @@
 #include <Platform.hpp>
 #include "Log.hpp"
 
-#ifdef WITH_CROSSPL
 namespace crosspl {
 namespace native {
-#endif // WITH_CROSSPL
 
 /***********************************************/
 /***** static variables initialize *************/
@@ -68,7 +66,5 @@ int ContactFactory::SetLocalDataDir(const std::string& dir)
 /***** class private function implement  *******/
 /***********************************************/
 
-#ifdef WITH_CROSSPL
 } //namespace native
 } //namespace crosspl
-#endif // WITH_CROSSPL

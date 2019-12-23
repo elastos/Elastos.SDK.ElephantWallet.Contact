@@ -23,11 +23,11 @@
 
 #ifndef WITH_CROSSPL
 
-class ElaphantContact : public ContactBridge {
+class ElaphantContact : public crosspl::native::ContactBridge {
 public:
     /*** type define ***/
-    class Factory final: public ContactFactory {
-       public:
+    class Factory final: public crosspl::native::ContactFactory {
+    public:
         static std::shared_ptr<ElaphantContact> Create() {
             struct Impl : ElaphantContact {
             };
@@ -40,15 +40,15 @@ public:
         //     // UserInfo.SetCurrDevId(devId);
         // }
 
-        private:
-         explicit Factory() = default;
-         virtual ~Factory() = default;
+    private:
+        explicit Factory() = delete;
+        virtual ~Factory() = default;
     }; // class Factory
 
     using UserInfo = elastos::UserInfo;
     using FriendInfo = elastos::FriendInfo;
 
-    class Message: public ContactMessage {
+    class Message: public crosspl::native::ContactMessage {
     public:
         class MsgData {
         public:
@@ -129,7 +129,7 @@ public:
         const int64_t timestamp;
     }; // class Message
 
-    class Listener: public ContactListener {
+    class Listener: public crosspl::native::ContactListener {
     public:
         virtual void onReceivedMessage(const std::string& humanCode, ContactChannel channelType,
                                        std::shared_ptr<Message> msgInfo) = 0;
@@ -142,10 +142,10 @@ public:
         };
     }; // class Listener
 
-    class DataListener: public ContactDataListener {
+    class DataListener: public crosspl::native::ContactDataListener {
     }; // class DataListener
 
-    class Debug: public ContactDebug {
+    class Debug: public crosspl::native::ContactDebug {
     }; // class ContactDebug
 
     /*** static function and variable ***/

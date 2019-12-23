@@ -11,10 +11,10 @@
 #ifdef WITH_CROSSPL
 #define ENABLE_PLATFORM_FUNCTION
 #include <ContactDataListener.proxy.h>
+#endif // WITH_CROSSPL
 
 namespace crosspl {
 namespace native {
-#endif // WITH_CROSSPL
 
 /***********************************************/
 /***** static variables initialize *************/
@@ -172,7 +172,7 @@ int ContactDataListener::onWriteData(const std::string& humanCode,
 
     return ret;
 }
+#endif // WITH_CROSSPL
 
 } //namespace native
 } //namespace crosspl
-#endif // WITH_CROSSPL

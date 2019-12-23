@@ -17,10 +17,8 @@
 #include <Elastos.SDK.Contact.hpp>
 #include <ContactListener.hpp>
 
-#ifdef WITH_CROSSPL
 namespace crosspl {
 namespace native {
-#endif // WITH_CROSSPL
 
 class ContactDataListener : public CrossBase {
 public:
@@ -29,8 +27,6 @@ public:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    explicit ContactDataListener();
-    virtual ~ContactDataListener();
 
 #ifdef WITH_CROSSPL
     void onNotify(const std::string& humanCode, ContactChannel channelType,
@@ -52,6 +48,14 @@ public:
 
     std::shared_ptr<elastos::MessageManager::DataListener> getDataListener();
 
+#ifdef WITH_CROSSPL
+public:
+#else
+protected:
+#endif // WITH_CROSSPL
+    explicit ContactDataListener();
+    virtual ~ContactDataListener();
+
 private:
     /*** type define ***/
 
@@ -64,9 +68,7 @@ private:
     std::shared_ptr<elastos::MessageManager::DataListener> mDataListener;
 }; // class Contact
 
-#ifdef WITH_CROSSPL
 } //namespace native
 } //namespace crosspl
-#endif // WITH_CROSSPL
 
 #endif /* _ELASTOS_SDK_JNI_CONTACT_DATA_LISTENER_HPP_ */

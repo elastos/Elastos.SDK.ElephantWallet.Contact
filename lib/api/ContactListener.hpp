@@ -18,10 +18,8 @@
 #include "ContactChannel.hpp"
 #include "experimental-span.hpp"
 
-#ifdef WITH_CROSSPL
 namespace crosspl {
 namespace native {
-#endif // WITH_CROSSPL
 
 class ContactListener : public CrossBase {
 public:
@@ -157,8 +155,6 @@ public:
     const std::string DIDPROP_APPID_DEFVAL = "DidFriend";
 
     /*** class function and variable ***/
-    explicit ContactListener();
-    virtual ~ContactListener();
 
 #ifdef WITH_CROSSPL
     std::shared_ptr<std::span<uint8_t>> onAcquire(AcquireType type, const char* pubKey, const std::span<uint8_t>* data);
@@ -177,6 +173,14 @@ public:
     std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener();
     std::shared_ptr<elastos::MessageManager::MessageListener> getMessageListener();
 
+#ifdef WITH_CROSSPL
+public:
+#else
+protected:
+#endif // WITH_CROSSPL
+    explicit ContactListener();
+    virtual ~ContactListener();
+
 private:
     /*** type define ***/
 
@@ -191,9 +195,7 @@ private:
     std::shared_ptr<elastos::MessageManager::MessageListener> mMessageListener;
 }; // class Contact
 
-#ifdef WITH_CROSSPL
 } //namespace native
 } //namespace crosspl
-#endif // WITH_CROSSPL
 
 #endif /* _ELASTOS_SDK_JNI_CONTACT_LISTENER_HPP_ */
