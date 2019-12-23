@@ -42,7 +42,7 @@ int ContactMessage::syncMessageToNative(int type,
                                         int64_t timestamp)
 {
     auto msg = std::vector<uint8_t>(data->data(), data->data() + data->size());
-    auto algorithm = (IsEmpty(cryptoAlgorithm) == true ? cryptoAlgorithm : "");
+    auto algorithm = (!IsEmpty(cryptoAlgorithm) ? cryptoAlgorithm : "");
     mMessageInfo = elastos::MessageManager::MakeMessage(static_cast<elastos::MessageManager::MessageType>(type),
                                                         msg,
                                                         algorithm);
