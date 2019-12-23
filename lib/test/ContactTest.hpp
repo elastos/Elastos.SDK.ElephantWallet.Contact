@@ -12,7 +12,7 @@
 #define _CONTACT_TEST_HPP_
 
 #include <Contact.hpp>
-#include <filesystem>
+#include <CompatibleFileSystem.hpp>
 
 class ContactTest {
 public:
@@ -40,7 +40,7 @@ public:
     int doAcceptFriend(const std::string& friendCode);
     int doSendMessage(const std::string& friendCode, const std::string& text);
     int doSendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary);
-    int doSendMessage(const std::string& friendCode, const std::filesystem::path& file);
+    int doSendMessage(const std::string& friendCode, const elastos::filesystem::path& file);
 
     int showCachedProp();
 

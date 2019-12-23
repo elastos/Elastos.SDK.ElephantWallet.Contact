@@ -388,7 +388,7 @@ int ContactTestCmd::SendFileMessage(const std::vector<std::string>& args,
         return -1;
     }
 
-    auto file = std::filesystem::path(args[2]);
+    auto file = elastos::filesystem::path(args[2]);
     auto ret = ContactTest::GetInstance()->doSendMessage(args[1], file);
     return ret;
 }

@@ -2,6 +2,7 @@
 #include <Elastos.SDK.Keypair.C/Elastos.Wallet.Utility.h>
 
 #include <fstream>
+#include <iomanip>
 #include <Log.hpp>
 #include <ContactTestCmd.hpp>
 #include <openssl/md5.h>
@@ -356,7 +357,7 @@ int ContactTest::doSendMessage(const std::string& friendCode, const std::vector<
     return 0;
 }
 
-int ContactTest::doSendMessage(const std::string& friendCode, const std::filesystem::path& file)
+int ContactTest::doSendMessage(const std::string& friendCode, const elastos::filesystem::path& file)
 {
     if (mContact == nullptr) {
         ShowError("Contact is null.");
