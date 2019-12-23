@@ -1,5 +1,5 @@
 /**
- * @file	Elastos.SDK.Contact.hpp
+ * @file	Contact.V1.hpp
  * @brief	Contact
  * @details	
  *
@@ -8,8 +8,8 @@
  * @copyright	(c) 2012 xxx All rights reserved.
  **/
 
-#ifndef _ELASTOS_OLDSDK_CONTACT_HPP_
-#define _ELASTOS_OLDSDK_CONTACT_HPP_
+#ifndef _ELASTOS_SDK_CONTACT_V1_HPP_
+#define _ELASTOS_SDK_CONTACT_V1_HPP_
 
 #include "Config.hpp"
 #include "FriendManager.hpp"
@@ -19,18 +19,18 @@
 
 namespace elastos {
 
-class Contact {
+class ContactV1 {
 public:
     /*** type define ***/
     class Factory {
     public:
         static void SetLogLevel(int level);
         static int SetLocalDataDir(const std::string& dir);
-        static std::shared_ptr<Contact> Create();
+        static std::shared_ptr<ContactV1> Create();
 
     private:
         static std::string sLocalDataDir;
-        friend class Contact;
+        friend class ContactV1;
     }; // class Factory
 
     class Listener { // TODO
@@ -69,8 +69,8 @@ private:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    explicit Contact();
-    virtual ~Contact();
+    explicit ContactV1();
+    virtual ~ContactV1();
     int getUserDataDir(std::string& dir);
     int initGlobal();
     int monitorDidChainData();
@@ -81,8 +81,8 @@ private:
     std::shared_ptr<MessageManager> mMessageManager;
     std::shared_ptr<Config> mConfig;
     bool mStarted;
-}; // class Contact
+}; // class ContactV1
 
 } // namespace elastos
 
-#endif /* _ELASTOS_OLDSDK_CONTACT_HPP_ */
+#endif /* _ELASTOS_SDK_CONTACT_V1_HPP_ */

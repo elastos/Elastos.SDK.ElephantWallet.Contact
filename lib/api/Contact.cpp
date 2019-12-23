@@ -16,6 +16,9 @@
 
 #ifndef WITH_CROSSPL
 
+namespace elastos {
+namespace sdk {
+
 /***********************************************/
 /***** static variables initialize *************/
 /***********************************************/
@@ -28,7 +31,7 @@
 /***********************************************/
 /***** class public function implement  ********/
 /***********************************************/
-std::shared_ptr<ElaphantContact::UserInfo> ElaphantContact::getUserInfo()
+std::shared_ptr<Contact::UserInfo> Contact::getUserInfo()
 {
     if(mContactImpl->isStarted() == false) {
         return nullptr;
@@ -37,14 +40,14 @@ std::shared_ptr<ElaphantContact::UserInfo> ElaphantContact::getUserInfo()
     auto weakUserMgr = mContactImpl->getUserManager();
     auto userMgr =  SAFE_GET_PTR_DEF_RETVAL(weakUserMgr, nullptr);
 
-    std::shared_ptr<ElaphantContact::UserInfo> userInfo;
+    std::shared_ptr<Contact::UserInfo> userInfo;
     int ret = userMgr->getUserInfo(userInfo);
     CHECK_AND_RETDEF(ret, nullptr);
 
     return userInfo;
 }
 
-std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ElaphantContact::listFriendInfo()
+std::vector<std::shared_ptr<Contact::FriendInfo>> Contact::listFriendInfo()
 {
     std::vector<std::shared_ptr<elastos::FriendInfo>> friendList;
 
@@ -61,7 +64,7 @@ std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> ElaphantContact::listF
     return friendList;
 }
 
-int ElaphantContact::sendMessage(const std::string& friendCode, Channel chType, std::shared_ptr<Message> message)
+int Contact::sendMessage(const std::string& friendCode, Channel chType, std::shared_ptr<Message> message)
 {
     auto dataInfo = message->data->toData();
     std::span<uint8_t> data(dataInfo.data(), dataInfo.size());
@@ -76,7 +79,7 @@ int ElaphantContact::sendMessage(const std::string& friendCode, Channel chType, 
     return 0;
 }
 
-ElaphantContact::Message::Message(Type type, const std::vector<uint8_t>& data, std::string cryptoAlgorithm, int64_t timestamp)
+Contact::Message::Message(Type type, const std::vector<uint8_t>& data, std::string cryptoAlgorithm, int64_t timestamp)
         : type(type)
         , data()
         , cryptoAlgorithm(cryptoAlgorithm)
@@ -101,36 +104,36 @@ ElaphantContact::Message::Message(Type type, const std::vector<uint8_t>& data, s
     }
 }
 
-std::string ElaphantContact::Message::TextData::toString()
+std::string Contact::Message::TextData::toString()
 {
     return this->text;
 }
 
-std::vector<uint8_t> ElaphantContact::Message::TextData::toData()
+std::vector<uint8_t> Contact::Message::TextData::toData()
 {
     return std::vector<uint8_t>(this->text.begin(), this->text.end());
 }
-void ElaphantContact::Message::TextData::fromData(const std::vector<uint8_t>& data)
+void Contact::Message::TextData::fromData(const std::vector<uint8_t>& data)
 {
     this->text = std::string(data.begin(), data.end());
 }
 
-std::string ElaphantContact::Message::BinaryData::toString()
+std::string Contact::Message::BinaryData::toString()
 {
     auto jsonInfo = elastos::Json(this->binary);
     return jsonInfo.dump();
 }
 
-std::vector<uint8_t> ElaphantContact::Message::BinaryData::toData()
+std::vector<uint8_t> Contact::Message::BinaryData::toData()
 {
     return this->binary;
 }
-void ElaphantContact::Message::BinaryData::fromData(const std::vector<uint8_t>& data)
+void Contact::Message::BinaryData::fromData(const std::vector<uint8_t>& data)
 {
     this->binary = data;
 }
 
-ElaphantContact::Message::FileData::FileData(const std::string& filepath)
+Contact::Message::FileData::FileData(const std::string& filepath)
 {
     elastos::Platform::GetCurrentDevId(this->devId);
     auto file = elastos::filesystem::path(filepath);
@@ -139,7 +142,7 @@ ElaphantContact::Message::FileData::FileData(const std::string& filepath)
     this->md5 = elastos::MD5::Get(file);
 }
 
-std::string ElaphantContact::Message::FileData::toString()
+std::string Contact::Message::FileData::toString()
 {
     auto jsonInfo = elastos::Json::object();
     jsonInfo[elastos::JsonKey::DeviceId] = this-> devId;
@@ -149,12 +152,12 @@ std::string ElaphantContact::Message::FileData::toString()
     return jsonInfo.dump();
 }
 
-std::vector<uint8_t> ElaphantContact::Message::FileData::toData()
+std::vector<uint8_t> Contact::Message::FileData::toData()
 {
     auto dataId = toString();
     return std::vector<uint8_t>(dataId.begin(), dataId.end());
 }
-void ElaphantContact::Message::FileData::fromData(const std::vector<uint8_t>& data)
+void Contact::Message::FileData::fromData(const std::vector<uint8_t>& data)
 {
     auto jsonInfo = elastos::Json::parse(data);
     this-> devId = jsonInfo[elastos::JsonKey::DeviceId];
@@ -173,6 +176,9 @@ void ElaphantContact::Message::FileData::fromData(const std::vector<uint8_t>& da
 /***** class private function implement  *******/
 /***********************************************/
 
+
+} // namespace sdk
+} // namespace elastos
 
 #endif // WITH_CROSSPL
 

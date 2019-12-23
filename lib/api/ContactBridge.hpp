@@ -16,7 +16,7 @@
 #include "ContactDataListener.hpp"
 #include "ContactListener.hpp"
 #include <ContactTypes.hpp>
-#include <Elastos.SDK.Contact.hpp>
+#include <Contact.V1.hpp>
 
 namespace crosspl {
 namespace native {
@@ -64,7 +64,7 @@ protected:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    std::shared_ptr<elastos::Contact> mContactImpl;
+    std::shared_ptr<elastos::ContactV1> mContactImpl;
 
 private:
     /*** type define ***/

@@ -64,13 +64,13 @@ public:
     std::string getPrivateKey();
     std::string getAgentAuthHeader();
     std::string getMd5Sum(const std::string& data);
-    std::shared_ptr<std::vector<uint8_t>> processAcquire(const ElaphantContact::Listener::AcquireArgs& request);
-    void processEvent(ElaphantContact::Listener::EventArgs& event);
+    std::shared_ptr<std::vector<uint8_t>> processAcquire(const elastos::sdk::Contact::Listener::AcquireArgs& request);
+    void processEvent(elastos::sdk::Contact::Listener::EventArgs& event);
 
     std::string mSavedMnemonic;
-    std::shared_ptr<ElaphantContact> mContact;
-    std::shared_ptr<ElaphantContact::Listener> mContactListener;
-    std::shared_ptr<ElaphantContact::DataListener> mContactDataListener;
+    std::shared_ptr<elastos::sdk::Contact> mContact;
+    std::shared_ptr<elastos::sdk::Contact::Listener> mContactListener;
+    std::shared_ptr<elastos::sdk::Contact::DataListener> mContactDataListener;
 }; // class Contact
 
 #ifdef WITH_CROSSPL

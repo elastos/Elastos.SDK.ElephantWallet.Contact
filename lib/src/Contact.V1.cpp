@@ -1,11 +1,11 @@
 //
-//  Elastos.SDK.Contact.cpp
+//  ContactV1.cpp
 //
 //  Created by mengxk on 19/03/16.
 //  Copyright © 2016 mengxk. All rights reserved.
 //
 
-#include <Elastos.SDK.Contact.hpp>
+#include <Contact.V1.hpp>
 
 #include "ChannelImplCarrier.hpp"
 #include "CompatibleFileSystem.hpp"
@@ -23,19 +23,19 @@ namespace elastos {
 /***********************************************/
 /***** static variables initialize *************/
 /***********************************************/
-std::string Contact::Factory::sLocalDataDir;
+std::string ContactV1::Factory::sLocalDataDir;
 
 /***********************************************/
 /***** static function implement ***************/
 /***********************************************/
 
-void Contact::Factory::SetLogLevel(int level)
+void ContactV1::Factory::SetLogLevel(int level)
 {
     Log::D(Log::TAG, "set log level: %d", level);
     Log::SetLevel(static_cast<Log::Level>(level));
 }
 
-int Contact::Factory::SetLocalDataDir(const std::string& dir)
+int ContactV1::Factory::SetLocalDataDir(const std::string& dir)
 {
     if(dir.empty()) {
         return ErrCode::InvalidArgument;
@@ -57,9 +57,9 @@ int Contact::Factory::SetLocalDataDir(const std::string& dir)
     return 0;
 }
 
-std::shared_ptr<Contact> Contact::Factory::Create()
+std::shared_ptr<ContactV1> ContactV1::Factory::Create()
 {
-    struct Impl: Contact {
+    struct Impl: ContactV1 {
     };
 
     return std::make_shared<Impl>();
@@ -68,7 +68,7 @@ std::shared_ptr<Contact> Contact::Factory::Create()
 /***********************************************/
 /***** class public function implement  ********/
 /***********************************************/
-void Contact::setListener(std::shared_ptr<SecurityManager::SecurityListener> sectyListener,
+void ContactV1::setListener(std::shared_ptr<SecurityManager::SecurityListener> sectyListener,
                           std::shared_ptr<UserManager::UserListener> userListener,
                           std::shared_ptr<FriendManager::FriendListener> friendListener,
                           std::shared_ptr<MessageManager::MessageListener> msgListener)
@@ -79,7 +79,7 @@ void Contact::setListener(std::shared_ptr<SecurityManager::SecurityListener> sec
     mMessageManager->setMessageListener(msgListener);
 }
 
-int Contact::start()
+int ContactV1::start()
 {
     if(mStarted == true) {
         return ErrCode::RepeatOperationError;
@@ -120,7 +120,7 @@ int Contact::start()
     return 0;
 }
 
-int Contact::stop()
+int ContactV1::stop()
 {
     if(mStarted == false) {
         return 0;
@@ -139,12 +139,12 @@ int Contact::stop()
     return 0;
 }
 
-bool Contact::isStarted()
+bool ContactV1::isStarted()
 {
     return mStarted;
 }
 
-int Contact::syncInfoDownloadFromDidChain()
+int ContactV1::syncInfoDownloadFromDidChain()
 {
     std::string did;
     int ret = mSecurityManager->getDid(did);
@@ -165,7 +165,7 @@ int Contact::syncInfoDownloadFromDidChain()
     return 0;
 }
 
-int Contact::syncInfoUploadToDidChain()
+int ContactV1::syncInfoUploadToDidChain()
 {
     auto dcClient = DidChnClient::GetInstance();
     if(dcClient.get() == nullptr) {
@@ -178,22 +178,22 @@ int Contact::syncInfoUploadToDidChain()
     return 0;
 }
 
-std::weak_ptr<SecurityManager> Contact::getSecurityManager()
+std::weak_ptr<SecurityManager> ContactV1::getSecurityManager()
 {
     return mSecurityManager;
 }
 
-std::weak_ptr<UserManager> Contact::getUserManager()
+std::weak_ptr<UserManager> ContactV1::getUserManager()
 {
     return mUserManager;
 }
 
-std::weak_ptr<FriendManager> Contact::getFriendManager()
+std::weak_ptr<FriendManager> ContactV1::getFriendManager()
 {
     return mFriendManager;
 }
 
-std::weak_ptr<MessageManager> Contact::getMessageManager()
+std::weak_ptr<MessageManager> ContactV1::getMessageManager()
 {
     return mMessageManager;
 }
@@ -206,7 +206,7 @@ std::weak_ptr<MessageManager> Contact::getMessageManager()
 /***********************************************/
 /***** class private function implement  *******/
 /***********************************************/
-Contact::Contact()
+ContactV1::ContactV1()
     : mSecurityManager(std::make_shared<SecurityManager>())
     , mUserManager(std::make_shared<UserManager>(mSecurityManager))
     , mFriendManager(std::make_shared<FriendManager>(mSecurityManager))
@@ -216,14 +216,14 @@ Contact::Contact()
 {
 }
 
-Contact::~Contact()
+ContactV1::~ContactV1()
 {
     auto dcClient = DidChnClient::GetInstance();
     dcClient->stopMonitor();
 }
 
 
-int Contact::getUserDataDir(std::string& dir)
+int ContactV1::getUserDataDir(std::string& dir)
 {
     if(Factory::sLocalDataDir.empty()) {
         return ErrCode::InvalidLocalDataDir;
@@ -258,7 +258,7 @@ int Contact::getUserDataDir(std::string& dir)
     return 0;
 }
 
-int Contact::initGlobal()
+int ContactV1::initGlobal()
 {
     int ret;
 
@@ -286,7 +286,7 @@ int Contact::initGlobal()
     return 0;
 }
 
-int Contact::monitorDidChainData()
+int ContactV1::monitorDidChainData()
 {
     auto listener = DidChnDataListener::GetInstance();
     auto dcClient = DidChnClient::GetInstance();
@@ -305,7 +305,7 @@ int Contact::monitorDidChainData()
     for(const auto& it: friendList) {
         ret = it->getHumanInfo(HumanInfo::Item::Did, did);
         if(ret < 0) {
-            Log::W(Log::TAG, "Contact::monitorDidChainData() Failed to get friend did.");
+            Log::W(Log::TAG, "ContactV1::monitorDidChainData() Failed to get friend did.");
             continue;
         }
 

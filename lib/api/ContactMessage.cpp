@@ -7,7 +7,7 @@
 
 #include <ContactMessage.hpp>
 
-#include <Elastos.SDK.Contact.hpp>
+#include <Contact.V1.hpp>
 #include <Platform.hpp>
 #include "Log.hpp"
 #include "ContactMessage.hpp"

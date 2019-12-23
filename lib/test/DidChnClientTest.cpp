@@ -3,7 +3,7 @@
 
 #include <DidChnClient.hpp>
 #include <DateTime.hpp>
-#include <Elastos.SDK.Contact.hpp>
+#include <Contact.V1.hpp>
 #include <Elastos.SDK.Keypair.C/Elastos.Wallet.Utility.h>
 #include <Platform.hpp>
 #include <Log.hpp>

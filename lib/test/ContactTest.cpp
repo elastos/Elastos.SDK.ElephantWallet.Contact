@@ -70,21 +70,21 @@ int ContactTest::newAndSaveMnemonic(const std::string& newMnemonic)
 
 int ContactTest::testNewContact()
 {
-    ElaphantContact::Factory::SetLogLevel(7);
+    elastos::sdk::Contact::Factory::SetLogLevel(7);
 
-    // ElaphantContact::Factory::SetDeviceId(getDeviceId());
+    // elastos::sdk::Contact::Factory::SetDeviceId(getDeviceId());
 
-    int ret = ElaphantContact::Factory::SetLocalDataDir(gCacheDir);
+    int ret = elastos::sdk::Contact::Factory::SetLocalDataDir(gCacheDir);
     if (ret < 0) {
         Log::E(Log::TAG, "Failed to call Contact.Factory.SetLocalDataDir() ret=%d", ret);
     }
 
-    mContact = ElaphantContact::Factory::Create();
+    mContact = elastos::sdk::Contact::Factory::Create();
     if (mContact == nullptr) {
         Log::E(Log::TAG, "Failed to call Contact.Factory.Create()");
     }
 
-    class Listener: public ElaphantContact::Listener {
+    class Listener: public elastos::sdk::Contact::Listener {
         virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const AcquireArgs& request) override {
             auto ret = ContactTest::GetInstance()->processAcquire(request);
 
@@ -101,15 +101,15 @@ int ContactTest::testNewContact()
             ShowEvent(msg);
         }
         virtual void onReceivedMessage(const std::string& humanCode,
-                                       ElaphantContact::Channel channelType,
-                                       std::shared_ptr<ElaphantContact::Message> msgInfo) override {
+                                       elastos::sdk::Contact::Channel channelType,
+                                       std::shared_ptr<elastos::sdk::Contact::Message> msgInfo) override {
             auto msg = std::string("onRcvdMsg(): humanCode=") + humanCode.c_str() + "\n";
             msg += "onRcvdMsg(): data=" + msgInfo->data->toString() + "\n";
             msg += "onRcvdMsg(): type=" + std::to_string(static_cast<int>(msgInfo->type)) + "\n";
             msg += "onRcvdMsg(): crypto=" + msgInfo->cryptoAlgorithm + "\n";
             ShowEvent(msg);
 
-            if (msgInfo->type == ElaphantContact::Message::Type::MsgFile) {
+            if (msgInfo->type == elastos::sdk::Contact::Message::Type::MsgFile) {
                 //             mContactRecvFileMap.put(humanCode, (Contact.Message.FileData)message.data);
             }
         }
@@ -123,16 +123,16 @@ int ContactTest::testNewContact()
     mContactListener = std::make_shared<Listener>();
     mContact->setListener(mContactListener);
 
-    class DataListener: public ElaphantContact::DataListener {
+    class DataListener: public elastos::sdk::Contact::DataListener {
         virtual void onNotify(const std::string& humanCode,
-                              ElaphantContact::Channel channelType,
+                              elastos::sdk::Contact::Channel channelType,
                               const std::string& dataId, int status) override {
             std::string msg = "onNotify(): dataId=" + dataId
                             + ", status=" + std::to_string(status) + "\n";
             ShowEvent(msg);
         }
         virtual int onReadData(const std::string& humanCode,
-                               ElaphantContact::Channel channelType,
+                               elastos::sdk::Contact::Channel channelType,
                                const std::string& dataId, uint64_t offset,
                                std::vector<uint8_t>& data) override {
             std::string msg = "onReadData(): dataId=" + dataId
@@ -140,7 +140,7 @@ int ContactTest::testNewContact()
             ShowEvent(msg);
         }
         virtual int onWriteData(const std::string& humanCode,
-                                ElaphantContact::Channel channelType,
+                                elastos::sdk::Contact::Channel channelType,
                                 const std::string& dataId, uint64_t offset,
                                 const std::vector<uint8_t>& data) override {
             std::string msg = "onWriteData(): dataId=" + dataId
@@ -208,7 +208,7 @@ int ContactTest::doSetHumanDetails(const std::string& friendCode, int key, const
         return -1;
     }
 
-    int ret = mContact->setHumanInfo(friendCode, static_cast<ElaphantContact::UserInfo::Item>(key), value);
+    int ret = mContact->setHumanInfo(friendCode, static_cast<elastos::sdk::Contact::UserInfo::Item>(key), value);
     CHECK_ERROR(ret);
 
     Log::V(Log::TAG, "Success to set human details");
@@ -324,13 +324,13 @@ int ContactTest::doSendMessage(const std::string& friendCode, const std::string&
         return -1;
     }
 
-    auto msgInfo = ElaphantContact::MakeTextMessage(text);
+    auto msgInfo = elastos::sdk::Contact::MakeTextMessage(text);
     if(msgInfo == nullptr) {
         ShowError("Failed to make text message.");
         return -1;
     }
 
-    auto ret = mContact->sendMessage(friendCode, ElaphantContact::Channel::Carrier, msgInfo);
+    auto ret = mContact->sendMessage(friendCode, elastos::sdk::Contact::Channel::Carrier, msgInfo);
 
     Log::V(Log::TAG, "Success send text to friend: %s", friendCode.c_str());
 
@@ -344,13 +344,13 @@ int ContactTest::doSendMessage(const std::string& friendCode, const std::vector<
         return -1;
     }
 
-    auto msgInfo = ElaphantContact::MakeBinaryMessage(binary);
+    auto msgInfo = elastos::sdk::Contact::MakeBinaryMessage(binary);
     if(msgInfo == nullptr) {
         ShowError("Failed to make binary message.");
         return -1;
     }
 
-    auto ret = mContact->sendMessage(friendCode, ElaphantContact::Channel::Carrier, msgInfo);
+    auto ret = mContact->sendMessage(friendCode, elastos::sdk::Contact::Channel::Carrier, msgInfo);
 
     Log::V(Log::TAG, "Success send binary to friend: %s", friendCode.c_str());
 
@@ -364,13 +364,13 @@ int ContactTest::doSendMessage(const std::string& friendCode, const elastos::fil
         return -1;
     }
 
-    auto msgInfo = ElaphantContact::MakeFileMessage(file.string());
+    auto msgInfo = elastos::sdk::Contact::MakeFileMessage(file.string());
     if(msgInfo == nullptr) {
         ShowError("Failed to make binary message.");
         return -1;
     }
 
-    auto ret = mContact->sendMessage(friendCode, ElaphantContact::Channel::Carrier, msgInfo);
+    auto ret = mContact->sendMessage(friendCode, elastos::sdk::Contact::Channel::Carrier, msgInfo);
 
     Log::V(Log::TAG, "Success send binary to friend: %s", friendCode.c_str());
 
@@ -385,7 +385,7 @@ int ContactTest::showCachedProp()
     }
 
     std::stringstream cachedDidProp;
-    ElaphantContact::Debug::GetCachedDidProp(&cachedDidProp);
+    elastos::sdk::Contact::Debug::GetCachedDidProp(&cachedDidProp);
     Log::V(Log::TAG, "CachedDidProp: %s", cachedDidProp.str().c_str());
 
     return 0;
@@ -459,25 +459,25 @@ std::string ContactTest::GetMd5Sum(const std::string& data)
     return sstream.str();
 }
 
-std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const ElaphantContact::Listener::AcquireArgs& request)
+std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const elastos::sdk::Contact::Listener::AcquireArgs& request)
 {
     Log::D(Log::TAG, "%s", __PRETTY_FUNCTION__);
     std::shared_ptr<std::vector<uint8_t>> response;
 
     switch(request.type) {
-    case ElaphantContact::Listener::AcquireType::PublicKey:
+    case elastos::sdk::Contact::Listener::AcquireType::PublicKey:
     {
         auto pubKey = getPublicKey();
         response = std::make_shared<std::vector<uint8_t>>(pubKey.begin(), pubKey.end());
         break;
     }
-    case ElaphantContact::Listener::AcquireType::EncryptData:
+    case elastos::sdk::Contact::Listener::AcquireType::EncryptData:
         response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore encrypt
         break;
-    case ElaphantContact::Listener::AcquireType::DecryptData:
+    case elastos::sdk::Contact::Listener::AcquireType::DecryptData:
         response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore decrypt
         break;
-    case ElaphantContact::Listener::AcquireType::DidPropAppId:
+    case elastos::sdk::Contact::Listener::AcquireType::DidPropAppId:
     {
 //        std::string appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AA"
 //                            "A65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
@@ -485,13 +485,13 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const Elaphant
         response.reset(); // return null will use `DidFriend`
         break;
     }
-    case ElaphantContact::Listener::AcquireType::DidAgentAuthHeader:
+    case elastos::sdk::Contact::Listener::AcquireType::DidAgentAuthHeader:
     {
         std::string authHeader = getAgentAuthHeader();
         response = std::make_shared<std::vector<uint8_t>>(authHeader.begin(), authHeader.end());
         break;
     }
-    case ElaphantContact::Listener::AcquireType::SignData:
+    case elastos::sdk::Contact::Listener::AcquireType::SignData:
     {
         uint8_t* signedData = nullptr;
         auto privKey = getPrivateKey();
@@ -508,21 +508,21 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const Elaphant
 }
 
 
-void ContactTest::processEvent(ElaphantContact::Listener::EventArgs& event)
+void ContactTest::processEvent(elastos::sdk::Contact::Listener::EventArgs& event)
 {
     switch (event.type) {
-    case ElaphantContact::Listener::EventType::StatusChanged:
+    case elastos::sdk::Contact::Listener::EventType::StatusChanged:
         break;
-    case ElaphantContact::Listener::EventType::FriendRequest:
+    case elastos::sdk::Contact::Listener::EventType::FriendRequest:
     {
-        auto requestEvent = dynamic_cast<ElaphantContact::Listener::RequestEvent*>(&event);
+        auto requestEvent = dynamic_cast<elastos::sdk::Contact::Listener::RequestEvent*>(&event);
         Log::V(Log::TAG, "Friend request from: %s, summary: %s",
                          requestEvent->humanCode.c_str(), requestEvent->summary.c_str());
         break;
     }
-    case ElaphantContact::Listener::EventType::HumanInfoChanged:
+    case elastos::sdk::Contact::Listener::EventType::HumanInfoChanged:
     {
-        auto infoEvent = dynamic_cast<ElaphantContact::Listener::InfoEvent*>(&event);
+        auto infoEvent = dynamic_cast<elastos::sdk::Contact::Listener::InfoEvent*>(&event);
         auto msg = event.humanCode + " info changed: " + infoEvent->toString();
         ShowEvent(msg);
         break;

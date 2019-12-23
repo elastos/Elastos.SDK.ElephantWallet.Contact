@@ -14,7 +14,7 @@
 #include <mutex>
 
 #include "ContactTypes.hpp"
-#include <Elastos.SDK.Contact.hpp>
+#include <Contact.V1.hpp>
 #include <ContactListener.hpp>
 
 namespace crosspl {

@@ -13,7 +13,7 @@
 
 #include <string>
 #include <CrossBase.hpp>
-#include <Elastos.SDK.Contact.hpp>
+#include <Contact.V1.hpp>
 
 namespace crosspl {
 namespace native {

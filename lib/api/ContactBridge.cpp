@@ -35,7 +35,7 @@ ContactBridge::ContactBridge()
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
 
-    mContactImpl = elastos::Contact::Factory::Create();
+    mContactImpl = elastos::ContactV1::Factory::Create();
 }
 ContactBridge::~ContactBridge()
 {

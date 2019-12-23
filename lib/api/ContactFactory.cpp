@@ -12,7 +12,7 @@
 #include "CrossPLUtils.hpp"
 #endif // __ANDROID__
 #endif // WITH_CROSSPL
-#include <Elastos.SDK.Contact.hpp>
+#include <Contact.V1.hpp>
 #include <Platform.hpp>
 #include "Log.hpp"
 
@@ -29,7 +29,7 @@ namespace native {
 
 void ContactFactory::SetLogLevel(int level)
 {
-    elastos::Contact::Factory::SetLogLevel(level);
+    elastos::ContactV1::Factory::SetLogLevel(level);
 
     return;
 }
@@ -48,7 +48,7 @@ void ContactFactory::SetDeviceId(const std::string& devId)
 
 int ContactFactory::SetLocalDataDir(const std::string& dir)
 {
-    int ret = elastos::Contact::Factory::SetLocalDataDir(dir);
+    int ret = elastos::ContactV1::Factory::SetLocalDataDir(dir);
 
     return ret;
 }

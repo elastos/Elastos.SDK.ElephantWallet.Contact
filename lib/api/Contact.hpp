@@ -11,7 +11,7 @@
 #ifndef _ELASTOS_SDK_CONTACT_HPP_
 #define _ELASTOS_SDK_CONTACT_HPP_
 
-#include <Elastos.SDK.Contact.hpp>
+#include <Contact.V1.hpp>
 #include <ContactBridge.hpp>
 #include <ContactDataListener.hpp>
 #include <ContactDebug.hpp>
@@ -22,13 +22,16 @@
 
 #ifndef WITH_CROSSPL
 
-class ElaphantContact : public crosspl::native::ContactBridge {
+namespace elastos {
+namespace sdk {
+
+class Contact : public crosspl::native::ContactBridge {
 public:
     /*** type define ***/
     class Factory final: public crosspl::native::ContactFactory {
     public:
-        static std::shared_ptr<ElaphantContact> Create() {
-            struct Impl : ElaphantContact {
+        static std::shared_ptr<Contact> Create() {
+            struct Impl : Contact {
             };
 
             return std::make_shared<Impl>();
@@ -170,8 +173,8 @@ public:
     }
 
     /*** class function and variable ***/
-    std::shared_ptr<ElaphantContact::UserInfo> getUserInfo();
-    std::vector<std::shared_ptr<ElaphantContact::FriendInfo>> listFriendInfo();
+    std::shared_ptr<Contact::UserInfo> getUserInfo();
+    std::vector<std::shared_ptr<Contact::FriendInfo>> listFriendInfo();
 
     int sendMessage(const std::string& friendCode, Channel chType, std::shared_ptr<Message> message);
 
@@ -181,11 +184,16 @@ private:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    explicit ElaphantContact() = default;
-    virtual ~ElaphantContact() = default;
+    explicit Contact() = default;
+    virtual ~Contact() = default;
 
 
 }; // class Contact
+
+} // namespace sdk
+} // namespace elastos
+
+using ElaphantContact = elastos::sdk::Contact;
 
 #endif // WITH_CROSSPL
 
