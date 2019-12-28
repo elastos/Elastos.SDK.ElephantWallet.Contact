@@ -155,6 +155,10 @@ class HumanInfo {
         return 0;
     }
 
+    protected int fromJson(String info) {
+        throw new RuntimeException("Unimplement");
+    }
+
     protected HumanInfo() {
     }
-} // class Factory
+} // class HumanInfo

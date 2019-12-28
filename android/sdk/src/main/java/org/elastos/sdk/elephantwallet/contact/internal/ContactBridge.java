@@ -69,17 +69,10 @@ class ContactBridge extends CrossBase {
     public Contact.UserInfo getUserInfo() {
         assert(mListener != null);
 
-        StringBuffer sbInfo = new StringBuffer();
-        int ret = getHumanInfo("-user-info-", sbInfo);
+        Contact.UserInfo userInfo = new Contact.UserInfo();
+        int ret = getHumanInfo("-user-info-", userInfo);
         if(ret < 0) {
             Log.w(TAG, "Failed to get user info. ret=" + ret);
-            return null;
-        }
-
-        Contact.UserInfo userInfo = new Contact.UserInfo();
-        ret  = userInfo.fromJson(sbInfo.toString());
-        if(ret < 0) {
-            Log.w(TAG, "Failed to deserialize user info. ret=" + ret);
             return null;
         }
 
@@ -132,6 +125,35 @@ class ContactBridge extends CrossBase {
     public int setHumanInfo(String humanCode, HumanInfo.Item item, String value) {
         int ret = setHumanInfo(humanCode, item.id(), value);
         return ret;
+    }
+
+    public <T extends HumanInfo> int getHumanInfo(String humanCode, T humanInfo) {
+        assert(mListener != null);
+
+        StringBuffer sbInfo = new StringBuffer();
+        int ret = getHumanInfo(humanCode, sbInfo);
+        if(ret < 0) {
+            Log.w(TAG, "Failed to get human info. ret=" + ret);
+            return ret;
+        }
+
+        ret  = humanInfo.fromJson(sbInfo.toString());
+        if(ret < 0) {
+            Log.w(TAG, "Failed to deserialize human info. ret=" + ret);
+            return ret;
+        }
+
+        return 0;
+    }
+
+    public String findAvatarFile(String avatar) {
+        StringBuffer filepath = new StringBuffer();
+        int ret = findAvatarFile(avatar, filepath);
+        if(ret < 0) {
+            return null;
+        }
+
+        return filepath.toString();
     }
 
     public Contact.Status getStatus(String humanCode) {
@@ -242,6 +264,9 @@ class ContactBridge extends CrossBase {
 
     @CrossInterface
     private native int getHumanInfo(String humanCode, StringBuffer info);
+
+    @CrossInterface
+    public native int findAvatarFile(String avatar, StringBuffer filepath);
 
     @CrossInterface
     private native int getFriendList(StringBuffer info);

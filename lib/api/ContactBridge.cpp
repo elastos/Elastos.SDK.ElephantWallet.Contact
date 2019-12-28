@@ -211,6 +211,32 @@ int ContactBridge::getHumanInfo(ConstStringPtr humanCode, HumanInfoPtr info)
     return 0;
 }
 
+
+int ContactBridge::findAvatarFile(ConstStringPtr avatar, OutStringPtr filepath)
+{
+    if(mContactImpl->isStarted() == false) {
+        return elastos::ErrCode::NotReadyError;
+    }
+
+    if(IsEmpty(avatar) == true) {
+        return elastos::ErrCode::InvalidArgument;
+    }
+
+    auto weakUserMgr = mContactImpl->getUserManager();
+    auto userMgr =  SAFE_GET_PTR(weakUserMgr);                                                                      \
+
+
+    std::string avatarPath;
+    int ret = userMgr->getAvatarFile(avatar, avatarPath);
+
+#ifdef WITH_CROSSPL
+    filepath->str(avatarPath);
+#else
+    filepath = avatarPath;
+#endif // WITH_CROSSPL
+    return 0;
+}
+
 StatusType ContactBridge::getHumanStatus(ConstStringPtr humanCode)
 {
     auto invalidStatus = static_cast<StatusType>(elastos::HumanInfo::Status::Invalid);

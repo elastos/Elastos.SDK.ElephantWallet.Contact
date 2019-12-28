@@ -24,7 +24,8 @@ dependencies {
     api(project(":crosspl:lib"))
 
     implementation 'com.android.support:support-annotations:25.3.1'
-    implementation 'com.google.code.gson:gson:2.8.5'
+    //implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'org.kie.modules:com-google-code-gson:6.5.0.Final'
 }
 
 //project.ext {

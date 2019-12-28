@@ -18,6 +18,7 @@ public:
         ChainPubKey = 1,
         Did,
         ElaAddress,
+
         Nickname,
         Avatar,
         Gender,

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Handler;
@@ -37,6 +38,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.elastos.sdk.elephantwallet.contact.Contact;
 import org.json.JSONObject;
 
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,13 +91,13 @@ public class Helper {
         showDialog(builder);
     }
 
-    public static void showSetDetails(Context context, List<String> checkList, String separator, OnListener listener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    public static void showSetDetails(MainActivity activity, List<String> checkList, String separator, OnListener listener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Set Details");
 
-        RadioGroup radioGrp = new RadioGroup(context);
-        EditText editView = new EditText(context);
-        View root = makeSetDetailView(context, radioGrp, checkList, editView);
+        RadioGroup radioGrp = new RadioGroup(activity);
+        EditText editView = new EditText(activity);
+        View root = makeSetDetailView(activity, radioGrp, checkList, editView);
         builder.setView(root);
 
         builder.setPositiveButton("OK", (dialog, which) -> {
@@ -113,10 +115,15 @@ public class Helper {
         showDialog(builder);
     }
 
-    public static void showDetails(Context context, String msg) {
+    public static void showDetails(Context context, String msg, OnListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Details");
         builder.setMessage(msg);
+        if(listener != null) {
+            builder.setPositiveButton("ShowAvatar", (dialog, which) -> {
+                listener.onResult(null);
+            });
+        }
         builder.setNegativeButton("Cancel", (dialog, which) -> {
             dialog.dismiss();
         });
@@ -240,6 +247,35 @@ public class Helper {
         }
     }
 
+    public static void ShowImage(Context context, String filepath) {
+        LinearLayout root = new LinearLayout(context);
+        root.setOrientation(LinearLayout.VERTICAL);
+        TextView txtPath = new TextView(context);
+        txtPath.setText(filepath);
+        root.addView(txtPath);
+
+        ImageView image = new ImageView(context);
+        root.addView(image);
+        try {
+            FileInputStream fis = new FileInputStream(filepath);
+            Bitmap bitmap = BitmapFactory.decodeStream(fis);
+            image.setImageBitmap(bitmap);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to open image file: " + filepath, e);
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Avatar");
+        builder.setView(root);
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            dialog.dismiss();
+        });
+        new Handler(Looper.getMainLooper()).post(() -> {
+            builder.create().show();
+        });
+    }
+
+
     public static void onRequestPermissionsResult(MainActivity activity, int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode != 1) {
             return;
@@ -345,21 +381,29 @@ public class Helper {
         return root;
     }
 
-    private static View makeSetDetailView(Context context, RadioGroup radioGrp, List<String> checkList, EditText editView) {
-        TextView txtView = new TextView(context);
+    private static View makeSetDetailView(MainActivity activity, RadioGroup radioGrp, List<String> checkList, EditText editView) {
+        TextView txtView = new TextView(activity);
 
-        LinearLayout root = new LinearLayout(context);
+        LinearLayout root = new LinearLayout(activity);
         root.setOrientation(LinearLayout.VERTICAL);
         root.addView(radioGrp);
         root.addView(txtView);
         root.addView(editView);
 
         for(String it: checkList) {
-            RadioButton radiobtn = new RadioButton(context);
+            RadioButton radiobtn = new RadioButton(activity);
             radiobtn.setText(it);
             radioGrp.addView(radiobtn);
             if(radioGrp.getChildCount() == 1) {
                 radiobtn.setChecked(true);
+            }
+            if(it == "Avatar") {
+                radiobtn.setBackgroundColor(Color.CYAN);
+                radiobtn.setOnClickListener((v) -> {
+                    selectPhoto(activity, (result) -> {
+                        editView.setText(result);
+                    });
+                });
             }
         }
 
@@ -393,11 +437,8 @@ public class Helper {
         Button btnSel = new Button(activity);
         btnSel.setText("Select");
         btnSel.setOnClickListener((v) -> {
-            selectPhoto(activity, new OnListener() {
-                @Override
-                public void onResult(String result) {
-                    txtFileName.setText(result);
-                }
+            selectPhoto(activity, (result) -> {
+                txtFileName.setText(result);
             });
         });
 

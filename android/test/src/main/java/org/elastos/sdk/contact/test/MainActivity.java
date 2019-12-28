@@ -478,7 +478,10 @@ public class MainActivity extends Activity {
         }};
         String ext = info.getCurrDevCarrierId();
         Helper.showAddress(this, humanCode, getDeviceId(), ext, (result) -> {
-            Helper.showDetails(MainActivity.this, info.toJson());
+            Helper.showDetails(MainActivity.this, info.toJson(), (dump) -> {
+                String filepath = mContact.findAvatarFile(info.avatar);
+                Helper.ShowImage(MainActivity.this, filepath);
+            });
         });
 
         return info.toString();
@@ -646,7 +649,11 @@ public class MainActivity extends Activity {
                     break;
                 }
             }
-            Helper.showDetails(MainActivity.this, friendInfo.toJson());
+            String avatar = friendInfo.avatar;
+            Helper.showDetails(MainActivity.this, friendInfo.toJson(), (dump) -> {
+                String filepath = mContact.findAvatarFile(avatar);
+                Helper.ShowImage(MainActivity.this, filepath);
+            });
         });
         return "Success to list friend info.";
     }
@@ -888,7 +895,7 @@ public class MainActivity extends Activity {
 
         StringBuffer cachedDidProp = new StringBuffer();
         Contact.Debug.GetCachedDidProp(cachedDidProp);
-        Helper.showDetails(MainActivity.this, cachedDidProp.toString());
+        Helper.showDetails(MainActivity.this, cachedDidProp.toString(), null);
         return "Success to get cached didprop.";
     }
 

@@ -55,6 +55,9 @@ public:
 
     int setWalletAddress(const std::string& name, const std::string& value);
 
+    int saveAvatarFile(const std::string& filepath, std::string& md5);
+    int getAvatarFile(const std::string& md5, std::string& filepath);
+
 //    int syncDownloadDidChainData();
 //    int monitorDidChainData();
 //    int monitorDidChainIdentifyCode();

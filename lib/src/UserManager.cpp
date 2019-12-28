@@ -12,6 +12,7 @@
 #include <CompatibleFileSystem.hpp>
 #include <DateTime.hpp>
 #include <Log.hpp>
+#include <MD5.hpp>
 #include <MessageManager.hpp>
 #include <SafePtr.hpp>
 #include <Platform.hpp>
@@ -284,6 +285,53 @@ bool UserManager::contains(const std::string& userCode)
 bool UserManager::contains(const std::shared_ptr<HumanInfo>& userInfo)
 {
     return mUserInfo->contains(userInfo);
+}
+
+int UserManager::saveAvatarFile(const std::string& filepath, std::string& md5)
+{
+    auto avatarFrom = elastos::filesystem::path(filepath);
+    bool ret = elastos::filesystem::exists(avatarFrom);
+    if(ret == false) {
+        return ErrCode::FileNotExistsError;
+    }
+    md5 = elastos::MD5::Get(avatarFrom);
+
+    auto config = SAFE_GET_PTR(mConfig);
+    auto avatarDir = elastos::filesystem::path(config->mUserDataDir) / "avatar";
+
+    std::error_code stdErrCode;
+    ret = elastos::filesystem::create_directories(avatarDir, stdErrCode);
+    if(ret == false
+    || stdErrCode.value() != 0) {
+        return ErrCode::StdSystemErrorIndex - stdErrCode.value();
+    }
+
+    auto avatarTo = avatarDir / md5;
+    elastos::filesystem::copy(avatarFrom, avatarTo, stdErrCode);
+    if(stdErrCode.value() != 0) {
+        return ErrCode::StdSystemErrorIndex - stdErrCode.value();
+    }
+
+    Log::D(Log::TAG, "Save avatar file to: %s", avatarTo.c_str());
+
+    return 0;
+}
+
+int UserManager::getAvatarFile(const std::string& md5, std::string& filepath)
+{
+    auto config = SAFE_GET_PTR(mConfig);
+
+    auto avatarDir = elastos::filesystem::path(config->mUserDataDir) / "avatar";
+    auto avatarFile = avatarDir / md5;
+
+    bool ret = elastos::filesystem::exists(avatarFile);
+    if(ret == false) {
+        return ErrCode::FileNotExistsError;
+    }
+
+    filepath = avatarFile.string();
+
+    return 0;
 }
 
 //int UserManager::monitorDidChainData()

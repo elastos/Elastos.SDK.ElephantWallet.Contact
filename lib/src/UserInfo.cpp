@@ -122,15 +122,24 @@ int UserInfo::addCarrierInfo(const CarrierInfo& info, const Status status)
 
 int UserInfo::setHumanInfo(Item item, const std::string& value)
 {
-    int ret = HumanInfo::setHumanInfo(item, value);
+    auto userMgr = SAFE_GET_PTR(mUserManager);
+
+    const std::string* itemValue = &value;
+    std::string avatarValue;
+    if(item == Item::Avatar) {
+        int ret = userMgr->saveAvatarFile(value, avatarValue);
+        CHECK_ERROR(ret);
+        itemValue = &avatarValue;
+    }
+
+    int ret = HumanInfo::setHumanInfo(item, *itemValue);
     Log::D(Log::TAG, "%s ret=%d", __PRETTY_FUNCTION__, ret);
     if(ret <= 0) { // error or not changed
         return ret;
     }
 
-    auto userMgr = SAFE_GET_PTR(mUserManager);
     ret = userMgr->saveLocalData();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
