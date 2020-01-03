@@ -15,7 +15,7 @@
 
 #include "ContactDataListener.hpp"
 #include "ContactListener.hpp"
-#include <ContactTypes.hpp>
+#include "ContactTypes.hpp"
 #include <Contact.V1.hpp>
 
 namespace crosspl {

@@ -11,7 +11,7 @@
 #ifndef _ELASTOS_SDK_JNI_CONTACT_MESSAGE_HPP_
 #define _ELASTOS_SDK_JNI_CONTACT_MESSAGE_HPP_
 
-#include <ContactTypes.hpp>
+#include "ContactTypes.hpp"
 #include <MessageManager.hpp>
 #include "experimental-span.hpp"
 
@@ -30,7 +30,8 @@ public:
     int syncMessageToNative(int type,
                             const std::span<uint8_t>* data,
                             ConstStringPtr cryptoAlgorithm,
-                            int64_t timestamp);
+                            int64_t nanoTime,
+                            int64_t replyToNanoTime);
 
     std::shared_ptr<elastos::MessageManager::MessageInfo> mMessageInfo;
 

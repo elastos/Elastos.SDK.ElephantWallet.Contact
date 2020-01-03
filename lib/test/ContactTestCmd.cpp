@@ -63,7 +63,7 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { 'a', "add-friend",     ContactTestCmd::AddFriend,           "\tAdd Friend [a fid ${summary}]" },
     { 'd', "del-friend",     ContactTestCmd::DelFriend,           "\tDel Friend" },
     { 'i', "set-fdetails",   ContactTestCmd::SetFriendDetails,    "\tSet Friend Details [t fid [4:Nickname|7:Description|8:Addition] ${text}]" },
-    { 't', "send-tmsg",      ContactTestCmd::SendTextMessage,     "\tSend Text Message [t fid ${text}]" },
+    { 't', "send-tmsg",      ContactTestCmd::SendTextMessage,     "\tSend Text Message [t fid ${text}] replyTo" },
     { 'b', "send-bmsg",      ContactTestCmd::SendBinaryMessage,   "\tSend Binary Message [b fid ${binary}]" },
     { 'f', "send-fmsg",      ContactTestCmd::SendFileMessage,     "\tSend File Message [f fid ${filepath}]" },
     { 'p', "pull-file",      ContactTestCmd::Unimplemention,      "\tPull File" },
@@ -363,7 +363,12 @@ int ContactTestCmd::SendTextMessage(const std::vector<std::string>& args,
         return -1;
     }
 
-    auto ret = ContactTest::GetInstance()->doSendMessage(args[1], args[2]);
+    uint64_t replyTo = 0;
+    if(args.size() > 3) {
+        replyTo = std::stoll(args[3]);
+    }
+
+    auto ret = ContactTest::GetInstance()->doSendMessage(args[1], args[2], replyTo);
     return ret;
 }
 

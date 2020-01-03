@@ -266,6 +266,8 @@ class ViewController: UIViewController {
           var msg = "onRcvdMsg(): data=\(message.data.toString())\n"
           msg += "onRcvdMsg(): type=\(message.type)\n"
           msg += "onRcvdMsg(): crypto=" + (message.cryptoAlgorithm ?? "nil") + "\n"
+          msg += "onRcvdMsg(): nanoTime=\(message.nanoTime)\n"
+          msg += "onRcvdMsg(): replyTo=\(message.replyToNanoTime)\n"
           viewCtrl.showEvent(msg)
           
           if(message.type == Contact.Message.Kind.MsgFile) {
@@ -725,8 +727,22 @@ class ViewController: UIViewController {
 
     let friendCodeList = mContact!.listFriendCode()
     Helper.showFriendList(view: self, friendList: friendCodeList, listener:  { friendCode in
-      Helper.showTextSendMessage(view: self, friendCode: friendCode!, listener:  { message in
-        let msgInfo = Contact.MakeTextMessage(text: message!, cryptoAlgorithm: nil)
+      let separator = ":-:-:"
+      Helper.showTextSendMessage(view: self, friendCode: friendCode!, separator: separator, listener:  { result in
+        let keyValue = result!.components(separatedBy: separator)
+        let message = keyValue[0]
+        var replyTo: Int64 = 0
+        if(keyValue.count > 1) {
+          replyTo = Int64(keyValue[1]) ?? -1
+          if(replyTo < 0) {
+            self.showError("Failed to parse reply to nanotime.")
+          }
+        }
+        
+        let msgInfo = Contact.MakeTextMessage(text: message, cryptoAlgorithm: nil)
+        if(replyTo != 0) {
+          msgInfo.replyTo(toNanoTime: replyTo);
+        }
 
         let status = self.mContact!.getStatus(humanCode: friendCode!)
         if(status != Contact.Status.Online) {

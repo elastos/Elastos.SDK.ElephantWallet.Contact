@@ -70,7 +70,8 @@ int Contact::sendMessage(const std::string& friendCode, Channel chType, std::sha
     std::span<uint8_t> data(dataInfo.data(), dataInfo.size());
     auto ret = message->syncMessageToNative(static_cast<int>(message->type), &data,
                                             message->cryptoAlgorithm,
-                                            message->timestamp);
+                                            message->nanoTime,
+                                            message->replyToNanoTime);
     CHECK_ERROR(ret);
 
     ret = ContactBridge::sendMessage(friendCode, chType, message);
@@ -79,11 +80,13 @@ int Contact::sendMessage(const std::string& friendCode, Channel chType, std::sha
     return 0;
 }
 
-Contact::Message::Message(Type type, const std::vector<uint8_t>& data, std::string cryptoAlgorithm, int64_t timestamp)
+Contact::Message::Message(Type type, const std::vector<uint8_t>& data, std::string cryptoAlgorithm,
+                          int64_t nanoTime, int64_t replyToNanoTime)
         : type(type)
         , data()
         , cryptoAlgorithm(cryptoAlgorithm)
-        , timestamp(timestamp)
+        , nanoTime(nanoTime)
+        , replyToNanoTime(replyToNanoTime)
 {
     switch (type) {
         case Type::MsgText:

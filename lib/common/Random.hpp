@@ -29,6 +29,15 @@ public:
         return rand;
     }
 
+    template<class T>
+    static T Gen(T range) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<T> dis {0, range};
+        T rand = dis(gen);
+        return rand;
+    }
+
     /*** class function and variable ***/
 
 

@@ -12,7 +12,7 @@
 #define _ELASTOS_SDK_JNI_CONTACT_TYPES_HPP_
 
 #include <string>
-#include <CrossBase.hpp>
+#include "CrossBase.hpp"
 #include <Contact.V1.hpp>
 
 namespace crosspl {

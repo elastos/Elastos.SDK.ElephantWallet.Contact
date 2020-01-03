@@ -23,7 +23,7 @@
 		DE2757E12333486B001B635B /* UserManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE27578A2333486B001B635B /* UserManager.hpp */; };
 		DE2757E22333486B001B635B /* MessageChannelStrategy.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE27578B2333486B001B635B /* MessageChannelStrategy.hpp */; };
 		DE2757E32333486B001B635B /* SecurityManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE27578C2333486B001B635B /* SecurityManager.hpp */; };
-		DE2757E42333486B001B635B /* Elastos.SDK.Contact.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE27578D2333486B001B635B /* Elastos.SDK.Contact.hpp */; };
+		DE2757E42333486B001B635B /* Contact.V1.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE27578D2333486B001B635B /* Contact.V1.hpp */; };
 		DE2757E52333486B001B635B /* HumanInfo.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE27578E2333486B001B635B /* HumanInfo.hpp */; };
 		DE2757E62333486B001B635B /* Config.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE27578F2333486B001B635B /* Config.hpp */; };
 		DE2757E72333486B001B635B /* MessageManager.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE2757902333486B001B635B /* MessageManager.hpp */; };
@@ -71,7 +71,7 @@
 		DE27581C2333486C001B635B /* ChannelImplCarrier.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE2757C92333486B001B635B /* ChannelImplCarrier.hpp */; };
 		DE27581D2333486C001B635B /* SecurityManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE2757CA2333486B001B635B /* SecurityManager.cpp */; };
 		DE27581E2333486C001B635B /* DidChnDataListener.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE2757CB2333486B001B635B /* DidChnDataListener.hpp */; };
-		DE27581F2333486C001B635B /* Elastos.SDK.Contact.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE2757CC2333486B001B635B /* Elastos.SDK.Contact.cpp */; };
+		DE27581F2333486C001B635B /* Contact.V1.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE2757CC2333486B001B635B /* Contact.V1.cpp */; };
 		DE2758202333486C001B635B /* HumanInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE2757CD2333486B001B635B /* HumanInfo.cpp */; };
 		DE2758212333486C001B635B /* DidChnClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE2757CE2333486B001B635B /* DidChnClient.cpp */; };
 		DE27582523334F54001B635B /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE27582423334F54001B635B /* Contact.swift */; };
@@ -221,7 +221,7 @@
 		DE27578A2333486B001B635B /* UserManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = UserManager.hpp; sourceTree = "<group>"; };
 		DE27578B2333486B001B635B /* MessageChannelStrategy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MessageChannelStrategy.hpp; sourceTree = "<group>"; };
 		DE27578C2333486B001B635B /* SecurityManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SecurityManager.hpp; sourceTree = "<group>"; };
-		DE27578D2333486B001B635B /* Elastos.SDK.Contact.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Elastos.SDK.Contact.hpp; sourceTree = "<group>"; };
+		DE27578D2333486B001B635B /* Contact.V1.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Contact.V1.hpp; sourceTree = "<group>"; };
 		DE27578E2333486B001B635B /* HumanInfo.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = HumanInfo.hpp; sourceTree = "<group>"; };
 		DE27578F2333486B001B635B /* Config.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Config.hpp; sourceTree = "<group>"; };
 		DE2757902333486B001B635B /* MessageManager.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = MessageManager.hpp; sourceTree = "<group>"; };
@@ -272,7 +272,7 @@
 		DE2757C92333486B001B635B /* ChannelImplCarrier.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ChannelImplCarrier.hpp; sourceTree = "<group>"; };
 		DE2757CA2333486B001B635B /* SecurityManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SecurityManager.cpp; sourceTree = "<group>"; };
 		DE2757CB2333486B001B635B /* DidChnDataListener.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = DidChnDataListener.hpp; sourceTree = "<group>"; };
-		DE2757CC2333486B001B635B /* Elastos.SDK.Contact.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Elastos.SDK.Contact.cpp; sourceTree = "<group>"; };
+		DE2757CC2333486B001B635B /* Contact.V1.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Contact.V1.cpp; sourceTree = "<group>"; };
 		DE2757CD2333486B001B635B /* HumanInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HumanInfo.cpp; sourceTree = "<group>"; };
 		DE2757CE2333486B001B635B /* DidChnClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DidChnClient.cpp; sourceTree = "<group>"; };
 		DE27582423334F54001B635B /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
@@ -477,7 +477,7 @@
 			isa = PBXGroup;
 			children = (
 				DE27578F2333486B001B635B /* Config.hpp */,
-				DE27578D2333486B001B635B /* Elastos.SDK.Contact.hpp */,
+				DE27578D2333486B001B635B /* Contact.V1.hpp */,
 				DE2757952333486B001B635B /* ErrCode.hpp */,
 				DE2757942333486B001B635B /* FriendInfo.hpp */,
 				DE2757922333486B001B635B /* FriendManager.hpp */,
@@ -541,13 +541,13 @@
 				DE2757C22333486B001B635B /* ChannelImplElaChain.cpp */,
 				DE2757C52333486B001B635B /* ChannelImplElaChain.hpp */,
 				DE2757C42333486B001B635B /* Config.cpp */,
+				DE2757CC2333486B001B635B /* Contact.V1.cpp */,
 				DE2757CE2333486B001B635B /* DidChnClient.cpp */,
 				DE2757BD2333486B001B635B /* DidChnClient.hpp */,
 				DE2757BB2333486B001B635B /* DidChnDataListener.cpp */,
 				DE2757CB2333486B001B635B /* DidChnDataListener.hpp */,
 				DECBB57B2397F2D90068BB01 /* ElaChnClient.cpp */,
 				DECBB57A2397F2D90068BB01 /* ElaChnClient.hpp */,
-				DE2757CC2333486B001B635B /* Elastos.SDK.Contact.cpp */,
 				DE2757B92333486B001B635B /* ErrCode.cpp */,
 				DE2757B72333486B001B635B /* FriendInfo.cpp */,
 				DE2757C12333486B001B635B /* FriendManager.cpp */,
@@ -845,7 +845,7 @@
 				DE2757EE2333486B001B635B /* PlatformUnixLike.hpp in Headers */,
 				DE2757DF2333486B001B635B /* Json.hpp in Headers */,
 				DE60EC11237F7F07001E4493 /* ContactListener.proxy.h in Headers */,
-				DE2757E42333486B001B635B /* Elastos.SDK.Contact.hpp in Headers */,
+				DE2757E42333486B001B635B /* Contact.V1.hpp in Headers */,
 				DE2757FA2333486B001B635B /* DateTime.hpp in Headers */,
 				DE2758042333486B001B635B /* CompatibleFileSystem.hpp in Headers */,
 				DE2758132333486B001B635B /* JsonDefine.hpp in Headers */,
@@ -1074,7 +1074,7 @@
 				DE8A33F223712C77008F5FA5 /* ContactDataListener.swift in Sources */,
 				DEEFCF1E233B68A3008E240B /* UserInfo.swift in Sources */,
 				DE5EA248234EF7B10055F587 /* ContactDebug.swift in Sources */,
-				DE27581F2333486C001B635B /* Elastos.SDK.Contact.cpp in Sources */,
+				DE27581F2333486C001B635B /* Contact.V1.cpp in Sources */,
 				DEEFCF20233B68CC008E240B /* IdentifyCode.swift in Sources */,
 				DE2758142333486B001B635B /* FriendManager.cpp in Sources */,
 				DE2758212333486C001B635B /* DidChnClient.cpp in Sources */,

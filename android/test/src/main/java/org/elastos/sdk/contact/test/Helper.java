@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -183,9 +184,13 @@ public class Helper {
         showDialog(builder);
     }
 
-    public static void showTextSendMessage(Context context, String friendCode, OnListener listener) {
+    public static void showTextSendMessage(Context context, String friendCode, String separator, OnListener listener) {
         EditText edit = new EditText(context);
-        View root = makeEditView(context, friendCode, edit);
+        ViewGroup root = makeEditView(context, friendCode, edit);
+        EditText replyTo = new EditText(context);
+        replyTo.setHint("Reply to nano time:");
+        replyTo.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_NORMAL);
+        root.addView(replyTo);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Send Message");
@@ -194,7 +199,7 @@ public class Helper {
             dismissDialog();
         });
         builder.setPositiveButton("Send", (dialog, which) -> {
-            listener.onResult(edit.getText().toString());
+            listener.onResult(edit.getText().toString() + separator + replyTo.getText().toString());
         });
 
         showDialog(builder);
@@ -413,7 +418,7 @@ public class Helper {
         return root;
     }
 
-    private static View makeEditView(Context context, String friendCode, EditText edit) {
+    private static ViewGroup makeEditView(Context context, String friendCode, EditText edit) {
         TextView txtCode = new TextView(context);
         TextView txtMsg = new TextView(context);
 

@@ -103,11 +103,14 @@ int ContactTest::testNewContact()
         virtual void onReceivedMessage(const std::string& humanCode,
                                        elastos::sdk::Contact::Channel channelType,
                                        std::shared_ptr<elastos::sdk::Contact::Message> msgInfo) override {
-            auto msg = std::string("onRcvdMsg(): humanCode=") + humanCode.c_str() + "\n";
-            msg += "onRcvdMsg(): data=" + msgInfo->data->toString() + "\n";
-            msg += "onRcvdMsg(): type=" + std::to_string(static_cast<int>(msgInfo->type)) + "\n";
-            msg += "onRcvdMsg(): crypto=" + msgInfo->cryptoAlgorithm + "\n";
-            ShowEvent(msg);
+            std::stringstream msg;
+            msg << "onRcvdMsg(): humanCode=" << humanCode << "\n";
+            msg << "onRcvdMsg(): data=" << msgInfo->data->toString() << "\n";
+            msg << "onRcvdMsg(): type=" << std::to_string(static_cast<int>(msgInfo->type)) << "\n";
+            msg << "onRcvdMsg(): crypto=" << msgInfo->cryptoAlgorithm << "\n";
+            msg << "onRcvdMsg(): nanoTime=" << std::to_string(msgInfo->nanoTime) << "\n";
+            msg << "onRcvdMsg(): replyTo=" << std::to_string(msgInfo->replyToNanoTime) << "\n";
+            ShowEvent(msg.str());
 
             if (msgInfo->type == elastos::sdk::Contact::Message::Type::MsgFile) {
                 //             mContactRecvFileMap.put(humanCode, (Contact.Message.FileData)message.data);
@@ -317,7 +320,7 @@ int ContactTest::doDelFriend(const std::string& friendCode)
     return 0;
 }
 
-int ContactTest::doSendMessage(const std::string& friendCode, const std::string& text)
+int ContactTest::doSendMessage(const std::string& friendCode, const std::string& text, int64_t replyTo)
 {
     if (mContact == nullptr) {
         ShowError("Contact is null.");
@@ -329,6 +332,8 @@ int ContactTest::doSendMessage(const std::string& friendCode, const std::string&
         ShowError("Failed to make text message.");
         return -1;
     }
+
+    msgInfo->replyTo(replyTo);
 
     auto ret = mContact->sendMessage(friendCode, elastos::sdk::Contact::Channel::Carrier, msgInfo);
 

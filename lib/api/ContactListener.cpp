@@ -331,7 +331,8 @@ void ContactListener::onReceivedMessage(const std::string& humanCode, ChannelTyp
                                                     static_cast<int>(msgInfo->mType),
                                                     &data,
                                                     msgInfo->mCryptoAlgorithm.c_str(),
-                                                    msgInfo->mTimeStamp);
+                                                    msgInfo->mNanoTime,
+                                                    msgInfo->mReplyToNanoTime);
     return;
 }
 
