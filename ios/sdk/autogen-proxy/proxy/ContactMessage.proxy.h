@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-int crosspl_Proxy_ContactMessage_syncMessageToNative(int64_t nativeHandle, int ocvar0, NSData* ocvar1, NSString* ocvar2, int64_t ocvar3);
+int crosspl_Proxy_ContactMessage_syncMessageToNative(int64_t nativeHandle, int ocvar0, NSData* ocvar1, NSString* ocvar2, int64_t ocvar3, int64_t ocvar4);
 
 
 #ifdef __cplusplus

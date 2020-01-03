@@ -13,6 +13,7 @@ import org.elastos.tools.crosspl.annotation.CrossClass;
 import org.elastos.tools.crosspl.annotation.CrossInterface;
 
 import java.io.File;
+import java.util.Random;
 
 @CrossClass
 class ContactMessage extends CrossBase {
@@ -152,28 +153,33 @@ class ContactMessage extends CrossBase {
     public final Type type;
     public MsgData data;
     public final String cryptoAlgorithm;
-    public long timestamp;
+    public long nanoTime;
+    public long replyToNanoTime;
 
-    public int syncMessageToNative() {
+    public void replyTo(long toNanoTime) {
+        this.replyToNanoTime = toNanoTime;
+    }
+
+    int syncMessageToNative() {
         byte[] msgData = data.toData();
-        int ret = syncMessageToNative(type.id, msgData, cryptoAlgorithm, timestamp);
+        int ret = syncMessageToNative(type.id, msgData, cryptoAlgorithm, nanoTime, replyToNanoTime);
         return ret;
     }
 
-    public ContactMessage(String text, String cryptoAlgorithm) {
+    ContactMessage(String text, String cryptoAlgorithm) {
         this(Type.MsgText, new TextData(text), cryptoAlgorithm);
     }
 
-    public ContactMessage(byte[] binary, String cryptoAlgorithm) {
+    ContactMessage(byte[] binary, String cryptoAlgorithm) {
         this(Type.MsgBinary, new BinaryData(binary), cryptoAlgorithm);
     }
 
 
-    public ContactMessage(File file, String cryptoAlgorithm) {
+    ContactMessage(File file, String cryptoAlgorithm) {
         this(Type.MsgFile, new FileData(file), cryptoAlgorithm);
     }
 
-    public ContactMessage(Type type, byte[] data, String cryptoAlgorithm) {
+    ContactMessage(Type type, byte[] data, String cryptoAlgorithm) {
         this(type, (MsgData) null, cryptoAlgorithm);
         if(data != null) {
             switch (type) {
@@ -202,9 +208,11 @@ class ContactMessage extends CrossBase {
         this.type = type;
         this.data = data;
         this.cryptoAlgorithm = cryptoAlgorithm;
-        this.timestamp = System.currentTimeMillis();
+        this.nanoTime = System.currentTimeMillis() * 1000000 + new Random().nextInt(100000);
+        this.replyToNanoTime = 0;
     }
 
     @CrossInterface
-    private native int syncMessageToNative(int type, byte[] data, String cryptoAlgorithm, long timestamp);
+    private native int syncMessageToNative(int type, byte[] data, String cryptoAlgorithm,
+                                           long nanoTime, long replyToNanoTime);
 } // class Factory

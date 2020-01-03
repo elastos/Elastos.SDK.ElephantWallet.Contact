@@ -626,10 +626,12 @@ MessageManager::MessageInfo::MessageInfo(MessageType type,
     : mType(type)
     , mPlainContent(plainContent)
     , mCryptoAlgorithm(cryptoAlgorithm)
-    , mTimeStamp(0)
+    , mNanoTime(0)
+    , mReplyToNanoTime(0)
 {
     auto now = std::chrono::system_clock::now();
-    mTimeStamp = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
+    mNanoTime = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
+    mNanoTime = mNanoTime * 1000000 + Random::Gen(100000);
 }
 
 MessageManager::MessageInfo::MessageInfo(const MessageInfo& info,
@@ -637,7 +639,8 @@ MessageManager::MessageInfo::MessageInfo(const MessageInfo& info,
     : mType(info.mType)
     , mPlainContent()
     , mCryptoAlgorithm(info.mCryptoAlgorithm)
-    , mTimeStamp(info.mTimeStamp)
+    , mNanoTime(info.mNanoTime)
+    , mReplyToNanoTime(info.mReplyToNanoTime)
 {
     if(ignoreContent == false) {
         mPlainContent = info.mPlainContent;

@@ -187,16 +187,26 @@ public class Helper {
 
   public static func showTextSendMessage(view: UIViewController,
                                          friendCode: String,
+                                         separator: String,
                                          listener: @escaping OnListener) {
     let dialog = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
     dialog.title = "Send Text Message"
 
     let edit = UITextView()
     let rootView = makeEditView(view, friendCode, edit)
-    setDialogContent(dialog, 500, rootView)
+     
+    let txtReplyTo = UILabel()
+    txtReplyTo.text = "Reply to nano time:"
+    rootView.addArrangedSubview(txtReplyTo)
+    let replyTo = UITextView()
+    replyTo.keyboardType = .numberPad
+    replyTo.text = "123"
+    rootView.addArrangedSubview(replyTo)
+    
+    setDialogContent(dialog, 300, rootView)
       
     dialog.addAction(UIAlertAction(title: "Send", style: .default, handler: { _ in
-      listener(edit.text)
+      listener(edit.text + separator + replyTo.text)
     }))
     dialog.addAction(UIAlertAction(title: "Cancel", style: .cancel))
 
@@ -355,7 +365,7 @@ public class Helper {
   }
 
   private static func makeEditView(_ view: UIViewController,
-                                   _ friendCode: String, _ edit: UITextView) -> UIView {
+                                   _ friendCode: String, _ edit: UITextView) -> UIStackView {
     let txtCode = UITextView()
     let txtMsg = UILabel()
     
@@ -369,6 +379,9 @@ public class Helper {
     txtCode.translatesAutoresizingMaskIntoConstraints = false
     txtCode.heightAnchor.constraint(equalToConstant: 40).isActive = true
 
+    edit.translatesAutoresizingMaskIntoConstraints = false
+    edit.heightAnchor.constraint(equalToConstant: 40).isActive = true
+    
     txtCode.text = "FriendCode:\n  " + friendCode
     txtMsg.text = "Message:"
     edit.text = "Hello"

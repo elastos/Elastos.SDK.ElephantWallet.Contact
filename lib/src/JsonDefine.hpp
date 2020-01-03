@@ -50,7 +50,8 @@ struct JsonKey {
     static constexpr const char* Type            = "Type";
     static constexpr const char* PlainContent    = "PlainContent";
     static constexpr const char* CryptoAlgorithm = "CryptoAlgorithm";
-    static constexpr const char* TimeStamp       = "TimeStamp";
+    static constexpr const char* NanoTime        = "NanoTime";
+    static constexpr const char* ReplyToNanoTime = "ReplyToNanoTime";
 
     static constexpr const char* Text            = "Text";
     static constexpr const char* Binary          = "Binary";
@@ -123,7 +124,8 @@ inline void to_json(Json& j, const std::shared_ptr<MessageManager::MessageInfo>&
         {JsonKey::Type, info->mType},
         {JsonKey::PlainContent, info->mPlainContent},
         {JsonKey::CryptoAlgorithm, info->mCryptoAlgorithm},
-        {JsonKey::TimeStamp, info->mTimeStamp},
+        {JsonKey::NanoTime, info->mNanoTime},
+        {JsonKey::ReplyToNanoTime, info->mReplyToNanoTime},
     };
 }
 
@@ -132,7 +134,8 @@ inline void from_json(const Json& j, std::shared_ptr<MessageManager::MessageInfo
     info->mType = j[JsonKey::Type];
     info->mPlainContent = j[JsonKey::PlainContent].get<std::vector<uint8_t>>();
     info->mCryptoAlgorithm = j[JsonKey::CryptoAlgorithm];
-    info->mTimeStamp = j[JsonKey::TimeStamp];
+    info->mNanoTime = j[JsonKey::NanoTime];
+    info->mReplyToNanoTime = j[JsonKey::ReplyToNanoTime];
 }
 
 inline void to_json(Json& j, const std::shared_ptr<MessageManager::FileInfo>& info) {

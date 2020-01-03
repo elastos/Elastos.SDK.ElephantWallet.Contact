@@ -11,7 +11,7 @@
 #ifndef _ELASTOS_SDK_JNI_CONTACT_FACTORY_HPP_
 #define _ELASTOS_SDK_JNI_CONTACT_FACTORY_HPP_
 
-#include <ContactTypes.hpp>
+#include "ContactTypes.hpp"
 
 namespace crosspl {
 namespace native {

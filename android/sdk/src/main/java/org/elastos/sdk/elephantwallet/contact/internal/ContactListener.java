@@ -127,10 +127,12 @@ abstract class ContactListener extends CrossBase {
 
     @CrossInterface
     private void onReceivedMessage(String humanCode, int channelType,
-                                   int type, byte[] data, String cryptoAlgorithm, long timestamp) {
+                                   int type, byte[] data, String cryptoAlgorithm,
+                                   long nanoTime, long replyToNanoTime) {
         Contact.Message message = new Contact.Message(ContactMessage.Type.valueOf(type),
                                                       data, cryptoAlgorithm);
-        message.timestamp = timestamp;
+        message.nanoTime = nanoTime;
+        message.replyToNanoTime = replyToNanoTime;
 
         onReceivedMessage(humanCode, ContactChannel.valueOf(channelType), message);
         return;

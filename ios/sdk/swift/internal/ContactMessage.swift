@@ -150,13 +150,19 @@ open class ContactMessage: CrossBase {
   public let type: Kind
   public private(set) var data: MsgData
   public let cryptoAlgorithm: String?
-  public var timestamp: Int64
+  public var nanoTime: Int64
+  public var replyToNanoTime: Int64
+  
+  public func replyTo(toNanoTime: Int64) {
+    self.replyToNanoTime = toNanoTime
+  }
   
   public func syncMessageToNative() -> Int {
     let ret = syncMessageToNative(type: type.rawValue,
                                   data: data.toData()!,
                                   cryptoAlgorithm: cryptoAlgorithm,
-                                  timestamp: timestamp)
+                                  nanoTime: nanoTime,
+                                  replyToNanoTime: replyToNanoTime)
     return ret;
   }
 
@@ -165,7 +171,8 @@ open class ContactMessage: CrossBase {
     self.type = type
     self.data = data
     self.cryptoAlgorithm = cryptoAlgorithm ?? ""
-    self.timestamp = Int64(Date().timeIntervalSince1970 * 1000)
+    self.nanoTime = Int64(Date().timeIntervalSince1970 * 1000) * 1000000 + Int64.random(in: 0...100000)
+    self.replyToNanoTime = 0
     
     super.init(className: String(describing: ContactMessage.self))
   }
@@ -204,8 +211,8 @@ open class ContactMessage: CrossBase {
   /* @CrossNativeInterface */
   private func syncMessageToNative(type: Int,
                                    data: Data, cryptoAlgorithm: String?,
-                                   timestamp: Int64) -> Int {
-    let ret = crosspl_Proxy_ContactMessage_syncMessageToNative(nativeHandle, Int32(type), data, cryptoAlgorithm, timestamp)
+                                   nanoTime: Int64, replyToNanoTime: Int64) -> Int {
+    let ret = crosspl_Proxy_ContactMessage_syncMessageToNative(nativeHandle, Int32(type), data, cryptoAlgorithm, nanoTime, replyToNanoTime)
     return Int(ret)
   }
 }

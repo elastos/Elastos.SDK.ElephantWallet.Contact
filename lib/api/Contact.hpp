@@ -119,19 +119,26 @@ public:
                 : type(type)
                 , data(data)
                 , cryptoAlgorithm(cryptoAlgorithm)
-                , timestamp(std::chrono::duration_cast<std::chrono::milliseconds>(
+                , nanoTime(std::chrono::duration_cast<std::chrono::milliseconds>(
                                     std::chrono::system_clock::now().time_since_epoch()
-                            ).count()) {
+                            ).count())
+                , replyToNanoTime(0) {
         }
 
-        explicit Message(Type type, const std::vector<uint8_t>& data, std::string cryptoAlgorithm, int64_t timestamp);
+        explicit Message(Type type, const std::vector<uint8_t>& data, std::string cryptoAlgorithm,
+                         int64_t nanoTime, int64_t replyToNanoTime);
 
         virtual ~Message() = default;
+
+        void replyTo(int64_t toNanoTime) {
+            this->replyToNanoTime = toNanoTime;
+        }
 
         const Type type;
         std::shared_ptr<MsgData> data;
         const std::string cryptoAlgorithm;
-        const int64_t timestamp;
+        const int64_t nanoTime;
+        int64_t replyToNanoTime;
     }; // class Message
 
     class Listener: public crosspl::native::ContactListener {
@@ -142,7 +149,8 @@ public:
     private:
         virtual void onReceivedMessage(const std::string& humanCode, Channel channelType,
                                        std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo) override {
-            auto message = std::make_shared<Message>(msgInfo->mType, msgInfo->mPlainContent, msgInfo->mCryptoAlgorithm, msgInfo->mTimeStamp);
+            auto message = std::make_shared<Message>(msgInfo->mType, msgInfo->mPlainContent, msgInfo->mCryptoAlgorithm,
+                                                     msgInfo->mNanoTime, msgInfo->mReplyToNanoTime);
             onReceivedMessage(humanCode, channelType, message);
         };
     }; // class Listener

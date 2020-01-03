@@ -126,12 +126,13 @@ import CrossPL
 
   /* @CrossPlatformInterface */
   @objc internal func onReceivedMessage(_ humanCode: String, _ channelType: Int,
-                                       _ type: Int, _ data: Data,
-                                       _ cryptoAlgorithm: String, _ timestamp: Int64) {
+                                       _ type: Int, _ data: Data, _ cryptoAlgorithm: String,
+                                       _ nanoTime: Int64, _ replyToNanoTime: Int64) {
     let message = Contact.Message(type: Contact.Message.Kind(rawValue: type)!,
                                   data: data,
                                   cryptoAlgorithm: cryptoAlgorithm)
-    message.timestamp = timestamp
+    message.nanoTime = nanoTime
+    message.replyToNanoTime = replyToNanoTime
 
     onReceivedMessage(humanCode: humanCode,
                       channelType: Contact.Channel(rawValue: channelType)!,

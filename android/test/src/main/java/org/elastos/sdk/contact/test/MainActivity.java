@@ -281,6 +281,8 @@ public class MainActivity extends Activity {
                 String msg = "onRcvdMsg(): data=" + message.data + "\n";
                 msg += "onRcvdMsg(): type=" + message.type + "\n";
                 msg += "onRcvdMsg(): crypto=" + message.cryptoAlgorithm + "\n";
+                msg += "onRcvdMsg(): nanoTime=" + message.nanoTime + "\n";
+                msg += "onRcvdMsg(): replyTo=" + message.replyToNanoTime + "\n";
                 showEvent(msg);
 
                 if(message.type == Contact.Message.Type.MsgFile) {
@@ -731,8 +733,24 @@ public class MainActivity extends Activity {
 
         List<String> friendCodeList = mContact.listFriendCode();
         Helper.showFriendList(this, friendCodeList, (friendCode) -> {
-            Helper.showTextSendMessage(this, friendCode, (message) -> {
+            String separator = ":-:-:";
+            Helper.showTextSendMessage(this, friendCode, separator, (result) -> {
+                String[] keyValue = result.split(separator);
+                String message = keyValue[0];
+                long replyTo = 0;
+                if(keyValue.length > 1) {
+                    try {
+                        replyTo = Long.parseLong(keyValue[1]);
+                    } catch (Exception ex) {
+                        showError("Failed to parse reply to nanotime.");
+                        return;
+                    }
+                }
                 Contact.Message msgInfo = Contact.MakeTextMessage(message, null);
+                if(replyTo > 0) {
+                    msgInfo.replyTo(replyTo);
+                }
+
 //                StringBuffer str = new StringBuffer();
 //                for(int idx = 0; idx < 1024 * 50; idx ++) {
 //                    str.append("1234567890");

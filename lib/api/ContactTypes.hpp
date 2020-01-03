@@ -19,8 +19,6 @@
 #else
 class CrossBase {
 public:
-  /*** type define ***/
-//  explicit CrossBase(int64_t platformHandle);
   explicit CrossBase() = default;
   virtual ~CrossBase() = default;
 }; // class CrossBase

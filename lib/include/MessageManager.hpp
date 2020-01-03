@@ -53,7 +53,8 @@ public:
         MessageType mType;
         std::vector<uint8_t> mPlainContent;
         std::string mCryptoAlgorithm;
-        uint64_t mTimeStamp;
+        uint64_t mNanoTime;
+        uint64_t mReplyToNanoTime;
     private:
         explicit MessageInfo(MessageType type,
                              const std::vector<uint8_t>& plainContent,
