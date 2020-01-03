@@ -175,6 +175,38 @@ int UserInfo::setWalletAddress(const std::string& name, const std::string& value
     return 0;
 }
 
+int UserInfo::getCurrDevCarrierAddr(std::string& value)
+{
+    std::string devId;
+
+    int ret = Platform::GetCurrentDevId(devId);
+    CHECK_ERROR(ret)
+
+    CarrierInfo info;
+    ret = getCarrierInfoByDevId(devId, info);
+    CHECK_ERROR(ret)
+
+    value = info.mUsrAddr;
+
+    return 0;
+}
+
+int UserInfo::getCurrDevCarrierId(std::string& value)
+{
+    std::string devId;
+
+    int ret = Platform::GetCurrentDevId(devId);
+    CHECK_ERROR(ret)
+
+    CarrierInfo info;
+    ret = getCarrierInfoByDevId(devId, info);
+    CHECK_ERROR(ret)
+
+    value = info.mUsrId;
+
+    return 0;
+}
+
 int UserInfo::setIdentifyCode(Type type, const std::string& value)
 {
     int ret = IdentifyCode::setIdentifyCode(type, value);
