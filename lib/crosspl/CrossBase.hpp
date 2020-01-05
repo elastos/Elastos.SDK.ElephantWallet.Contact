@@ -1,7 +1,6 @@
 #ifndef _CROSSPL_CROSSBASE_HPP_
 #define _CROSSPL_CROSSBASE_HPP_
 
-#ifdef WITH_CROSSPL
 #include <cstdint>
 #include <memory>
 #include <CrossPLFactory.hpp>
@@ -49,14 +48,5 @@ private:
 
 } //namespace native
 } //namespace crosspl
-#else
-class CrossBase {
-public:
-  /*** type define ***/
-//  explicit CrossBase(int64_t platformHandle);
-  explicit CrossBase() = default;
-  virtual ~CrossBase() = default;
-}; // class CrossBase
-#endif // WITH_CROSSPL
 
 #endif /* _CROSSPL_CROSSBASE_HPP_ */

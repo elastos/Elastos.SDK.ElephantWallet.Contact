@@ -12,8 +12,19 @@
 #define _ELASTOS_SDK_JNI_CONTACT_TYPES_HPP_
 
 #include <string>
-#include <CrossBase.hpp>
 #include <Contact.V1.hpp>
+
+#ifdef WITH_CROSSPL
+#include "CrossBase.hpp"
+#else
+class CrossBase {
+public:
+  /*** type define ***/
+//  explicit CrossBase(int64_t platformHandle);
+  explicit CrossBase() = default;
+  virtual ~CrossBase() = default;
+}; // class CrossBase
+#endif // WITH_CROSSPL
 
 namespace crosspl {
 namespace native {
