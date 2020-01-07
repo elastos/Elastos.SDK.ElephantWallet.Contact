@@ -22,8 +22,8 @@
 /***********************************************/
 static auto gCreateCppObjFuncList = std::list<int64_t(*)(const char*)>();
 static auto gDestroyCppObjFuncList = std::list<int(*)(const char*,int64_t)>();
-static auto gCreateswiftObjFuncList = std::list<int64_t(*)(const char*,int64_t)>();
-static auto gDestroyswiftObjFuncList = std::list<int(*)(const char*,int64_t)>();
+static auto gCreateSwiftObjFuncList = std::list<int64_t(*)(const char*,int64_t)>();
+static auto gDestroySwiftObjFuncList = std::list<int(*)(const char*,int64_t)>();
 
 void RegCreateCppObjFunc(int64_t(*func)(const char*))
 {
@@ -36,15 +36,15 @@ void RegDestroyCppObjFunc(int(*func)(const char*,int64_t))
     gDestroyCppObjFuncList.push_back(func);
 }
 
-void RegCreateswiftObjFunc(int64_t(*func)(const char*,int64_t))
+void RegCreateSwiftObjFunc(int64_t(*func)(const char*,int64_t))
 {
 //    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
-    gCreateswiftObjFuncList.push_back(func);
+    gCreateSwiftObjFuncList.push_back(func);
 }
-void RegDestroyswiftObjFunc(int(*func)(const char*,int64_t))
+void RegDestroySwiftObjFunc(int(*func)(const char*,int64_t))
 {
 //    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
-    gDestroyswiftObjFuncList.push_back(func);
+    gDestroySwiftObjFuncList.push_back(func);
 }
 
 namespace crosspl {
@@ -86,7 +86,7 @@ int64_t CrossBase::CreatePlatformObject(const char* cppClassName, int64_t native
 {
 //    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
 
-    for(auto func: gCreateswiftObjFuncList) {
+    for(auto func: gCreateSwiftObjFuncList) {
         auto swiftHandle = func(cppClassName, nativeHandle);
         if(swiftHandle != 0) { // success
             return swiftHandle;
@@ -102,7 +102,7 @@ void CrossBase::DestroyPlatformObject(const char* cppClassName, int64_t platform
 {
 //    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
 
-    for(auto func: gDestroyswiftObjFuncList) {
+    for(auto func: gDestroySwiftObjFuncList) {
         auto swiftHandle = func(cppClassName, platformHandle);
         if(swiftHandle == 0) { // success
             return;
@@ -134,7 +134,7 @@ CrossBase::CrossBase()
 CrossBase::~CrossBase()
 {
 //    if(mPlatformHandle == 0) {
-//        for(auto func: gDestroyswiftObjFuncList) {
+//        for(auto func: gDestroySwiftObjFuncList) {
 //            int ret = func(typeid(this).name(), mPlatformHandle);
 //            if(ret == 0) { // success
 //                break;

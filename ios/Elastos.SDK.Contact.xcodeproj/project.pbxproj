@@ -416,7 +416,7 @@
 		DE27576923334805001B635B /* sdk */ = {
 			isa = PBXGroup;
 			children = (
-				DE60EBFA237F7F07001E4493 /* crosspl */,
+				DE60EBFA237F7F07001E4493 /* autogen-proxy */,
 				DE2757702333486B001B635B /* cpp */,
 				DE27582323334F40001B635B /* swift */,
 				DE27583A23335493001B635B /* Contact-Bridging-Header.h */,
@@ -660,7 +660,7 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		DE60EBFA237F7F07001E4493 /* crosspl */ = {
+		DE60EBFA237F7F07001E4493 /* autogen-proxy */ = {
 			isa = PBXGroup;
 			children = (
 				DE60EC0A237F7F07001E4493 /* CrossPLFactory.ContactSDK.h */,
@@ -670,8 +670,7 @@
 				DE60EC0D237F7F07001E4493 /* experimental-span.hpp */,
 				DE60EBFB237F7F07001E4493 /* proxy */,
 			);
-			name = crosspl;
-			path = build/tmp/crosspl;
+			path = "autogen-proxy";
 			sourceTree = "<group>";
 		};
 		DE60EBFB237F7F07001E4493 /* proxy */ = {
@@ -703,7 +702,7 @@
 			path = swift;
 			sourceTree = "<group>";
 		};
-		DE76DD6B2328A26B0041A703 /* crosspl */ = {
+		DE76DD6B2328A26B0041A703 /* autogen-proxy */ = {
 			isa = PBXGroup;
 			children = (
 				DE27583B23345842001B635B /* CrossPLFactory.CrossPL.h */,
@@ -713,8 +712,7 @@
 				DE76DD732328A26B0041A703 /* experimental-span.hpp */,
 				DE76DD6D2328A26B0041A703 /* proxy */,
 			);
-			name = crosspl;
-			path = build/tmp/crosspl;
+			path = "autogen-proxy";
 			sourceTree = "<group>";
 		};
 		DE76DD6D2328A26B0041A703 /* proxy */ = {
@@ -781,7 +779,7 @@
 		DED5255F218DF4C800619F59 /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				DE76DD6B2328A26B0041A703 /* crosspl */,
+				DE76DD6B2328A26B0041A703 /* autogen-proxy */,
 				DE357380231F642D00496E41 /* cpp */,
 				DE76DD59232889A60041A703 /* swift */,
 				DEDB2484218DF5F200F07F42 /* CrossPL-Bridging-Header.h */,

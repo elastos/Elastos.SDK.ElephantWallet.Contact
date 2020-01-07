@@ -9,8 +9,8 @@ extern "C" {
 void RegCreateCppObjFunc(int64_t(*func)(const char*));
 void RegDestroyCppObjFunc(int(*func)(const char*,int64_t));
 
-void RegCreateswiftObjFunc(int64_t(*func)(const char*,int64_t));
-void RegDestroyswiftObjFunc(int(*func)(const char*,int64_t));
+void RegCreateSwiftObjFunc(int64_t(*func)(const char*,int64_t));
+void RegDestroySwiftObjFunc(int(*func)(const char*,int64_t));
 } // extern "C"
 
 namespace crosspl {
