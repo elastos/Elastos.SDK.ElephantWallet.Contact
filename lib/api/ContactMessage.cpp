@@ -10,7 +10,6 @@
 #include <Contact.V1.hpp>
 #include <Platform.hpp>
 #include "Log.hpp"
-#include "ContactTypes.hpp"
 #include "ContactMessage.hpp"
 
 namespace crosspl {

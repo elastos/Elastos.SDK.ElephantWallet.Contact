@@ -8,6 +8,7 @@ add_definitions(-DWITH_CROSSPL)
 set(CXX_VISIBILITY_PRESET hidden)
 
 include( "${CROSSPL_CMAKEFILE}" )
+include_directories(${CROSSPL_LIB_HEADERDIR})
 include_directories(base/api)
 include_directories(base/include)
 
