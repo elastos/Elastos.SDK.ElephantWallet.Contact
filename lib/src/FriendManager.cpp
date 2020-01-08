@@ -584,6 +584,10 @@ int FriendManager::addFriendByCarrier(const std::string& carrierAddress, const s
         carrierInfo.mUsrAddr = carrierAddress;
         ret = friendInfo->addCarrierInfo(carrierInfo, FriendInfo::Status::WaitForAccept);
         CHECK_ERROR(ret)
+    } else {
+        // change removed friend to WaitForAccept
+        ret = friendInfo->setHumanStatus(FriendInfo::Status::Removed, FriendInfo::Status::WaitForAccept);
+        CHECK_ERROR(ret)
     }
 
     return 0;
