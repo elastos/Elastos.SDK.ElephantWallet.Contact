@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 
 import org.elastos.sdk.elephantwallet.contact.Utils;
 
-class UserInfo extends HumanInfo implements IdentifyCodeInterface {
+class UserInfo extends ContactInterface.HumanInfo implements IdentifyCodeInterface {
     public class UserJson extends HumanJson {
         @SerializedName(JsonKey.IdentifyCode)
         IdentifyCode identifyCode;

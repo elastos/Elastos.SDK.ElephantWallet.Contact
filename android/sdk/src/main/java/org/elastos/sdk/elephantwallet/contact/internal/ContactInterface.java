@@ -38,7 +38,7 @@ public interface ContactInterface {
         static { Utils.EnsureNativeLibrary(); }
     } // class Channel
 
-    public static final class HumanInfo extends org.elastos.sdk.elephantwallet.contact.internal.HumanInfo {
+    public static class HumanInfo extends org.elastos.sdk.elephantwallet.contact.internal.HumanInfo {
         static { Utils.EnsureNativeLibrary(); }
     } // class HumanInfo
 

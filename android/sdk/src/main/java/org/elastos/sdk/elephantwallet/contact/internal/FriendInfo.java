@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName;
 
 import org.elastos.sdk.elephantwallet.contact.Utils;
 
-class FriendInfo extends HumanInfo {
+class FriendInfo extends ContactInterface.HumanInfo {
     public class FriendJson extends HumanJson {
         @SerializedName(JsonKey.Alias)
         String alias;

@@ -65,11 +65,11 @@ abstract class ContactListener extends CrossBase {
 
             String info = new String(data);
             if(info.contains(JsonKey.IsMyself) == true) {
-                UserInfo userInfo = new UserInfo();
+                UserInfo userInfo = new ContactInterface.UserInfo();
                 userInfo.fromJson(info);
                 humanInfo = userInfo;
             } else if(info.contains(JsonKey.IsFriend) == true) {
-                FriendInfo friendInfo = new FriendInfo();
+                FriendInfo friendInfo = new ContactInterface.FriendInfo();
                 friendInfo.fromJson(info);
                 humanInfo = friendInfo;
             } else {
@@ -83,7 +83,7 @@ abstract class ContactListener extends CrossBase {
                     + ",humanInfo=" + humanInfo +"]";
         }
 
-        public HumanInfo humanInfo;
+        public ContactInterface.HumanInfo humanInfo;
     }
 
     protected ContactListener() {
