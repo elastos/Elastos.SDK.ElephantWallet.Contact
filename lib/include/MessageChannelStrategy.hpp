@@ -116,7 +116,8 @@ public:
     virtual int removeFriend(const std::string& friendAddr) = 0;
 
     virtual int sendMessage(const std::string& friendCode,
-                            std::vector<uint8_t> msgContent) = 0;
+                            std::vector<uint8_t> msgContent,
+                            bool ignorePackData = false) = 0;
 
 //    virtual int sendFile(const std::string& friendCode,
 //                         const std::shared_ptr<FileInfo> fileInfo) {

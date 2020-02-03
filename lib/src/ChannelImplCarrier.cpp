@@ -246,8 +246,23 @@ int ChannelImplCarrier::removeFriend(const std::string& friendCode)
 }
 
 int ChannelImplCarrier::sendMessage(const std::string& friendCode,
-                                    std::vector<uint8_t> msgContent)
+                                    std::vector<uint8_t> msgContent,
+                                    bool ignorePackData)
 {
+    if(ignorePackData == true) {
+        bool offlineMsg;
+        int ret = ela_send_friend_message(mCarrier.get(), friendCode.c_str(), msgContent.data(), msgContent.size(), &offlineMsg);
+        if(ret != 0) {
+            int err = ela_get_error();
+            char strerr_buf[512] = {0};
+            ela_get_strerror(err, strerr_buf, sizeof(strerr_buf));
+            Log::E(Log::TAG, "Failed to send signal message! ret=%s(0x%x)", strerr_buf, err);
+            return ErrCode::ChannelNotSendMessage;
+        }
+        Log::D(Log::TAG, "ChannelImplCarrier::sendMessage() success to send %d bytes.", msgContent.size());
+        return 0;
+    }
+
     uint64_t pkgCount = msgContent.size() / MaxPkgSize + 1;
     Log::D(Log::TAG, "ChannelImplCarrier::sendMessage() size=%d count=%lld", msgContent.size(), pkgCount);
     if(pkgCount > MaxPkgCount) {

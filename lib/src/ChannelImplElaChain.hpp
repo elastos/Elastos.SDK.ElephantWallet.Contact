@@ -48,7 +48,8 @@ public:
     virtual int removeFriend(const std::string& friendAddr) override;
 
     virtual int sendMessage(const std::string& friendCode,
-                            std::vector<uint8_t> msgContent) override;
+                            std::vector<uint8_t> msgContent,
+                            bool ignorePackData = false) override;
 
 private:
     /*** type define ***/

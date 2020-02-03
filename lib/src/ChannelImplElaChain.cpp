@@ -73,7 +73,8 @@ int ChannelImplElaChain::removeFriend(const std::string& friendAddr)
 }
 
 int ChannelImplElaChain::sendMessage(const std::string& friendCode,
-                                     std::vector<uint8_t> msgContent)
+                                     std::vector<uint8_t> msgContent,
+                                     bool ignorePackData)
 {
     throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
 }

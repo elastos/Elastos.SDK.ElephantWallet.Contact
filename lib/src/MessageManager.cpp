@@ -507,7 +507,19 @@ int MessageManager::sendMessage(const std::shared_ptr<HumanInfo> humanInfo,
             }
 
             Log::I(Log::TAG, ">>>>>>>>>>> send message to %s", it.mUsrId.c_str());
-            ret = channel->sendMessage(it.mUsrId, data);
+            std::string humanCode;
+            humanInfo->getHumanCode(humanCode);
+            auto kind = HumanInfo::AnalyzeHumanKind(humanCode);
+            if(static_cast<int>(kind) < 0) {
+                return static_cast<int>(kind);
+            }
+            bool ignorePackData = false;
+            std::vector<uint8_t>* dataPtr = &data;
+            if(kind == HumanInfo::HumanKind::Carrier) {
+                dataPtr = &msgInfo->mPlainContent;
+                ignorePackData = true;
+            }
+            ret = channel->sendMessage(it.mUsrId, *dataPtr, ignorePackData);
             if(ret < 0) {
                 //return;
             }
@@ -1098,6 +1110,15 @@ int MessageManager::sendDescMessage(const std::vector<std::shared_ptr<HumanInfo>
     for(const auto& it: humanList) {
         std::string humanCode;
         it->getHumanCode(humanCode);
+
+        auto kind = HumanInfo::AnalyzeHumanKind(humanCode);
+        if(static_cast<int>(kind) < 0) {
+            return static_cast<int>(kind);
+        }
+        if(kind == HumanInfo::HumanKind::Carrier) {
+            // ignore to sync to carrier devices
+            continue;
+        }
 
         ret = sendMessage(it, chType, msgInfo, false);
         Log::I(Log::TAG, "Failed to send sync desc message to %s. ret=%d", humanCode.c_str(), ret);
