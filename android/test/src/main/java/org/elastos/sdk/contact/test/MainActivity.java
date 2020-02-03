@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
 import org.elastos.sdk.elephantwallet.contact.Utils;
+import org.elastos.sdk.elephantwallet.contact.internal.ContactInterface;
 import org.elastos.sdk.keypair.ElastosKeypair;
 
 import java.io.File;
@@ -32,8 +33,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -278,10 +281,14 @@ public class MainActivity extends Activity {
 
             @Override
             public void onReceivedMessage(String humanCode, Contact.Channel channel, Contact.Message message) {
+                String format = "yyyy-MM-dd HH:mm:ss.SSS";
+                SimpleDateFormat sdf = new SimpleDateFormat(format);
+                String nanoTime = sdf.format(new Date(message.nanoTime / Contact.Message.TimeOffset));
+
                 String msg = "onRcvdMsg(): data=" + message.data + "\n";
                 msg += "onRcvdMsg(): type=" + message.type + "\n";
                 msg += "onRcvdMsg(): crypto=" + message.cryptoAlgorithm + "\n";
-                msg += "onRcvdMsg(): nanoTime=" + message.nanoTime + "\n";
+                msg += "onRcvdMsg(): nanoTime=" + "[" + nanoTime + message.nanoTime + "]\n";
                 msg += "onRcvdMsg(): replyTo=" + message.replyToNanoTime + "\n";
                 showEvent(msg);
 

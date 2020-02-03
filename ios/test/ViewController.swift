@@ -266,7 +266,7 @@ class ViewController: UIViewController {
           var msg = "onRcvdMsg(): data=\(message.data.toString())\n"
           msg += "onRcvdMsg(): type=\(message.type)\n"
           msg += "onRcvdMsg(): crypto=" + (message.cryptoAlgorithm ?? "nil") + "\n"
-          msg += "onRcvdMsg(): nanoTime=\(message.nanoTime)\n"
+          msg += "onRcvdMsg(): nanoTime=\(message.nanoTime / Contact.Message.TimeOffset)\n"
           msg += "onRcvdMsg(): replyTo=\(message.replyToNanoTime)\n"
           viewCtrl.showEvent(msg)
           

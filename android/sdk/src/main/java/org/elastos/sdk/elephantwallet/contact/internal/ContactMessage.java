@@ -150,6 +150,8 @@ class ContactMessage extends CrossBase {
         public String md5;
     }
 
+    public final static long TimeOffset = 1000000;
+
     public final Type type;
     public MsgData data;
     public final String cryptoAlgorithm;
@@ -208,7 +210,7 @@ class ContactMessage extends CrossBase {
         this.type = type;
         this.data = data;
         this.cryptoAlgorithm = cryptoAlgorithm;
-        this.nanoTime = System.currentTimeMillis() * 1000000 + new Random().nextInt(100000);
+        this.nanoTime = System.currentTimeMillis() * TimeOffset + new Random().nextInt(100000);
         this.replyToNanoTime = 0;
     }
 

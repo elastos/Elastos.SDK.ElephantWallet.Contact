@@ -146,7 +146,8 @@ open class ContactMessage: CrossBase {
     }
   }
 
-  
+  public static let TimeOffset: Int64 = 1000000;
+
   public let type: Kind
   public private(set) var data: MsgData
   public let cryptoAlgorithm: String?
@@ -171,7 +172,8 @@ open class ContactMessage: CrossBase {
     self.type = type
     self.data = data
     self.cryptoAlgorithm = cryptoAlgorithm ?? ""
-    self.nanoTime = Int64(Date().timeIntervalSince1970 * 1000) * 1000000 + Int64.random(in: 0...100000)
+    self.nanoTime = Int64(Date().timeIntervalSince1970 * 1000) * ContactInternal.ContactMessage.TimeOffset
+                  + Int64.random(in: 0...100000)
     self.replyToNanoTime = 0
     
     super.init(className: String(describing: ContactMessage.self))

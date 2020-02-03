@@ -15,6 +15,7 @@
 #include <Random.hpp>
 #include <SafePtr.hpp>
 #include <Platform.hpp>
+#include <DateTime.hpp>
 //#include "BlkChnClient.hpp"
 
 namespace elastos {
@@ -641,9 +642,10 @@ MessageManager::MessageInfo::MessageInfo(MessageType type,
     , mNanoTime(0)
     , mReplyToNanoTime(0)
 {
-    auto now = std::chrono::system_clock::now();
-    mNanoTime = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count();
-    mNanoTime = mNanoTime * 1000000 + Random::Gen(100000);
+    mNanoTime = DateTime::CurrentMS();
+    Log::I(Log::TAG, "MessageManager::MessageInfo::MessageInfo() %lld", mNanoTime);
+    mNanoTime = mNanoTime * TimeOffset + Random::Gen(100000);
+    Log::I(Log::TAG, "MessageManager::MessageInfo::MessageInfo() %lld", mNanoTime);
 }
 
 MessageManager::MessageInfo::MessageInfo(const MessageInfo& info,
