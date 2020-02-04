@@ -30,6 +30,7 @@ public:
     /*** type define ***/
 
     /*** static function and variable ***/
+    static bool IsDidFriend(ConstStringPtr friendCode);
 
     /*** class function and variable ***/
 

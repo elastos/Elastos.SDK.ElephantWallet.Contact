@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+bool crosspl_Proxy_ContactBridge_IsDidFriend(NSString* ocvar0);
 int crosspl_Proxy_ContactBridge_start(int64_t nativeHandle);
 int crosspl_Proxy_ContactBridge_stop(int64_t nativeHandle);
 int crosspl_Proxy_ContactBridge_addFriend(int64_t nativeHandle, NSString* ocvar0, NSString* ocvar1);

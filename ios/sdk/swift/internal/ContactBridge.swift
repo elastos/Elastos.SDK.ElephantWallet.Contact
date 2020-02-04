@@ -177,6 +177,12 @@ open class ContactBridge: CrossBase {
   }
 
   /* @CrossNativeInterface */
+  public static func IsDidFriend(friendCode: String) -> Bool {
+    let ret = crosspl_Proxy_ContactBridge_IsDidFriend(friendCode)
+    return ret
+  }
+  
+  /* @CrossNativeInterface */
   public func start() -> Int {
     let ret = crosspl_Proxy_ContactBridge_start(nativeHandle)
     return Int(ret)

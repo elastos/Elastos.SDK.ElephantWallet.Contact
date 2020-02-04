@@ -23,6 +23,13 @@ namespace native {
 /***********************************************/
 /***** static function implement ***************/
 /***********************************************/
+bool ContactBridge::IsDidFriend(ConstStringPtr friendCode)
+{
+    auto kind = elastos::HumanInfo::AnalyzeHumanKind(friendCode);
+
+    return (kind == elastos::HumanInfo::HumanKind::Did);
+}
+
 
 
 /***********************************************/

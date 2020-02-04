@@ -12,6 +12,16 @@
 
 
 
+bool crosspl_Proxy_ContactBridge_IsDidFriend(NSString* ocvar0)
+{
+  auto var0 = crosspl::CrossPLUtils::SafeCastString(ocvar0);
+
+  bool ret = crosspl::native::ContactBridge::IsDidFriend(var0.get());
+
+
+  bool ocret = ret;
+  return ocret;
+}
 int crosspl_Proxy_ContactBridge_start(int64_t nativeHandle)
 {
 

@@ -227,6 +227,9 @@ class ContactBridge extends CrossBase {
 //    }
 
     @CrossInterface
+    public static native boolean IsDidFriend(String friendCode);
+
+    @CrossInterface
     public native int start();
 
     @CrossInterface
