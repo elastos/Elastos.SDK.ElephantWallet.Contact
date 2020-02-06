@@ -171,9 +171,47 @@ int FriendManager::restoreFriendsInfo()
     }
 
     for(auto& it: mFriendList) {
-        ret = it->setHumanStatus(HumanInfo::Status::Online, HumanInfo::Status::Offline);
+        it->setHumanStatus(HumanInfo::Status::Online, HumanInfo::Status::Offline);
     }
-    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int FriendManager::ensureFriendsCarrierInfo(int64_t currCarrierUpdateTime)
+{
+    Log::V(Log::TAG, "%s", __PRETTY_FUNCTION__);
+
+    for(auto& friendInfo: mFriendList) {
+        auto status = friendInfo->getHumanStatus();
+        if(status == HumanInfo::Status::Invalid
+           || status == HumanInfo::Status::Removed) {
+            continue;
+        }
+
+        std::vector<FriendInfo::CarrierInfo> carrierInfoArray;
+        int ret = friendInfo->getAllCarrierInfo(carrierInfoArray);
+        if(ret < 0) {
+            Log::W(Log::TAG, "FriendManager::ensureFriendsInfo() Failed to readd friend from local carrier info, ret=%d", ret);
+            continue;
+        }
+        auto friendUpdateTime = friendInfo->getHumanUpdateTime();
+        if(friendUpdateTime > currCarrierUpdateTime) {
+            continue;
+        }
+
+        for(const auto& info: carrierInfoArray) {
+            Log::I(Log::TAG, "FriendManager::ensureFriendsInfo() Try to readd friend from carrier address: %s", info.mUsrAddr.c_str());
+            if(info.mUsrAddr.empty() == true) {
+                Log::W(Log::TAG, "FriendManager::ensureFriendsInfo() Failed to readd friend from empty carrier address");
+                continue;
+            }
+            ret = addFriendByCarrier(info.mUsrAddr, "readd", true, true);
+            if(ret < 0) {
+                Log::W(Log::TAG, "FriendManager::ensureFriendsInfo() Failed to readd friend from carrier, ret=%d", ret);
+                continue;
+            }
+        }
+    }
 
     return 0;
 }

@@ -202,12 +202,17 @@ int MessageManager::requestFriend(const std::string& friendAddr,
     int ret = userInfo->getHumanInfo(HumanInfo::Item::Did, userDid);
     CHECK_ERROR(ret)
 
+    std::string currDevId;
+    ret = Platform::GetCurrentDevId(currDevId);
+    CHECK_ERROR(ret);
+
     std::string humanInfo;
     ret = userInfo->HumanInfo::serialize(humanInfo, true);
     CHECK_ERROR(ret)
 
     Json jsonInfo = Json::object();
     jsonInfo[JsonKey::Did] = userDid;
+    jsonInfo[JsonKey::DeviceId] = currDevId;
     jsonInfo[JsonKey::Summary] = summary;
     //jsonInfo[JsonKey::HumanInfo] = humanInfo;
 
@@ -702,6 +707,23 @@ void MessageManager::MessageListener::onStatusChanged(const std::string& userCod
     if(newStatus != oldStatus) {
         onStatusChanged(userInfo, userChType, newStatus);
     }
+
+    if(status == ChannelStatus::Online) {
+        auto msgMgr = SAFE_GET_PTR_NO_RETVAL(mMessageManager);
+        auto userMgr = SAFE_GET_PTR_NO_RETVAL(msgMgr->mUserManager);
+        auto friendMgr = SAFE_GET_PTR_NO_RETVAL(msgMgr->mFriendManager);
+
+        std::shared_ptr<elastos::UserInfo> userInfo;
+        ret = userMgr->getUserInfo(userInfo);
+        CHECK_AND_NOTIFY_RETVAL(ret);
+
+        int64_t currDevUpdateTime = 0;
+        ret = userInfo->getCurrDevUpdateTime(currDevUpdateTime);
+        CHECK_AND_NOTIFY_RETVAL(ret);
+
+        ret = friendMgr->ensureFriendsCarrierInfo(currDevUpdateTime);
+        CHECK_AND_NOTIFY_RETVAL(ret);
+    }
 }
 
 void MessageManager::MessageListener::onReceivedMessage(const std::string& friendCode,
@@ -781,11 +803,13 @@ void MessageManager::MessageListener::onFriendRequest(const std::string& friendC
     auto friendMgr = SAFE_GET_PTR_NO_RETVAL(msgMgr->mFriendManager);
 
     std::string friendDid;
+    std::string friendDevId;
     std::string summary;
     HumanInfo humanInfo;
     try {
         Json jsonInfo= Json::parse(details);
         friendDid = jsonInfo[JsonKey::Did];
+        friendDevId = jsonInfo[JsonKey::DeviceId];
         summary = jsonInfo[JsonKey::Summary];
 
         std::ignore = humanInfo.setHumanInfo(HumanInfo::Item::Did, friendDid);
@@ -796,6 +820,7 @@ void MessageManager::MessageListener::onFriendRequest(const std::string& friendC
     if(humanChType == ChannelType::Carrier) {
         FriendInfo::CarrierInfo carrierInfo;
         carrierInfo.mUsrId = friendCode;
+        carrierInfo.mDevInfo.mDevId = friendDevId;
 
         ret = humanInfo.addCarrierInfo(carrierInfo, HumanInfo::Status::WaitForAccept);
     } else {
@@ -1015,6 +1040,10 @@ int MessageManager::processCtrlMessage(std::shared_ptr<HumanInfo> humanInfo,
                                        const std::shared_ptr<MessageInfo> msgInfo)
 {
     if(msgInfo->mType == MessageType::CtrlSyncDesc) {
+        Log::W(Log::TAG, "Process Sync Desc =======================");
+        std::string oldHumanCode;
+        humanInfo->getHumanCode(oldHumanCode);
+
         std::string humanDesc {msgInfo->mPlainContent.begin(), msgInfo->mPlainContent.end()};
         auto newInfo = HumanInfo();
         int ret = newInfo.HumanInfo::deserialize(humanDesc, true);
@@ -1042,6 +1071,16 @@ int MessageManager::processCtrlMessage(std::shared_ptr<HumanInfo> humanInfo,
                     CHECK_ERROR(ret);
                 }
             }
+        }
+
+        auto kind = HumanInfo::AnalyzeHumanKind(oldHumanCode);
+        if(static_cast<int>(kind) < 0) {
+            return static_cast<int>(kind);
+        }
+        if(kind == HumanInfo::HumanKind::Carrier) { // 对方第一次接受好友请求后，因为没有好友did，所以忽略了发送desc，在这里补充发送
+            std::vector<std::shared_ptr<HumanInfo>> humanList = {humanInfo};
+            ret = sendDescMessage(humanList, channelType);
+            CHECK_ERROR(ret);
         }
 
 
@@ -1091,6 +1130,7 @@ int MessageManager::processCtrlMessage(std::shared_ptr<HumanInfo> humanInfo,
 
 int MessageManager::sendDescMessage(const std::vector<std::shared_ptr<HumanInfo>>& humanList, ChannelType chType)
 {
+    Log::W(Log::TAG, "Process Sync Desc =======================");
     // send latest user desc.
     auto userMgr = SAFE_GET_PTR(mUserManager);
     std::shared_ptr<UserInfo> userInfo;
@@ -1122,9 +1162,10 @@ int MessageManager::sendDescMessage(const std::vector<std::shared_ptr<HumanInfo>
             continue;
         }
 
+        Log::W(Log::TAG, "Send Sync Desc to %s =======================", humanCode.c_str());
         ret = sendMessage(it, chType, msgInfo, false);
-        Log::I(Log::TAG, "Failed to send sync desc message to %s. ret=%d", humanCode.c_str(), ret);
         if(ret < 0) {
+            Log::I(Log::TAG, "Failed to send sync desc message to %s. ret=%d", humanCode.c_str(), ret);
             continue;
         }
     }

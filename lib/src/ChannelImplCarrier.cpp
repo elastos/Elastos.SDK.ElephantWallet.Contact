@@ -48,7 +48,7 @@ int ChannelImplCarrier::GetCarrierUsrIdByAddress(const std::string& address, std
         return ErrCode::ChannelFailedCarrier;
     }
 
-    usrId = ret;
+    usrId = buf;
     return 0;
 }
 

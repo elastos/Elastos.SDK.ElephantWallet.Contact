@@ -49,7 +49,7 @@ HumanInfo::HumanInfo()
     , mCommonInfoMap()
     , mWalletAddressMap()
     , mStatusMap()
-    , mUpdateTime()
+    , mUpdateTime(0)
 {
 }
 
@@ -156,11 +156,11 @@ int HumanInfo::addCarrierInfo(const HumanInfo::CarrierInfo& info, const HumanInf
 
     HumanInfo::CarrierInfo correctedInfo = info;
 
+//    if(correctedInfo.mDevInfo.mDevId.empty() == true) {
+//        auto datetime = DateTime::Current();
+//        correctedInfo.mDevInfo.mDevId = datetime;
+//    }
     if(correctedInfo.mDevInfo.mDevId.empty() == true) {
-        auto datetime = DateTime::Current();
-        correctedInfo.mDevInfo.mDevId = datetime;
-    }
-    if(correctedInfo.mDevInfo.mDevName.empty() == true) {
         correctedInfo.mDevInfo.mDevId = "Unknown";
     }
 
@@ -309,6 +309,11 @@ int HumanInfo::getCarrierStatus(const std::string& usrId, Status& status) const
 
     status = mBoundCarrierStatus[found];
     return 0;
+}
+
+int64_t HumanInfo::getHumanUpdateTime()
+{
+    return mUpdateTime;
 }
 
 int HumanInfo::setHumanInfo(Item item, const std::string& value)
@@ -501,8 +506,8 @@ int HumanInfo::serialize(std::string& value, bool summaryOnly) const
             //carrierInfo.erase("DeviceInfo");
         //}
     //}
+    jsonInfo[JsonKey::BoundCarrierStatus] = mBoundCarrierStatus;
     if(summaryOnly == false) {
-        jsonInfo[JsonKey::BoundCarrierStatus] = mBoundCarrierStatus;
         jsonInfo[JsonKey::StatusMap] = mStatusMap;
     }
 

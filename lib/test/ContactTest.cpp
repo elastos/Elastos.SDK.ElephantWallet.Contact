@@ -382,6 +382,26 @@ int ContactTest::doSendMessage(const std::string& friendCode, const elastos::fil
     return 0;
 }
 
+int ContactTest::importUserData(const elastos::filesystem::path& fromFile)
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    int ret = mContact->importUserData(fromFile.string());
+    return ret;
+}
+int ContactTest::exportUserData(const elastos::filesystem::path& toFile)
+{
+    if (mContact == nullptr) {
+        testNewContact();
+    }
+
+    int ret = mContact->exportUserData(toFile.string());
+    return ret;
+}
+
 int ContactTest::showCachedProp()
 {
     if (mContact == nullptr) {

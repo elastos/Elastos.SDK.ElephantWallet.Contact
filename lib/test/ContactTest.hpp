@@ -42,6 +42,8 @@ public:
     int doSendMessage(const std::string& friendCode, const std::vector<uint8_t>& binary);
     int doSendMessage(const std::string& friendCode, const elastos::filesystem::path& file);
 
+    int importUserData(const elastos::filesystem::path& fromFile);
+    int exportUserData(const elastos::filesystem::path& toFile);
     int showCachedProp();
 
    private:

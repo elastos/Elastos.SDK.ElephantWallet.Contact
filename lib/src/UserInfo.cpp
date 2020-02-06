@@ -207,6 +207,22 @@ int UserInfo::getCurrDevCarrierId(std::string& value)
     return 0;
 }
 
+int UserInfo::getCurrDevUpdateTime(int64_t& value)
+{
+    std::string devId;
+
+    int ret = Platform::GetCurrentDevId(devId);
+    CHECK_ERROR(ret)
+
+    CarrierInfo info;
+    ret = getCarrierInfoByDevId(devId, info);
+    CHECK_ERROR(ret)
+
+    value = info.mUpdateTime;
+
+    return 0;
+}
+
 int UserInfo::setIdentifyCode(Type type, const std::string& value)
 {
     int ret = IdentifyCode::setIdentifyCode(type, value);

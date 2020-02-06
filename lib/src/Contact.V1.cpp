@@ -6,6 +6,7 @@
 //
 
 #include <Contact.V1.hpp>
+#include <sstream>
 
 #include "ChannelImplCarrier.hpp"
 #include "CompatibleFileSystem.hpp"
@@ -77,6 +78,7 @@ void ContactV1::setListener(std::shared_ptr<SecurityManager::SecurityListener> s
     mUserManager->setUserListener(userListener);
     mFriendManager->setFriendListener(friendListener);
     mMessageManager->setMessageListener(msgListener);
+    mHasListener = true;
 }
 
 int ContactV1::start()
@@ -178,6 +180,52 @@ int ContactV1::syncInfoUploadToDidChain()
     return 0;
 }
 
+int ContactV1::importUserData(const std::string& formFile)
+{
+
+}
+
+int ContactV1::exportUserData(const std::string& toFile)
+{
+    if(mHasListener == false) {
+        return ErrCode::NoSecurityListener;
+    }
+
+    std::stringstream dataStream;
+
+    std::string userDataDir;
+    int ret = getUserDataDir(userDataDir);
+    CHECK_ERROR(ret);
+
+    auto dataFilePath = elastos::filesystem::path(userDataDir) / UserManager::DataFileName;
+    if(elastos::filesystem::exists(dataFilePath) == true) {
+        std::string userData;
+        int ret = mUserManager->serialize(userData);
+        CHECK_ERROR(ret)
+
+        dataStream << userData << std::endl;
+    }
+    dataStream << UserDataSeparator << std::endl;
+
+    dataFilePath = elastos::filesystem::path(userDataDir) / FriendManager::DataFileName;
+    if(elastos::filesystem::exists(dataFilePath) == true) {
+        std::string friendData;
+        int ret = mFriendManager->serialize(friendData);
+        CHECK_ERROR(ret)
+
+        dataStream << friendData << std::endl;
+    }
+
+    auto data = dataStream.str();
+    std::vector<uint8_t> originData {data.begin(), data.end()};
+    ret = mSecurityManager->saveCryptoFile(toFile, originData);
+    CHECK_ERROR(ret)
+
+    Log::D(Log::TAG, "Success to export local data to: %s", toFile.c_str());
+
+    return 0;
+}
+
 std::weak_ptr<SecurityManager> ContactV1::getSecurityManager()
 {
     return mSecurityManager;
@@ -212,6 +260,7 @@ ContactV1::ContactV1()
     , mFriendManager(std::make_shared<FriendManager>(mSecurityManager))
     , mMessageManager(std::make_shared<MessageManager>(mSecurityManager, mUserManager, mFriendManager))
     , mConfig()
+    , mHasListener(false)
     , mStarted(false)
 {
 }

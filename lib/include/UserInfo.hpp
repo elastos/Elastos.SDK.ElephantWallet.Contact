@@ -44,6 +44,7 @@ public:
     virtual int setWalletAddress(const std::string& name, const std::string& value);
     virtual int getCurrDevCarrierAddr(std::string& value);
     virtual int getCurrDevCarrierId(std::string& value);
+    virtual int getCurrDevUpdateTime(int64_t& value);
 
     virtual int setIdentifyCode(Type type, const std::string& value) override;
 

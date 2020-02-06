@@ -63,10 +63,14 @@ public:
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
 
+    int importUserData(const std::string& formFile);
+    int exportUserData(const std::string& toFile);
+
 private:
     /*** type define ***/
 
     /*** static function and variable ***/
+    static constexpr const char* UserDataSeparator = "--------------------------";
 
     /*** class function and variable ***/
     explicit ContactV1();
@@ -80,6 +84,7 @@ private:
     std::shared_ptr<FriendManager> mFriendManager;
     std::shared_ptr<MessageManager> mMessageManager;
     std::shared_ptr<Config> mConfig;
+    bool mHasListener;
     bool mStarted;
 }; // class ContactV1
 

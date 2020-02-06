@@ -77,6 +77,8 @@ public:
     virtual int setCarrierStatus(const std::string& usrId, const Status status);
     virtual int getCarrierStatus(const std::string& usrId, Status& status) const;
 
+    virtual int64_t getHumanUpdateTime();
+
     virtual int setHumanInfo(Item item, const std::string& value);
     virtual int getHumanInfo(Item item, std::string& value) const;
     virtual int mergeHumanInfo(const HumanInfo& value, const Status status);

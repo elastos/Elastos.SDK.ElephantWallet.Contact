@@ -78,6 +78,10 @@ private:
     static int NewAndSaveMnemonic(const std::vector<std::string>& args,
                                   std::string& errMsg);
 
+    static int ImportUserData(const std::vector<std::string>& args,
+                              std::string& errMsg);
+    static int ExportUserData(const std::vector<std::string>& args,
+                              std::string& errMsg);
     static int ShowCachedDidProp(const std::vector<std::string>& args,
                                  std::string& errMsg);
     static int ThreadSendMessage(const std::vector<std::string>& args,

@@ -31,6 +31,7 @@ public:
     };
 
     /*** static function and variable ***/
+    static constexpr const char* DataFileName = "userdata.dat";
 
     /*** class function and variable ***/
     explicit UserManager(std::weak_ptr<SecurityManager> sectyMgr);
@@ -69,7 +70,6 @@ private:
     /*** type define ***/
 
     /*** static function and variable ***/
-    static constexpr const char* DataFileName = "userdata.dat";
 
     /*** class function and variable ***/
     int syncHistoryInfo();

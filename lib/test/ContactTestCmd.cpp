@@ -75,6 +75,8 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
 
     { '-', "",               nullptr,                              "\n Debug" },
 
+    { 'w', "import-userdata", ContactTestCmd::ImportUserData,      "\t\tImport User Data [w ${fromFilePath}]" },
+    { 'x', "export-userdata", ContactTestCmd::ExportUserData,      "\t\tExport User Data [x ${toFilePath}]" },
     { 'y', "cached-didprop", ContactTestCmd::ShowCachedDidProp,    "\t\tShow Cached DidProp [y]" },
     { 'z', "thread-sendmsg", ContactTestCmd::ThreadSendMessage,    "\t\tLoop Send Message in new thread [z fid]" },
 };
@@ -401,6 +403,29 @@ int ContactTestCmd::SendFileMessage(const std::vector<std::string>& args,
 int ContactTestCmd::NewAndSaveMnemonic(const std::vector<std::string>& args,
                                        std::string& errMsg) {
     auto ret = ContactTest::GetInstance()->newAndSaveMnemonic();
+    return ret;
+}
+
+int ContactTestCmd::ImportUserData(const std::vector<std::string> &args,
+                                   std::string& errMsg) {
+    if(args.size() < 2) {
+        errMsg = "Bad input count: " + std::to_string(args.size());
+        return -1;
+    }
+
+    auto file = elastos::filesystem::path(args[1]);
+    auto ret = ContactTest::GetInstance()->importUserData(file);
+    return ret;
+}
+int ContactTestCmd::ExportUserData(const std::vector<std::string> &args,
+                                   std::string& errMsg) {
+    if(args.size() < 2) {
+        errMsg = "Bad input count: " + std::to_string(args.size());
+        return -1;
+    }
+
+    auto file = elastos::filesystem::path(args[1]);
+    auto ret = ContactTest::GetInstance()->exportUserData(file);
     return ret;
 }
 

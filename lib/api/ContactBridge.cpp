@@ -30,8 +30,6 @@ bool ContactBridge::IsDidFriend(ConstStringPtr friendCode)
     return (kind == elastos::HumanInfo::HumanKind::Did);
 }
 
-
-
 /***********************************************/
 /***** class public function implement  ********/
 /***********************************************/
@@ -468,6 +466,28 @@ int ContactBridge::syncInfoUploadToDidChain()
     }
 
     int ret = mContactImpl->syncInfoUploadToDidChain();
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactBridge::importUserData(ConstStringPtr fromFile)
+{
+//    if(mContactImpl->isStarted() == false) {
+//        return elastos::ErrCode::NotReadyError;
+//    }
+    int ret = mContactImpl->importUserData(fromFile);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactBridge::exportUserData(ConstStringPtr toFile)
+{
+//    if(mContactImpl->isStarted() == false) {
+//        return elastos::ErrCode::NotReadyError;
+//    }
+    int ret = mContactImpl->exportUserData(toFile);
     CHECK_ERROR(ret);
 
     return 0;

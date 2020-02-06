@@ -32,6 +32,7 @@ public:
     };
 
     /*** static function and variable ***/
+    static constexpr const char* DataFileName = "frienddata.dat";
 
     /*** class function and variable ***/
     explicit FriendManager(std::weak_ptr<SecurityManager> sectyMgr);
@@ -45,6 +46,7 @@ public:
     int serialize(std::string& value) const;
 
     int restoreFriendsInfo();
+    int ensureFriendsCarrierInfo(int64_t currCarrierUpdateTime);
 
     bool contains(const std::string& friendCode);
     bool contains(const std::shared_ptr<HumanInfo>& friendInfo);
@@ -79,7 +81,6 @@ private:
     /*** type define ***/
 
     /*** static function and variable ***/
-    static constexpr const char* DataFileName = "frienddata.dat";
 
     /*** class function and variable ***/
     virtual int addFriendByDid(const std::string& did, const std::string& summary, bool remoteRequest, bool forceRequest = false);
