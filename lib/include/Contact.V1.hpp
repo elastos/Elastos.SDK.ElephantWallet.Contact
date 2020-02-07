@@ -63,7 +63,7 @@ public:
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
 
-    int importUserData(const std::string& formFile);
+    int importUserData(const std::string& fromFile);
     int exportUserData(const std::string& toFile);
 
 private:
