@@ -193,7 +193,8 @@ int HumanInfo::addCarrierInfo(const HumanInfo::CarrierInfo& info, const HumanInf
                                  existsInfo.mDevInfo.mDevId.c_str(), correctedInfo.mDevInfo.mDevId.c_str());
                 return ErrCode::IgnoreMergeOldInfo;
             } else { // update info
-                existsInfo = correctedInfo;
+                existsInfo.mUsrAddr = correctedInfo.mUsrAddr;
+                existsInfo.mUsrId = correctedInfo.mUsrId;
                 return idx;
             }
         } else if(existsInfo.mDevInfo.mDevId == "Unknown"

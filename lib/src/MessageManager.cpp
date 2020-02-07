@@ -206,6 +206,10 @@ int MessageManager::requestFriend(const std::string& friendAddr,
     ret = Platform::GetCurrentDevId(currDevId);
     CHECK_ERROR(ret);
 
+    std::string currDevCarrierAddr;
+    ret = userInfo->getCurrDevCarrierAddr(currDevCarrierAddr);
+    CHECK_ERROR(ret);
+
     std::string humanInfo;
     ret = userInfo->HumanInfo::serialize(humanInfo, true);
     CHECK_ERROR(ret)
@@ -213,6 +217,7 @@ int MessageManager::requestFriend(const std::string& friendAddr,
     Json jsonInfo = Json::object();
     jsonInfo[JsonKey::Did] = userDid;
     jsonInfo[JsonKey::DeviceId] = currDevId;
+    jsonInfo[JsonKey::CarrierAddr] = currDevCarrierAddr;
     jsonInfo[JsonKey::Summary] = summary;
     //jsonInfo[JsonKey::HumanInfo] = humanInfo;
 
@@ -804,12 +809,14 @@ void MessageManager::MessageListener::onFriendRequest(const std::string& friendC
 
     std::string friendDid;
     std::string friendDevId;
+    std::string friendDevCarrierAddr;
     std::string summary;
     HumanInfo humanInfo;
     try {
         Json jsonInfo= Json::parse(details);
         friendDid = jsonInfo[JsonKey::Did];
         friendDevId = jsonInfo[JsonKey::DeviceId];
+        friendDevCarrierAddr = jsonInfo[JsonKey::CarrierAddr];
         summary = jsonInfo[JsonKey::Summary];
 
         std::ignore = humanInfo.setHumanInfo(HumanInfo::Item::Did, friendDid);
@@ -819,8 +826,10 @@ void MessageManager::MessageListener::onFriendRequest(const std::string& friendC
     }
     if(humanChType == ChannelType::Carrier) {
         FriendInfo::CarrierInfo carrierInfo;
+        carrierInfo.mUsrAddr = friendDevCarrierAddr;
         carrierInfo.mUsrId = friendCode;
         carrierInfo.mDevInfo.mDevId = friendDevId;
+        carrierInfo.mUpdateTime = DateTime::CurrentMS();
 
         ret = humanInfo.addCarrierInfo(carrierInfo, HumanInfo::Status::WaitForAccept);
     } else {
@@ -1077,7 +1086,7 @@ int MessageManager::processCtrlMessage(std::shared_ptr<HumanInfo> humanInfo,
         if(static_cast<int>(kind) < 0) {
             return static_cast<int>(kind);
         }
-        if(kind == HumanInfo::HumanKind::Carrier) { // 对方第一次接受好友请求后，因为没有好友did，所以忽略了发送desc，在这里补充发送
+        if(kind == HumanInfo::HumanKind::Carrier) { // 对方第一次接受好友请求后，因为没有好友did，所以忽略了发送desc，在这里补充发送/
             std::vector<std::shared_ptr<HumanInfo>> humanList = {humanInfo};
             ret = sendDescMessage(humanList, channelType);
             CHECK_ERROR(ret);
