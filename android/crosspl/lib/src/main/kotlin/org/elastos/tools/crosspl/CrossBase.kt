@@ -19,7 +19,7 @@ open class CrossBase
             nativeHandle = CreateNativeObject(className)
         }
         Log.i(Utils.TAG, "construct " + toString())
-        if(nativeHandle == 0L) {
+        if(nativeHandle <= 0L) {
             throw Utils.CrossPLException("Failed to create native object.")
         }
     }

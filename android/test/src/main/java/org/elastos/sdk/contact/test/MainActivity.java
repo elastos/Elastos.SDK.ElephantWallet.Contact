@@ -256,6 +256,11 @@ public class MainActivity extends Activity {
             return "Failed to call Contact.Factory.Create()";
         }
 
+        mCustomChannel = new Contact.Channel("sss") {
+
+        };
+        mContact.appendMessageChannel(mCustomChannel);
+
         if(mContactListener != null) {
             mContactListener = null;
         }
@@ -1161,6 +1166,7 @@ public class MainActivity extends Activity {
 
     String mSavedMnemonic;
     Contact mContact;
+    Contact.Channel mCustomChannel;
     Contact.Listener mContactListener;
     Contact.DataListener mContactDataListener;
     HashMap<String, Contact.Message.FileData> mContactRecvFileMap = new HashMap<>();

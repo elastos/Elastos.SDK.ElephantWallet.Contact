@@ -14,6 +14,7 @@ import org.elastos.tools.crosspl.annotation.CrossInterface;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @CrossClass
@@ -25,6 +26,11 @@ class ContactBridge extends CrossBase {
     }
 
     public void finalize() {
+        for(Contact.Channel channel: mCustomChannelMap.values()) {
+            channel.unbind();
+        }
+        mCustomChannelMap.clear();
+
         if(mListener != null) {
             mListener.unbind();
         }
@@ -35,6 +41,16 @@ class ContactBridge extends CrossBase {
         super.finalize();
     }
 
+    public synchronized void appendMessageChannel(Contact.Channel channel) {
+        Contact.Channel oldChannel = mCustomChannelMap.get(channel.id());
+        if(oldChannel != null) {
+            oldChannel.unbind();
+        }
+
+        mCustomChannelMap.put(channel.id(), channel);
+        channel.bind();
+        appendMessageChannel((CrossBase)channel);
+    }
 
     public synchronized void setListener(Contact.Listener listener) {
         if(mListener != null) {
@@ -43,7 +59,7 @@ class ContactBridge extends CrossBase {
         mListener = listener;
 
         mListener.bind();
-        setListener(mListener);
+        setListener((CrossBase)mListener);
     }
 
     public synchronized void setDataListener(Contact.DataListener listener) {
@@ -53,7 +69,7 @@ class ContactBridge extends CrossBase {
         mDataListener = listener;
 
         mDataListener.bind();
-        setDataListener(mDataListener);
+        setDataListener((CrossBase)mDataListener);
     }
 
     public int setIdentifyCode(IdentifyCode.Type type, String value) {
@@ -254,6 +270,9 @@ class ContactBridge extends CrossBase {
     public native int setWalletAddress(String name, String value);
 
     @CrossInterface
+    private native void appendMessageChannel(CrossBase listener);
+
+    @CrossInterface
     private native void setListener(CrossBase listener);
 
     @CrossInterface
@@ -286,8 +305,9 @@ class ContactBridge extends CrossBase {
     @CrossInterface
     private native int cancelPullData(String friendCode, int channelType, String devId, String dataId);
 
-    private ContactListener mListener;
-    private ContactDataListener mDataListener;
+    private HashMap<Integer, Contact.Channel> mCustomChannelMap = new HashMap<>();
+    private Contact.Listener mListener;
+    private Contact.DataListener mDataListener;
 
     static {
         System.loadLibrary("Elastos.SDK.Contact.Jni");

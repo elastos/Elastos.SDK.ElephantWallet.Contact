@@ -17,6 +17,13 @@ public interface ContactInterface {
         }
     } // class Bridge
 
+//    public abstract static class MessageChannel extends ContactMessageChannel {
+//        protected MessageChannel(String name) {
+//            super(name);
+//        }
+//        static { Utils.EnsureNativeLibrary(); }
+//    } // class Listener
+
     public abstract static class Listener extends ContactListener {
         static { Utils.EnsureNativeLibrary(); }
     } // class Listener
@@ -50,10 +57,14 @@ public interface ContactInterface {
         static { Utils.EnsureNativeLibrary(); }
     } // class FriendInfo
 
-    public static final class Channel extends ContactChannel<Channel> {
+    public static class Channel extends ContactChannel {
         public static final Channel Carrier = new Channel(1, "Carrier");
         public static final Channel ElaChain = new Channel(2, "ElaChain");
         public static final Channel Email = new Channel(3, "Email");
+
+        public Channel(String name) {
+            super(name);
+        }
 
         private Channel(int id, String name) {
             super(id, name);

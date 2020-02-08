@@ -27,6 +27,7 @@ public:
 namespace crosspl {
 namespace native {
 
+class ContactChannel;
 class ContactDataListener;
 class ContactListener;
 class ContactMessage;
@@ -34,6 +35,7 @@ class ContactMessage;
 #ifdef WITH_CROSSPL
 #define PERMISSION public
 
+using ChannelPtr = CrossBase*;
 using ListenerPtr = CrossBase*;
 using DataListenerPtr = CrossBase*;
 using MessagePtr = CrossBase*;
@@ -52,6 +54,7 @@ inline bool IsEmpty(ConstStringPtr str) {
 #else
 #define PERMISSION protected
 
+using ChannelPtr = std::shared_ptr<ContactChannel>;
 using ListenerPtr = std::shared_ptr<ContactListener>;
 using DataListenerPtr = std::shared_ptr<ContactDataListener>;
 using MessagePtr = std::shared_ptr<crosspl::native::ContactMessage>;

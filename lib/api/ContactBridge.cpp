@@ -49,6 +49,29 @@ ContactBridge::~ContactBridge()
     elastos::ErrCode::SetErrorListener(nullptr);
 }
 
+void ContactBridge::appendMessageChannel(ListenerPtr channel)
+{
+    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+
+//    mListener = listener;
+//#ifdef WITH_CROSSPL
+//    auto listenerPtr = dynamic_cast<ContactListener*>(mListener);
+//#else
+//    auto listenerPtr = mListener;
+//#endif // WITH_CROSSPL
+////    mListener->onCallback(0, nullptr);
+//
+//    auto errorListener = std::bind(&ContactListener::onError, listenerPtr,
+//                                   std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+//    elastos::ErrCode::SetErrorListener(errorListener);
+//
+//    auto sectyListener = listenerPtr->getSecurityListener();
+//    auto msgListener = listenerPtr->getMessageListener();
+//    mContactImpl->setListener(sectyListener, nullptr, nullptr, msgListener);
+//
+//    return;
+}
+
 void ContactBridge::setListener(ListenerPtr listener)
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);

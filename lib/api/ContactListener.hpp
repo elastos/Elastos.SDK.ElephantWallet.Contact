@@ -20,6 +20,14 @@
 namespace crosspl {
 namespace native {
 
+#define LOCK_PTR(mutex, ptr, retval)                                                 \
+    std::lock_guard<std::recursive_mutex> lock(*mutex);                              \
+    if(ptr == nullptr) {                                                             \
+        Log::W(Log::TAG, #ptr " has been released at %s(%d)", __FILE__, __LINE__);   \
+        return retval;                                                               \
+    }
+
+
 class ContactListener : public CrossBase {
 public:
     /*** type define ***/
@@ -150,6 +158,24 @@ public:
         std::shared_ptr<elastos::HumanInfo> humanInfo;
     };
 
+    template <class T>
+    class Helper {
+    public:
+        explicit Helper(std::shared_ptr<std::recursive_mutex> mutex)
+                : mMutex(mutex)
+                , mHelperListener(nullptr) {
+        };
+        virtual ~Helper() = default;
+        void resetContactListener(T* ptr = nullptr) {
+            std::lock_guard<std::recursive_mutex> lg(*mMutex);
+            mHelperListener = ptr;
+        }
+
+    protected:
+        std::shared_ptr<std::recursive_mutex> mMutex;
+        T* mHelperListener;
+    };
+
     /*** static function and variable ***/
     const std::string DIDPROP_APPID_DEFVAL = "DidFriend";
 
@@ -180,12 +206,12 @@ private:
     /*** type define ***/
 
     /*** static function and variable ***/
-    static ContactListener* sContactListenerInstance;
 
     /*** class function and variable ***/
     std::shared_ptr<elastos::SecurityManager::SecurityListener> makeSecurityListener();
     std::shared_ptr<elastos::MessageManager::MessageListener> makeMessageListener();
 
+    std::shared_ptr<std::recursive_mutex> mMutex;
     std::shared_ptr<elastos::SecurityManager::SecurityListener> mSecurityListener;
     std::shared_ptr<elastos::MessageManager::MessageListener> mMessageListener;
 }; // class Contact

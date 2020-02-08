@@ -56,11 +56,11 @@ private:
     /*** type define ***/
 
     /*** static function and variable ***/
-    static ContactDataListener* sContactDataListenerInstance;
 
     /*** class function and variable ***/
     std::shared_ptr<elastos::MessageManager::DataListener> makeDataListener();
 
+    std::shared_ptr<std::recursive_mutex> mMutex;
     std::shared_ptr<elastos::MessageManager::DataListener> mDataListener;
 }; // class Contact
 

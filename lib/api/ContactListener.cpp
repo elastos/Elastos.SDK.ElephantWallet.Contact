@@ -19,7 +19,6 @@ namespace native {
 /***********************************************/
 /***** static variables initialize *************/
 /***********************************************/
-ContactListener* ContactListener::sContactListenerInstance = nullptr;
 
 /***********************************************/
 /***** static function implement ***************/
@@ -29,22 +28,19 @@ ContactListener* ContactListener::sContactListenerInstance = nullptr;
 /***** class public function implement  ********/
 /***********************************************/
 ContactListener::ContactListener()
-        : mSecurityListener()
-        , mMessageListener()
+        : mMutex(std::make_shared<std::recursive_mutex>())
+
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
-
-    sContactListenerInstance = this;
-
     mSecurityListener = makeSecurityListener();
     mMessageListener = makeMessageListener();
 }
+
 ContactListener::~ContactListener()
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
-    if(sContactListenerInstance == this) {
-        sContactListenerInstance = nullptr;
-    }
+    auto sectyHelper = std::dynamic_pointer_cast<Helper<ContactListener>>(mSecurityListener);
+    sectyHelper->resetContactListener();
+    auto msgHelper = std::dynamic_pointer_cast<Helper<ContactListener>>(mMessageListener);
+    msgHelper->resetContactListener();
 }
 
 std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::getSecurityListener()
@@ -66,9 +62,15 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::getMe
 /***********************************************/
 std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::makeSecurityListener()
 {
-    class SecurityListener final : public elastos::SecurityManager::SecurityListener {
+    class SecurityListener final : public elastos::SecurityManager::SecurityListener
+                                 , public Helper<ContactListener> {
     public:
-        explicit SecurityListener() = default;
+        explicit SecurityListener(std::shared_ptr<std::recursive_mutex> mutex)
+                : elastos::SecurityManager::SecurityListener()
+                , Helper<ContactListener>(mutex)
+                , mCachedPublicKey()
+                , mCachedDidPropAppId() {
+        };
         virtual ~SecurityListener() = default;
 
         std::string onAcquirePublicKey() override {
@@ -77,11 +79,12 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
                 return mCachedPublicKey;
             }
 
+            LOCK_PTR(mMutex, mHelperListener, "");
 #ifdef WITH_CROSSPL
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::PublicKey, nullptr, nullptr);
+            auto ret = mHelperListener->onAcquire(AcquireType::PublicKey, nullptr, nullptr);
 #else
             std::vector<uint8_t> vdata;
-            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::PublicKey, "", vdata});
+            auto ret = mHelperListener->onAcquire(AcquireArgs{AcquireType::PublicKey, "", vdata});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return "";
@@ -93,11 +96,12 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
 
         std::vector<uint8_t> onEncryptData(const std::string& pubKey, const std::vector<uint8_t>& src) override {
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            LOCK_PTR(mMutex, mHelperListener, std::vector<uint8_t>());
 #ifdef WITH_CROSSPL
             const std::span<uint8_t> data(const_cast<uint8_t*>(src.data()), src.size());
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::EncryptData, pubKey.c_str(), &data);
+            auto ret = mHelperListener->onAcquire(AcquireType::EncryptData, pubKey.c_str(), &data);
 #else
-            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::EncryptData, pubKey, src});
+            auto ret = mHelperListener->onAcquire(AcquireArgs{AcquireType::EncryptData, pubKey, src});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return std::vector<uint8_t>();
@@ -108,11 +112,12 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
         }
         std::vector<uint8_t> onDecryptData(const std::vector<uint8_t>& src) override {
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            LOCK_PTR(mMutex, mHelperListener, std::vector<uint8_t>());
 #ifdef WITH_CROSSPL
             const std::span<uint8_t> data(const_cast<uint8_t*>(src.data()), src.size());
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::DecryptData, nullptr, &data);
+            auto ret = mHelperListener->onAcquire(AcquireType::DecryptData, nullptr, &data);
 #else
-            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::DecryptData, "", src});
+            auto ret = mHelperListener->onAcquire(AcquireArgs{AcquireType::DecryptData, "", src});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return std::vector<uint8_t>();
@@ -129,11 +134,12 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
                 return mCachedDidPropAppId;
             }
 
+            LOCK_PTR(mMutex, mHelperListener, "");
 #ifdef WITH_CROSSPL
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::DidPropAppId, nullptr, nullptr);
+            auto ret = mHelperListener->onAcquire(AcquireType::DidPropAppId, nullptr, nullptr);
 #else
             std::vector<uint8_t> vdata;
-            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::DidPropAppId, "", vdata});
+            auto ret = mHelperListener->onAcquire(AcquireArgs{AcquireType::DidPropAppId, "", vdata});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return "";
@@ -146,11 +152,12 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
 
         std::string onAcquireDidAgentAuthHeader() override {
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            LOCK_PTR(mMutex, mHelperListener, "");
 #ifdef WITH_CROSSPL
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::DidAgentAuthHeader, nullptr, nullptr);
+            auto ret = mHelperListener->onAcquire(AcquireType::DidAgentAuthHeader, nullptr, nullptr);
 #else
             std::vector<uint8_t> vdata;
-            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::DidAgentAuthHeader, "", vdata});
+            auto ret = mHelperListener->onAcquire(AcquireArgs{AcquireType::DidAgentAuthHeader, "", vdata});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return "";
@@ -163,11 +170,12 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
 
         std::vector<uint8_t> onSignData(const std::vector<uint8_t>& originData) override {
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            LOCK_PTR(mMutex, mHelperListener, std::vector<uint8_t>());
 #ifdef WITH_CROSSPL
             const std::span<uint8_t> data(const_cast<uint8_t*>(originData.data()), originData.size());
-            auto ret = sContactListenerInstance->onAcquire(AcquireType::SignData, nullptr, &data);
+            auto ret = mHelperListener->onAcquire(AcquireType::SignData, nullptr, &data);
 #else
-            auto ret = sContactListenerInstance->onAcquire(AcquireArgs{AcquireType::SignData, "", originData});
+            auto ret = mHelperListener->onAcquire(AcquireArgs{AcquireType::SignData, "", originData});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return std::vector<uint8_t>();
@@ -183,14 +191,20 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
         std::string mCachedDidPropAppId;
     };
 
-    return std::make_shared<SecurityListener>();
+    auto listener = std::make_shared<SecurityListener>(mMutex);
+    listener->resetContactListener(this);
+    return listener;
 }
 
 std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeMessageListener()
 {
-    class MessageListener final : public elastos::MessageManager::MessageListener {
+    class MessageListener final : public elastos::MessageManager::MessageListener
+                                , public Helper<ContactListener> {
     public:
-        explicit MessageListener() = default;
+        explicit MessageListener(std::shared_ptr<std::recursive_mutex> mutex)
+                : elastos::MessageManager::MessageListener()
+                , Helper<ContactListener>(mutex) {
+        };
         virtual ~MessageListener() = default;
 
         virtual void onStatusChanged(std::shared_ptr<elastos::UserInfo> userInfo,
@@ -201,15 +215,16 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             int ret = userInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
 
+            LOCK_PTR(mMutex, mHelperListener, );
 #ifdef WITH_CROSSPL
             std::span<uint8_t> data {reinterpret_cast<uint8_t*>(&status), 1 };
-            sContactListenerInstance->onEvent(EventType::StatusChanged, humanCode,
-                                              static_cast<ChannelType>(channelType), &data);
+            mHelperListener->onEvent(EventType::StatusChanged, humanCode,
+                                     static_cast<ChannelType>(channelType), &data);
 #else
             auto event = StatusEvent{EventType::StatusChanged, humanCode,
                                      static_cast<ChannelType>(channelType),
                                      status};
-            sContactListenerInstance->onEvent(event);
+            mHelperListener->onEvent(event);
 #endif // WITH_CROSSPL
         }
 
@@ -221,7 +236,8 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
 
-            sContactListenerInstance->onReceivedMessage(humanCode, static_cast<ChannelType>(channelType), msgInfo);
+            LOCK_PTR(mMutex, mHelperListener, );
+            mHelperListener->onReceivedMessage(humanCode, static_cast<ChannelType>(channelType), msgInfo);
         }
 
         virtual void onSentMessage(int msgIndex, int errCode) override {
@@ -236,16 +252,17 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             int ret = friendInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
 
+            LOCK_PTR(mMutex, mHelperListener, );
 #ifdef WITH_CROSSPL
             std::span<uint8_t> data {reinterpret_cast<uint8_t*>(const_cast<char*>(summary.c_str())),
                                      summary.length() };
-            sContactListenerInstance->onEvent(EventType::FriendRequest, humanCode,
+            mHelperListener->onEvent(EventType::FriendRequest, humanCode,
                                               static_cast<ChannelType>(channelType), &data);
 #else
             auto event = RequestEvent{EventType::FriendRequest, humanCode,
                                       static_cast<ChannelType>(channelType),
                                       summary};
-            sContactListenerInstance->onEvent(event);
+            mHelperListener->onEvent(event);
 #endif // WITH_CROSSPL
         }
 
@@ -257,15 +274,16 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             int ret = friendInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
 
+            LOCK_PTR(mMutex, mHelperListener, );
 #ifdef WITH_CROSSPL
             std::span<uint8_t> data {reinterpret_cast<uint8_t*>(&status), 1 };
-            sContactListenerInstance->onEvent(EventType::StatusChanged, humanCode,
+            mHelperListener->onEvent(EventType::StatusChanged, humanCode,
                                               static_cast<ChannelType>(channelType), &data);
 #else
             auto event = StatusEvent{EventType::StatusChanged, humanCode,
                                      static_cast<ChannelType>(channelType),
                                      status};
-            sContactListenerInstance->onEvent(event);
+            mHelperListener->onEvent(event);
 #endif // WITH_CROSSPL
         }
 
@@ -276,6 +294,7 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
 
+            LOCK_PTR(mMutex, mHelperListener, );
 #ifdef WITH_CROSSPL
             auto jsonInfo = std::make_shared<elastos::Json>();
             ret = humanInfo->toJson(jsonInfo);
@@ -283,18 +302,20 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
             std::string info = jsonInfo->dump();
 
             std::span<uint8_t> data(reinterpret_cast<uint8_t*>(info.data()), info.size());
-            sContactListenerInstance->onEvent(EventType::HumanInfoChanged, humanCode,
-                                              static_cast<ChannelType>(channelType), &data);
+            mHelperListener->onEvent(EventType::HumanInfoChanged, humanCode,
+                                     static_cast<ChannelType>(channelType), &data);
 #else
             auto event = InfoEvent{EventType::HumanInfoChanged, humanCode,
                                    static_cast<ChannelType>(channelType),
                                    humanInfo};
-            sContactListenerInstance->onEvent(event);
+            mHelperListener->onEvent(event);
 #endif // WITH_CROSSPL
         }
     };
 
-    return std::make_shared<MessageListener>();
+    auto listener = std::make_shared<MessageListener>(mMutex);
+    listener->resetContactListener(this);
+    return listener;
 }
 
 #ifdef WITH_CROSSPL
