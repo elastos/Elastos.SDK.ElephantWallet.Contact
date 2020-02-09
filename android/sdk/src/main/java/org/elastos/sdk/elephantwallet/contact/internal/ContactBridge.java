@@ -26,7 +26,7 @@ class ContactBridge extends CrossBase {
     }
 
     public void finalize() {
-        for(Contact.Channel channel: mCustomChannelMap.values()) {
+        for(Contact.ChannelStrategy channel: mCustomChannelMap.values()) {
             channel.unbind();
         }
         mCustomChannelMap.clear();
@@ -41,15 +41,15 @@ class ContactBridge extends CrossBase {
         super.finalize();
     }
 
-    public synchronized void appendMessageChannel(Contact.Channel channel) {
-        Contact.Channel oldChannel = mCustomChannelMap.get(channel.id());
-        if(oldChannel != null) {
-            oldChannel.unbind();
+    public synchronized void appendMessageChannel(Contact.ChannelStrategy channelStrategy) {
+        Contact.ChannelStrategy oldChannelStrategy = mCustomChannelMap.get(channelStrategy.getChannelId());
+        if(oldChannelStrategy != null) {
+            oldChannelStrategy.unbind();
         }
 
-        mCustomChannelMap.put(channel.id(), channel);
-        channel.bind();
-        appendMessageChannel((CrossBase)channel);
+        mCustomChannelMap.put(channelStrategy.getChannelId(), channelStrategy);
+        channelStrategy.bind();
+        appendMessageChannel((CrossBase)channelStrategy);
     }
 
     public synchronized void setListener(Contact.Listener listener) {
@@ -305,7 +305,7 @@ class ContactBridge extends CrossBase {
     @CrossInterface
     private native int cancelPullData(String friendCode, int channelType, String devId, String dataId);
 
-    private HashMap<Integer, Contact.Channel> mCustomChannelMap = new HashMap<>();
+    private HashMap<Integer, Contact.ChannelStrategy> mCustomChannelMap = new HashMap<>();
     private Contact.Listener mListener;
     private Contact.DataListener mDataListener;
 

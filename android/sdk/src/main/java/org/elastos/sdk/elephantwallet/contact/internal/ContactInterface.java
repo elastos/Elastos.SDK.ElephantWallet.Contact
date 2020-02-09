@@ -57,6 +57,14 @@ public interface ContactInterface {
         static { Utils.EnsureNativeLibrary(); }
     } // class FriendInfo
 
+    public abstract static class ChannelStrategy extends ContactChannelStrategy {
+        protected ChannelStrategy(String name) {
+            super(name);
+        }
+
+        static { Utils.EnsureNativeLibrary(); }
+    }
+
     public static class Channel extends ContactChannel {
         public static final Channel Carrier = new Channel(1, "Carrier");
         public static final Channel ElaChain = new Channel(2, "ElaChain");

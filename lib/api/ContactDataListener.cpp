@@ -6,6 +6,7 @@
 //
 
 #include <ContactDataListener.hpp>
+#include <ContactListener.hpp>
 #include "Log.hpp"
 
 #ifdef WITH_CROSSPL

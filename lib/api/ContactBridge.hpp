@@ -13,7 +13,6 @@
 
 #include <sstream>
 
-#include "ContactChannel.hpp"
 #include "ContactDataListener.hpp"
 #include "ContactListener.hpp"
 #include "ContactTypes.hpp"
@@ -35,7 +34,7 @@ public:
 
     /*** class function and variable ***/
 
-    void appendMessageChannel(ListenerPtr channel);
+    void appendMessageChannel(ChannelStrategyPtr channel);
     void setListener(ListenerPtr listener);
     void setDataListener(DataListenerPtr listener);
     int start();
@@ -78,7 +77,7 @@ private:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    std::map<int, ChannelPtr> mCustomChannelMap;
+    std::map<int, ChannelStrategyPtr> mCustomChannelMap;
     ListenerPtr mListener;
     DataListenerPtr mDataListener;
 

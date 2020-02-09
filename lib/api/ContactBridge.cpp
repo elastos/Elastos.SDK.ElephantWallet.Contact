@@ -49,7 +49,7 @@ ContactBridge::~ContactBridge()
     elastos::ErrCode::SetErrorListener(nullptr);
 }
 
-void ContactBridge::appendMessageChannel(ListenerPtr channel)
+void ContactBridge::appendMessageChannel(ChannelStrategyPtr channel)
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
 

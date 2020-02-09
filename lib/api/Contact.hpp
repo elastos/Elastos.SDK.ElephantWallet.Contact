@@ -13,7 +13,7 @@
 
 #include <Contact.V1.hpp>
 #include <ContactBridge.hpp>
-#include <ContactChannel.hpp>
+#include <ContactChannelStrategy.hpp>
 #include <ContactDataListener.hpp>
 #include <ContactDebug.hpp>
 #include <ContactFactory.hpp>

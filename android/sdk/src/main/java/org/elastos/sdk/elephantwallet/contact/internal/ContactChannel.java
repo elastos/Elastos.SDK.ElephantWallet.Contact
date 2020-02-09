@@ -2,13 +2,9 @@ package org.elastos.sdk.elephantwallet.contact.internal;
 
 import android.support.annotation.NonNull;
 
-import org.elastos.tools.crosspl.CrossBase;
-import org.elastos.tools.crosspl.annotation.CrossClass;
-
 import java.util.ArrayList;
 
-@CrossClass
-class ContactChannel extends CrossBase {
+class ContactChannel {
     public static <T extends ContactChannel> T valueOf(int id) {
         T[] values = values();
         for(int idx = 0; idx < values.length; idx++) {
@@ -30,14 +26,8 @@ class ContactChannel extends CrossBase {
     }
 
     public ContactChannel(String name){
-        super(ContactChannel.class.getName(), 0);
         ContactChannel lastChannel = mValueList.get(mValueList.size() - 1);
         int id = lastChannel.id + 1;
-        init(id, name);
-    }
-
-    protected ContactChannel(int id, String name) {
-        super(ContactChannel.class.getName(), 0);
         init(id, name);
     }
 
@@ -45,7 +35,11 @@ class ContactChannel extends CrossBase {
         return this.id;
     }
 
-    private void init(int id, String name) {
+    protected ContactChannel(int id, String name){
+        init(id, name);
+    }
+
+    private void init(int id, String name){
         this.id = id;
         this.name = name;
         mValueList.add(this);

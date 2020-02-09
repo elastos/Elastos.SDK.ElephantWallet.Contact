@@ -11,11 +11,8 @@
 #ifndef _ELASTOS_SDK_JNI_CONTACT_DATA_LISTENER_HPP_
 #define _ELASTOS_SDK_JNI_CONTACT_DATA_LISTENER_HPP_
 
-#include <mutex>
-
 #include "ContactTypes.hpp"
 #include <Contact.V1.hpp>
-#include <ContactListener.hpp>
 
 namespace crosspl {
 namespace native {
