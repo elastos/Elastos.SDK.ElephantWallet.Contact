@@ -28,11 +28,11 @@ public:
     int createChannel(uint32_t channelId, std::shared_ptr<elastos::MessageManager> msgMgr);
     std::shared_ptr<elastos::MessageChannelStrategy> getChannel();
 
-    virtual int receivedMessage(const std::string& humanCode, int channelId, ConstBytesPtr data);
+    virtual int receivedMessage(const std::string& humanCode, ChannelType chType, ConstBytesPtr data);
 
-    virtual int onOpen() ABSTRACT;
-    virtual int onClose() ABSTRACT;
-    virtual int onSendMessage(const std::string& humanCode, int channelId, ConstBytesPtr data) ABSTRACT;
+    virtual int onOpen();
+    virtual int onClose();
+    virtual int onSendMessage(const std::string& humanCode, ChannelType chType, ConstBytesPtr data) ABSTRACT;
 
 PERMISSION:
     explicit ContactChannelStrategy();

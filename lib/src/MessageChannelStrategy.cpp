@@ -52,11 +52,6 @@ std::shared_ptr<MessageChannelStrategy::ChannelDataListener> MessageChannelStrat
     return mChannelDataListener;
 }
 
-uint32_t MessageChannelStrategy::getChannelType()
-{
-    return mChannelType;
-}
-
 /***********************************************/
 /***** class protected function implement  *****/
 /***********************************************/

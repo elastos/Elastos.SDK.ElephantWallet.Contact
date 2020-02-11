@@ -136,7 +136,10 @@ public:
 
     virtual std::shared_ptr<ChannelListener> getChannelListener();
     virtual std::shared_ptr<ChannelDataListener> getChannelDataListener();
-    uint32_t getChannelType();
+    template<typename T> T getChannelType() {
+        return static_cast<T>(mChannelType);
+    };
+
 
     protected:
     /*** type define ***/

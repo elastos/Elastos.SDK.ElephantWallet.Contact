@@ -33,6 +33,7 @@ public:
 
     int showGetUserInfo();
     int doSyncUpload();
+    int doLoopMessage();
 
     int listFriendInfo();
     int doAddFriend(const std::string& friendCode, const std::string& summary);
@@ -71,6 +72,7 @@ public:
 
     std::string mSavedMnemonic;
     std::shared_ptr<elastos::sdk::Contact> mContact;
+    std::shared_ptr<elastos::sdk::Contact::ChannelStrategy> mCustomChannelStrategy;
     std::shared_ptr<elastos::sdk::Contact::Listener> mContactListener;
     std::shared_ptr<elastos::sdk::Contact::DataListener> mContactDataListener;
 }; // class Contact

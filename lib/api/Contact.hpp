@@ -142,6 +142,10 @@ public:
         int64_t replyToNanoTime;
     }; // class Message
 
+
+    class ChannelStrategy: public crosspl::native::ContactChannelStrategy {
+    };
+
     class Listener: public crosspl::native::ContactListener {
     public:
         virtual void onReceivedMessage(const std::string& humanCode, Channel channelType,

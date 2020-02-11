@@ -7,6 +7,7 @@
 #include <ContactTestCmd.hpp>
 #include <openssl/md5.h>
 #include <JsonDefine.hpp>
+#include "ContactTest.hpp"
 
 /* =========================================== */
 /* === static variables initialize =========== */
@@ -83,6 +84,18 @@ int ContactTest::testNewContact()
     if (mContact == nullptr) {
         Log::E(Log::TAG, "Failed to call Contact.Factory.Create()");
     }
+
+    class ChannelStrategy: public elastos::sdk::Contact::ChannelStrategy {
+        virtual int onSendMessage(const std::string& humanCode,
+                                  elastos::sdk::Contact::Channel channelType,
+                                  const std::vector<uint8_t>& data) override {
+            auto ret = this->receivedMessage(humanCode, channelType, data);
+            return ret;
+        }
+    };
+
+    mCustomChannelStrategy = std::make_shared<ChannelStrategy>();
+    mContact->appendChannelStrategy(static_cast<int>(elastos::sdk::Contact::Channel::Custom), mCustomChannelStrategy);
 
     class Listener: public elastos::sdk::Contact::Listener {
         virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const AcquireArgs& request) override {
@@ -252,6 +265,33 @@ int ContactTest::doSyncUpload()
     int ret = mContact->syncInfoUploadToDidChain();
     CHECK_ERROR(ret);
 
+    return 0;
+}
+
+int ContactTest::doLoopMessage()
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    auto userInfo = mContact->getUserInfo();
+    if (userInfo == nullptr) {
+        ShowError("Failed to get user info.");
+        return -1;
+    }
+
+    std::string humanCode;
+    int ret = userInfo->getHumanCode(humanCode);
+    CHECK_ERROR(ret);
+
+    auto msgInfo = elastos::sdk::Contact::MakeTextMessage("test loop message");
+    ret = mContact->sendMessage(humanCode,
+                                mCustomChannelStrategy->getChannel()->getChannelType<elastos::sdk::Contact::Channel>(),
+                                msgInfo);
+    CHECK_ERROR(ret);
+
+    Log::V(Log::TAG, "Success send loop message");
     return 0;
 }
 

@@ -57,6 +57,8 @@ private:
                               std::string& errMsg);
     static int SyncUpload(const std::vector<std::string>& args,
                           std::string& errMsg);
+    static int LoopMessage(const std::vector<std::string>& args,
+                           std::string& errMsg);
 
     static int ListFriendInfo(const std::vector<std::string>& args,
                               std::string& errMsg);

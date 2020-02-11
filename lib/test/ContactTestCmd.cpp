@@ -56,6 +56,7 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { ' ', "set-uwaddr",     ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
     { 'u', "sync-upload",    ContactTestCmd::SyncUpload,          "\tSync Upload" },
     { ' ', "sync-download",  ContactTestCmd::Unimplemention,      "\tSync Download" },
+    { 'o', "loop-message",   ContactTestCmd::LoopMessage,         "\tTest Loop Message" },
 
     { '-', "",               nullptr,                             "\n Friend" },
     { 'l', "list-finfo",     ContactTestCmd::ListFriendInfo,      "\tList Friend Info [e]" },
@@ -292,6 +293,14 @@ int ContactTestCmd::SyncUpload(const std::vector<std::string>& args,
                                std::string& errMsg)
 {
     auto ret = ContactTest::GetInstance()->doSyncUpload();
+
+    return ret;
+}
+
+int ContactTestCmd::LoopMessage(const std::vector<std::string>& args,
+                                std::string& errMsg)
+{
+    auto ret = ContactTest::GetInstance()->doLoopMessage();
 
     return ret;
 }

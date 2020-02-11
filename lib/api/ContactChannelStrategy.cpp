@@ -53,7 +53,7 @@ std::shared_ptr<elastos::MessageChannelStrategy> ContactChannelStrategy::getChan
 }
 
 int ContactChannelStrategy::receivedMessage(const std::string& humanCode,
-                                            int channelId,
+                                            ChannelType chType,
                                             ConstBytesPtr data)
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
@@ -66,7 +66,7 @@ int ContactChannelStrategy::receivedMessage(const std::string& humanCode,
 #endif // WITH_CROSSPL
 
     auto listener = mChannelStrategy->getChannelListener();
-    listener->onReceivedMessage(humanCode, static_cast<uint32_t>(channelId), msgData);
+    listener->onReceivedMessage(humanCode, static_cast<uint32_t>(chType), msgData);
 
     return 0;
 }
@@ -140,7 +140,7 @@ std::shared_ptr<elastos::MessageChannelStrategy> ContactChannelStrategy::makeCha
 #else
             const auto& msgData = msgContent;
 #endif // WITH_CROSSPL
-            int ret = mHelperPtr->onSendMessage(friendCode, static_cast<int>(this->getChannelType()), msgData);
+            int ret = mHelperPtr->onSendMessage(friendCode, this->getChannelType<ChannelType>(), msgData);
             return ret;
         };
     };
@@ -151,29 +151,39 @@ std::shared_ptr<elastos::MessageChannelStrategy> ContactChannelStrategy::makeCha
 }
 
 
-#ifdef WITH_CROSSPL
 int ContactChannelStrategy::onOpen()
 {
+#ifdef WITH_CROSSPL
     int64_t platformHandle = getPlatformHandle();
     auto ret = crosspl_Proxy_ContactChannelStrategy_onOpen(platformHandle);
+#else
+    auto ret = 0;
+#endif // WITH_CROSSPL
+
     return ret;
 }
 
 int ContactChannelStrategy::onClose()
 {
+#ifdef WITH_CROSSPL
     int64_t platformHandle = getPlatformHandle();
     auto ret = crosspl_Proxy_ContactChannelStrategy_onClose(platformHandle);
+#else
+    auto ret = 0;
+#endif // WITH_CROSSPL
+
     return ret;
 }
 
+#ifdef WITH_CROSSPL
 int ContactChannelStrategy::onSendMessage(const std::string& humanCode,
-                                          int channelId,
+                                          ChannelType chType,
                                           const std::span<uint8_t>* data)
 {
     int64_t platformHandle = getPlatformHandle();
     auto ret = crosspl_Proxy_ContactChannelStrategy_onSendMessage(platformHandle,
                                                                   humanCode.c_str(),
-                                                                  channelId,
+                                                                  chType,
                                                                   data);
     return ret;
 }

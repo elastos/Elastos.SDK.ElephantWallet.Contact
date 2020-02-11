@@ -28,6 +28,7 @@ public:
     enum class ChannelType: int {
         Carrier = 1,
         Email = 2,
+        Custom = 3
     };
 
     enum class MessageType: uint32_t {
