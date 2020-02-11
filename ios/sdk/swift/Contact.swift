@@ -15,11 +15,14 @@ open class Contact: ContactInternal.ContactBridge {
     }
   } // class Factory
 
+  open class ChannelStrategy: ContactChannelStrategy {
+  } // class ChannelStrategy
+  
   open class Listener: ContactListener {
   } // class Listener
   
   open class DataListener: ContactDataListener {
-  } // class Listener
+  } // class DataListener
 
   public typealias Channel = ContactInternal.ContactChannel
   

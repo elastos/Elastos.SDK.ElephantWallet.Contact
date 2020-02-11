@@ -134,6 +134,11 @@
 		DE76DD5823287EF40041A703 /* CrossPLFactoryGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE76DD5723287EF40041A703 /* CrossPLFactoryGenerator.swift */; };
 		DE76DD6A23289D640041A703 /* CrossPLUtilsGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE76DD6923289D640041A703 /* CrossPLUtilsGenerator.swift */; };
 		DE76DD7A2328A26B0041A703 /* experimental-span.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE76DD732328A26B0041A703 /* experimental-span.hpp */; settings = {ATTRIBUTES = (Private, ); }; };
+		DE78BACB23F267A2004F5A8B /* ContactChannelStrategy.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE78BAC923F267A1004F5A8B /* ContactChannelStrategy.hpp */; };
+		DE78BACC23F267A2004F5A8B /* ContactChannelStrategy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE78BACA23F267A1004F5A8B /* ContactChannelStrategy.cpp */; };
+		DE78BACE23F2692D004F5A8B /* ContactChannelStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE78BACD23F2692D004F5A8B /* ContactChannelStrategy.swift */; };
+		DE78BAD123F26C54004F5A8B /* ContactChannelStrategy.proxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = DE78BACF23F26C53004F5A8B /* ContactChannelStrategy.proxy.mm */; };
+		DE78BAD223F26C54004F5A8B /* ContactChannelStrategy.proxy.h in Headers */ = {isa = PBXBuildFile; fileRef = DE78BAD023F26C54004F5A8B /* ContactChannelStrategy.proxy.h */; };
 		DE8A33F223712C77008F5FA5 /* ContactDataListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8A33F123712C77008F5FA5 /* ContactDataListener.swift */; };
 		DE8A33F823713570008F5FA5 /* EnumMask.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE8A33F723713570008F5FA5 /* EnumMask.hpp */; };
 		DE8A33FB23713AF6008F5FA5 /* ChannelImplCarrierDataTrans.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE8A33F923713AF6008F5FA5 /* ChannelImplCarrierDataTrans.cpp */; };
@@ -337,6 +342,11 @@
 		DE76DD5723287EF40041A703 /* CrossPLFactoryGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossPLFactoryGenerator.swift; sourceTree = "<group>"; };
 		DE76DD6923289D640041A703 /* CrossPLUtilsGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossPLUtilsGenerator.swift; sourceTree = "<group>"; };
 		DE76DD732328A26B0041A703 /* experimental-span.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "experimental-span.hpp"; sourceTree = "<group>"; };
+		DE78BAC923F267A1004F5A8B /* ContactChannelStrategy.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = ContactChannelStrategy.hpp; sourceTree = "<group>"; };
+		DE78BACA23F267A1004F5A8B /* ContactChannelStrategy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ContactChannelStrategy.cpp; sourceTree = "<group>"; };
+		DE78BACD23F2692D004F5A8B /* ContactChannelStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactChannelStrategy.swift; sourceTree = "<group>"; };
+		DE78BACF23F26C53004F5A8B /* ContactChannelStrategy.proxy.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ContactChannelStrategy.proxy.mm; sourceTree = "<group>"; };
+		DE78BAD023F26C54004F5A8B /* ContactChannelStrategy.proxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactChannelStrategy.proxy.h; sourceTree = "<group>"; };
 		DE8A33F123712C77008F5FA5 /* ContactDataListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDataListener.swift; sourceTree = "<group>"; };
 		DE8A33F723713570008F5FA5 /* EnumMask.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = EnumMask.hpp; path = ../../../../../lib/common/EnumMask.hpp; sourceTree = "<group>"; };
 		DE8A33F923713AF6008F5FA5 /* ChannelImplCarrierDataTrans.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChannelImplCarrierDataTrans.cpp; path = ../../../../../lib/src/ChannelImplCarrierDataTrans.cpp; sourceTree = "<group>"; };
@@ -580,6 +590,7 @@
 				DE3C53B5233A0FBD0053196E /* AcquireArgs.swift */,
 				DEDA63662338A38E0024EA12 /* ContactBridge.swift */,
 				DE3C53BB233AFDDB0053196E /* ContactChannel.swift */,
+				DE78BACD23F2692D004F5A8B /* ContactChannelStrategy.swift */,
 				DE8A33F123712C77008F5FA5 /* ContactDataListener.swift */,
 				DE5EA247234EF7B10055F587 /* ContactDebug.swift */,
 				DE27582723335014001B635B /* ContactFactory.swift */,
@@ -678,6 +689,8 @@
 			children = (
 				DE60EBFF237F7F07001E4493 /* ContactBridge.proxy.h */,
 				DE60EC06237F7F07001E4493 /* ContactBridge.proxy.mm */,
+				DE78BAD023F26C54004F5A8B /* ContactChannelStrategy.proxy.h */,
+				DE78BACF23F26C53004F5A8B /* ContactChannelStrategy.proxy.mm */,
 				DE60EC02237F7F07001E4493 /* ContactDataListener.proxy.h */,
 				DE60EC03237F7F07001E4493 /* ContactDataListener.proxy.mm */,
 				DE60EC09237F7F07001E4493 /* ContactDebug.proxy.h */,
@@ -729,6 +742,8 @@
 			children = (
 				DE8FFCB92378476000096E73 /* ContactBridge.cpp */,
 				DE8FFCAF2378476000096E73 /* ContactBridge.hpp */,
+				DE78BACA23F267A1004F5A8B /* ContactChannelStrategy.cpp */,
+				DE78BAC923F267A1004F5A8B /* ContactChannelStrategy.hpp */,
 				DE8FFCB32378476000096E73 /* ContactDataListener.cpp */,
 				DE8FFCB72378476000096E73 /* ContactDataListener.hpp */,
 				DE8FFCB12378476000096E73 /* ContactDebug.cpp */,
@@ -807,6 +822,7 @@
 				DE8FFCC02378476000096E73 /* ContactMessage.hpp in Headers */,
 				DE2757F22333486B001B635B /* Platform.hpp in Headers */,
 				DE2757E22333486B001B635B /* MessageChannelStrategy.hpp in Headers */,
+				DE78BACB23F267A2004F5A8B /* ContactChannelStrategy.hpp in Headers */,
 				DE60EC12237F7F07001E4493 /* ContactBridge.proxy.h in Headers */,
 				DE2757F82333486B001B635B /* ThreadPool.hpp in Headers */,
 				DE2757EC2333486B001B635B /* ErrCode.hpp in Headers */,
@@ -840,6 +856,7 @@
 				DE60EC1C237F7F07001E4493 /* ContactDebug.proxy.h in Headers */,
 				DE2757F62333486B001B635B /* PlatformIos.hpp in Headers */,
 				DE60EC1F237F7F07001E4493 /* CrossPLUtils.h in Headers */,
+				DE78BAD223F26C54004F5A8B /* ContactChannelStrategy.proxy.h in Headers */,
 				DE2758032333486B001B635B /* Log.hpp in Headers */,
 				DE2757FE2333486B001B635B /* ghc-filesystem.hpp in Headers */,
 				DE2757ED2333486B001B635B /* PlatformAndroid.hpp in Headers */,
@@ -1080,6 +1097,7 @@
 				DEEFCF20233B68CC008E240B /* IdentifyCode.swift in Sources */,
 				DE2758142333486B001B635B /* FriendManager.cpp in Sources */,
 				DE2758212333486C001B635B /* DidChnClient.cpp in Sources */,
+				DE78BACE23F2692D004F5A8B /* ContactChannelStrategy.swift in Sources */,
 				DE27580E2333486B001B635B /* DidChnDataListener.cpp in Sources */,
 				DE60EC21237F7F07001E4493 /* CrossPLFactory.ContactSDK.mm in Sources */,
 				DE8A33FB23713AF6008F5FA5 /* ChannelImplCarrierDataTrans.cpp in Sources */,
@@ -1099,6 +1117,7 @@
 				DE8FFCBC2378476000096E73 /* ContactListener.cpp in Sources */,
 				DE762D2523557B7200211E69 /* KeypairWrapper.cpp in Sources */,
 				DE2757DD2333486B001B635B /* HttpClient.cpp in Sources */,
+				DE78BAD123F26C54004F5A8B /* ContactChannelStrategy.proxy.mm in Sources */,
 				DE3C53BA233AFCB50053196E /* EventArgs.swift in Sources */,
 				DE2758172333486C001B635B /* Config.cpp in Sources */,
 				DE3C53B02339C5900053196E /* Log.swift in Sources */,
@@ -1120,6 +1139,7 @@
 				DE2757EF2333486B001B635B /* PlatformIos.cpp in Sources */,
 				DE27581A2333486C001B635B /* UserManager.cpp in Sources */,
 				DE8FFCC72378476000096E73 /* ContactBridge.cpp in Sources */,
+				DE78BACC23F267A2004F5A8B /* ContactChannelStrategy.cpp in Sources */,
 				DE60EC1E237F7F07001E4493 /* CrossPLUtils.mm in Sources */,
 				DE27581D2333486C001B635B /* SecurityManager.cpp in Sources */,
 				DE3C53B6233A0FBD0053196E /* AcquireArgs.swift in Sources */,

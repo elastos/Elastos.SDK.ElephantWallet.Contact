@@ -1,6 +1,8 @@
 #ifndef _CROSSPL_PROXY_ContactDataListener_HPP_
 #define _CROSSPL_PROXY_ContactDataListener_HPP_
 
+#ifdef ENABLE_NATIVE_FUNCTION
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -10,6 +12,8 @@ extern "C" {
 #ifdef __cplusplus
 } // extern "C"
 #endif
+
+#endif // ENABLE_NATIVE_FUNCTION
 
 #ifdef ENABLE_PLATFORM_FUNCTION
 

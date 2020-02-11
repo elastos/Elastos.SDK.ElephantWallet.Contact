@@ -276,7 +276,7 @@ class ContactBridge extends CrossBase {
     public native int setWalletAddress(String name, String value);
 
     @CrossInterface
-    private native int appendChannelStrategy(int channelId, CrossBase listener);
+    private native int appendChannelStrategy(int channelId, CrossBase channelStrategy);
 
     @CrossInterface
     private native void setListener(CrossBase listener);

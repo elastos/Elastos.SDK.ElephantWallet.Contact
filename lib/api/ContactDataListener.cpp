@@ -90,8 +90,8 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
             LOCK_PTR(mMutex, mHelperPtr, elastos::ErrCode::PointerReleasedError);
 #ifdef WITH_CROSSPL
             auto readData = mHelperPtr->onReadData(humanCode,
-                                                        static_cast<ChannelType>(channelType),
-                                                        dataId, offset);
+                                                   static_cast<ChannelType>(channelType),
+                                                   dataId, offset);
             if(readData.get() == nullptr) {
                 return elastos::ErrCode::ChannelFailedReadData;
             }

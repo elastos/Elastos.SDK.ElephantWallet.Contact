@@ -2,12 +2,14 @@
 
 #import "CrossPLUtils.h"
 
+#define ENABLE_NATIVE_FUNCTION
 #define ENABLE_PLATFORM_FUNCTION
 #import "CrossBase.proxy.h"
 
 #import "CrossPL/CrossPL-Swift.h"
 #import "CrossPL/CrossPL-Swift.h"
 #import "CrossBase.hpp"
+
 
 
 

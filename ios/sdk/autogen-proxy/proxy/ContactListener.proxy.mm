@@ -2,6 +2,7 @@
 
 #import "CrossPLUtils.h"
 
+#define ENABLE_NATIVE_FUNCTION
 #define ENABLE_PLATFORM_FUNCTION
 #import "ContactListener.proxy.h"
 
@@ -64,6 +65,7 @@ void crosspl_Proxy_ContactListener_onError(int64_t platformHandle, int32_t var0,
 
 
 }
+
 
 
 

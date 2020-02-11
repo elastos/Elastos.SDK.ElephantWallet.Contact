@@ -2,6 +2,7 @@
 
 #import "CrossPLUtils.h"
 
+#define ENABLE_NATIVE_FUNCTION
 #define ENABLE_PLATFORM_FUNCTION
 #import "ContactDataListener.proxy.h"
 
@@ -52,6 +53,7 @@ int crosspl_Proxy_ContactDataListener_onWriteData(int64_t platformHandle, const 
   int ret = ocret;
   return ret;
 }
+
 
 
 

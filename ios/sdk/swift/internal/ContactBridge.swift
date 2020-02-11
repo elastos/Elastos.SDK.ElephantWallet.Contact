@@ -11,29 +11,49 @@ open class ContactBridge: CrossBase {
   }
 
   deinit {
-    if(mListener != nil) {
-      mListener!.unbind()
+    for(_, channel) in mCustomChannelMap {
+      channel.unbind()
     }
+    mCustomChannelMap.removeAll();
+    mListener?.unbind()
+    mDataListener?.unbind()
+  }
+  
+  public func appendChannelStrategy(channelStrategy: Contact.ChannelStrategy) -> Int {
+    let oldChannelStrategy = mCustomChannelMap[channelStrategy.getChannelId()]
+    oldChannelStrategy?.unbind()
+    
+    channelStrategy.bind()
+    let ret = appendChannelStrategy(channelId: channelStrategy.getChannelId(),
+                                    channelStrategy: channelStrategy as CrossBase)
+    if(ret < 0) {
+        channelStrategy.unbind();
+        return ret;
+    }
+
+    mCustomChannelMap[channelStrategy.getChannelId()] = channelStrategy
+    return 0;
+
   }
   
   public func setListener(listener: Contact.Listener?) {
     if(mListener != nil) {
-      mListener!.unbind();
+      mListener!.unbind()
     }
-    mListener = listener;
+    mListener = listener
 
-    mListener!.bind();
-    setListener(listener: mListener);
+    mListener!.bind()
+    setListener(listener: mListener as CrossBase?)
   }
   
   public func setDataListener(listener: Contact.DataListener?) {
     if(mDataListener != nil) {
-      mDataListener!.unbind();
+      mDataListener!.unbind()
     }
-    mDataListener = listener;
+    mDataListener = listener
 
-    mDataListener!.bind();
-    setDataListener(listener: mDataListener);
+    mDataListener!.bind()
+    setDataListener(listener: mDataListener as CrossBase?)
   }
 
   public func setHumanInfo(humanCode: String, item: Contact.HumanInfo.Item, value: String) -> Int {
@@ -231,6 +251,14 @@ open class ContactBridge: CrossBase {
   }
   
   /* @CrossNativeInterface */
+  private func appendChannelStrategy(channelId: Int, channelStrategy: CrossBase?) -> Int {
+    let ret = crosspl_Proxy_ContactBridge_appendChannelStrategy(nativeHandle,
+                                                                Int32(channelId),
+                                                                channelStrategy)
+    return Int(ret)
+  }
+  
+  /* @CrossNativeInterface */
   private func setListener(listener: CrossBase?) {
     crosspl_Proxy_ContactBridge_setListener(nativeHandle, listener)
   }
@@ -303,8 +331,9 @@ open class ContactBridge: CrossBase {
     return Int(ret)
   }
   
-  private var mListener: CrossBase?
-  private var mDataListener: CrossBase?
+  private var mCustomChannelMap = [Int: Contact.ChannelStrategy]()
+  private var mListener: Contact.Listener?
+  private var mDataListener: Contact.DataListener?
 }
 
 }

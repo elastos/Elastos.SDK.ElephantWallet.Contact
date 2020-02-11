@@ -2,12 +2,14 @@
 
 #import "CrossPLUtils.h"
 
+#define ENABLE_NATIVE_FUNCTION
 #define ENABLE_PLATFORM_FUNCTION
 #import "ContactBridge.proxy.h"
 
 #import "CrossPL/CrossPL-Swift.h"
 #import "ContactSDK/ContactSDK-Swift.h"
 #import "ContactBridge.hpp"
+
 
 
 
@@ -103,6 +105,18 @@ int crosspl_Proxy_ContactBridge_setWalletAddress(int64_t nativeHandle, NSString*
 
   auto obj = crosspl::CrossPLUtils::SafeCastCrossObjectToCpp<crosspl::native::ContactBridge>(nativeHandle);
   int ret = obj->setWalletAddress(var0.get(), var1.get());
+
+
+  int ocret = ret;
+  return ocret;
+}
+int crosspl_Proxy_ContactBridge_appendChannelStrategy(int64_t nativeHandle, int ocvar0, NSObject* ocvar1)
+{
+  int var0 = ocvar0;
+  auto var1 = crosspl::CrossPLUtils::SafeCastCrossObjectToNative(ocvar1);
+
+  auto obj = crosspl::CrossPLUtils::SafeCastCrossObjectToCpp<crosspl::native::ContactBridge>(nativeHandle);
+  int ret = obj->appendChannelStrategy(var0, var1);
 
 
   int ocret = ret;

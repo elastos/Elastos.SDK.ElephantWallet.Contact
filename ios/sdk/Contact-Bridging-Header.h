@@ -7,5 +7,6 @@
 //
 
 #ifdef WITH_CROSSPL
+#define ENABLE_NATIVE_FUNCTION
 #import "CrossPLFactory.ContactSDK.h"
 #endif // WITH_CROSSPL

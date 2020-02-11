@@ -234,8 +234,14 @@ class ViewController: UIViewController {
       return "Failed to call Contact.Factory.Create()"
     }
 
-    if mContactListener != nil {
-      mContactListener = nil
+    mCustomChannelStrategy = {
+      class Impl: Contact.ChannelStrategy {
+      }
+      return Impl()
+    }()
+    let cret = mContact!.appendChannelStrategy(channelStrategy: mCustomChannelStrategy!)
+    if cret < 0 {
+      return "Failed to call Contact.appendChannelStrategy() ret=\(ret)"
     }
     
     mContactListener = {
@@ -1075,6 +1081,7 @@ class ViewController: UIViewController {
   private var mCacheDir: URL?
   private var mSavedMnemonic: String?
   private var mContact: Contact?
+  private var mCustomChannelStrategy: Contact.ChannelStrategy?
   private var mContactListener: Contact.Listener?
   private var mContactDataListener: Contact.DataListener?
   

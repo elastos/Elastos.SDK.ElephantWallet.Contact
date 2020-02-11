@@ -1,6 +1,8 @@
 #ifndef _CROSSPL_PROXY_CrossBase_HPP_
 #define _CROSSPL_PROXY_CrossBase_HPP_
 
+#ifdef ENABLE_NATIVE_FUNCTION
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -14,6 +16,8 @@ void crosspl_Proxy_CrossBase_unbindPlatformHandle(int64_t nativeHandle, NSObject
 #ifdef __cplusplus
 } // extern "C"
 #endif
+
+#endif // ENABLE_NATIVE_FUNCTION
 
 #ifdef ENABLE_PLATFORM_FUNCTION
 

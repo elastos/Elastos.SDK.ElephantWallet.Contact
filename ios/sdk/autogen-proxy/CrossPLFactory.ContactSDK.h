@@ -5,6 +5,7 @@
 
 #import "ContactDebug.proxy.h"
 #import "ContactMessage.proxy.h"
+#import "ContactChannelStrategy.proxy.h"
 #import "ContactBridge.proxy.h"
 #import "ContactListener.proxy.h"
 #import "ContactFactory.proxy.h"

@@ -4,6 +4,7 @@
 //
 
 #ifdef WITH_CROSSPL
+#define ENABLE_NATIVE_FUNCTION
 #import "CrossPLFactory.CrossPL.h"
 #endif // WITH_CROSSPL
 

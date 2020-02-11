@@ -4,6 +4,7 @@
 #import "CrossBase.hpp"
 #import "ContactDebug.proxy.h"
 #import "ContactMessage.proxy.h"
+#import "ContactChannelStrategy.proxy.h"
 #import "ContactBridge.proxy.h"
 #import "ContactListener.proxy.h"
 #import "ContactFactory.proxy.h"
@@ -12,6 +13,7 @@
 
 #import "ContactDebug.hpp"
 #import "ContactMessage.hpp"
+#import "ContactChannelStrategy.hpp"
 #import "ContactBridge.hpp"
 #import "ContactListener.hpp"
 #import "ContactFactory.hpp"
@@ -29,6 +31,9 @@ static int64_t createCppObject(const char* swiftClassName)
   }
   if(std::strcmp(swiftClassName, "ContactMessage") == 0) {
     ptr = new crosspl::native::ContactMessage();
+  }
+  if(std::strcmp(swiftClassName, "ContactChannelStrategy") == 0) {
+    ptr = new crosspl::native::ContactChannelStrategy();
   }
   if(std::strcmp(swiftClassName, "ContactBridge") == 0) {
     ptr = new crosspl::native::ContactBridge();
@@ -67,6 +72,10 @@ static int destroyCppObject(const char* swiftClassName, int64_t cppHandle)
   }
   if(std::strcmp(swiftClassName, "ContactMessage") == 0) {
     delete reinterpret_cast<crosspl::native::ContactMessage*>(cppHandle);
+    return 0;
+  }
+  if(std::strcmp(swiftClassName, "ContactChannelStrategy") == 0) {
+    delete reinterpret_cast<crosspl::native::ContactChannelStrategy*>(cppHandle);
     return 0;
   }
   if(std::strcmp(swiftClassName, "ContactBridge") == 0) {

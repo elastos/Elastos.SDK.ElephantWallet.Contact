@@ -12,6 +12,7 @@
 #define _ELASTOS_SDK_JNI_CONTACT_TYPES_HPP_
 
 #include <string>
+#include <experimental-span.hpp>
 #include <Contact.V1.hpp>
 
 #ifdef WITH_CROSSPL
