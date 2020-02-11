@@ -57,10 +57,8 @@ int ChannelImplCarrier::GetCarrierUsrIdByAddress(const std::string& address, std
 /***** class public function implement  ********/
 /***********************************************/
 ChannelImplCarrier::ChannelImplCarrier(uint32_t chType,
-                                       std::shared_ptr<ChannelListener> chListener,
-                                       std::shared_ptr<ChannelDataListener> dataListener,
                                        std::weak_ptr<Config> config)
-    : MessageChannelStrategy(chType, chListener, dataListener)
+    : MessageChannelStrategy(chType)
     , mConfig(config)
     , mCarrier()
     , mTaskThread()
@@ -78,16 +76,19 @@ ChannelImplCarrier::~ChannelImplCarrier()
     close();
 }
 
-int ChannelImplCarrier::preset(const std::string& profile)
+int ChannelImplCarrier::preset(const std::string& profile,
+                               std::shared_ptr<ChannelListener> chListener,
+                               std::shared_ptr<ChannelDataListener> dataListener)
 {
+    int ret = MessageChannelStrategy::preset(profile, chListener, dataListener);
+    CHECK_ERROR(ret)
+
     if(mCarrier != nullptr) {
         return ErrCode::ChannelFailedMultiOpen;
     }
 
-    int ret = initCarrier();
-    if(ret < 0) {
-        return ret;
-    }
+    ret = initCarrier();
+    CHECK_ERROR(ret)
 
     ret = ela_set_self_nospam(mCarrier.get(), 0);
     if(ret != 0) {
@@ -246,7 +247,7 @@ int ChannelImplCarrier::removeFriend(const std::string& friendCode)
 }
 
 int ChannelImplCarrier::sendMessage(const std::string& friendCode,
-                                    std::vector<uint8_t> msgContent,
+                                    const std::vector<uint8_t>& msgContent,
                                     bool ignorePackData)
 {
     if(ignorePackData == true) {

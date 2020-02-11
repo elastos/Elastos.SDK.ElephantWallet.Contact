@@ -22,11 +22,9 @@ namespace elastos {
 /***** class public function implement  ********/
 /***********************************************/
 ChannelImplElaChain::ChannelImplElaChain(uint32_t chType,
-                                         std::shared_ptr<ChannelListener> chListener,
-                                         std::shared_ptr<ChannelDataListener> dataListener,
                                          std::weak_ptr<Config> config,
                                          std::weak_ptr<SecurityManager> sectyMgr)
-    : MessageChannelStrategy(chType, chListener, dataListener)
+    : MessageChannelStrategy(chType)
 {
 }
 
@@ -34,7 +32,9 @@ ChannelImplElaChain::~ChannelImplElaChain()
 {
 }
 
-int ChannelImplElaChain::preset(const std::string& profile)
+int ChannelImplElaChain::preset(const std::string& profile,
+                                std::shared_ptr<ChannelListener> chListener,
+                                std::shared_ptr<ChannelDataListener> dataListener)
 {
     throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
 }
@@ -73,7 +73,7 @@ int ChannelImplElaChain::removeFriend(const std::string& friendAddr)
 }
 
 int ChannelImplElaChain::sendMessage(const std::string& friendCode,
-                                     std::vector<uint8_t> msgContent,
+                                     const std::vector<uint8_t>& msgContent,
                                      bool ignorePackData)
 {
     throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");

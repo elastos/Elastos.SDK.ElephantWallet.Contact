@@ -67,8 +67,7 @@ public interface ContactInterface {
 
     public static class Channel extends ContactChannel {
         public static final Channel Carrier = new Channel(1, "Carrier");
-        public static final Channel ElaChain = new Channel(2, "ElaChain");
-        public static final Channel Email = new Channel(3, "Email");
+        public static final Channel Email = new Channel(2, "Email");
 
         public Channel(String name) {
             super(name);

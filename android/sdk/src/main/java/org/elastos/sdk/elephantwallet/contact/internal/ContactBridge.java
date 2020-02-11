@@ -41,15 +41,21 @@ class ContactBridge extends CrossBase {
         super.finalize();
     }
 
-    public synchronized void appendMessageChannel(Contact.ChannelStrategy channelStrategy) {
+    public synchronized int appendChannelStrategy(Contact.ChannelStrategy channelStrategy) {
         Contact.ChannelStrategy oldChannelStrategy = mCustomChannelMap.get(channelStrategy.getChannelId());
         if(oldChannelStrategy != null) {
             oldChannelStrategy.unbind();
         }
 
-        mCustomChannelMap.put(channelStrategy.getChannelId(), channelStrategy);
         channelStrategy.bind();
-        appendMessageChannel((CrossBase)channelStrategy);
+        int ret = appendChannelStrategy(channelStrategy.getChannelId(), (CrossBase)channelStrategy);
+        if(ret < 0) {
+            channelStrategy.unbind();
+            return ret;
+        }
+
+        mCustomChannelMap.put(channelStrategy.getChannelId(), channelStrategy);
+        return 0;
     }
 
     public synchronized void setListener(Contact.Listener listener) {
@@ -270,7 +276,7 @@ class ContactBridge extends CrossBase {
     public native int setWalletAddress(String name, String value);
 
     @CrossInterface
-    private native void appendMessageChannel(CrossBase listener);
+    private native int appendChannelStrategy(int channelId, CrossBase listener);
 
     @CrossInterface
     private native void setListener(CrossBase listener);

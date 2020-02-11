@@ -162,6 +162,9 @@ public class MainActivity extends Activity {
             case R.id.sync_download:
                 message = testSyncDownload();
                 break;
+            case R.id.send_loop_message:
+                message = testLoopMessage();
+                break;
 
             case R.id.friend_info:
                 message = listFriendInfo();
@@ -256,10 +259,14 @@ public class MainActivity extends Activity {
             return "Failed to call Contact.Factory.Create()";
         }
 
-        mCustomChannel = new Contact.ChannelStrategy("CustomChannel") {
-
+        mCustomChannelStrategy = new Contact.ChannelStrategy("LoopChannelStrategy") {
+            @Override
+            public int onSendMessage(String friendCode, byte[] data) {
+                int ret = receivedMessage(friendCode, data);
+                return ret;
+            }
         };
-        mContact.appendMessageChannel(mCustomChannel);
+        mContact.appendChannelStrategy(mCustomChannelStrategy);
 
         if(mContactListener != null) {
             mContactListener = null;
@@ -293,7 +300,7 @@ public class MainActivity extends Activity {
                 String msg = "onRcvdMsg(): data=" + message.data + "\n";
                 msg += "onRcvdMsg(): type=" + message.type + "\n";
                 msg += "onRcvdMsg(): crypto=" + message.cryptoAlgorithm + "\n";
-                msg += "onRcvdMsg(): nanoTime=" + "[" + nanoTime + message.nanoTime + "]\n";
+                msg += "onRcvdMsg(): nanoTime=" + "[" + nanoTime + "] " + message.nanoTime + "\n";
                 msg += "onRcvdMsg(): replyTo=" + message.replyToNanoTime + "\n";
                 showEvent(msg);
 
@@ -955,6 +962,24 @@ public class MainActivity extends Activity {
         return "Success to syncInfoDownloadToDidChain.";
     }
 
+    private String testLoopMessage() {
+        if(mContact == null) {
+            return ErrorPrefix + "Contact is null.";
+        }
+        Contact.UserInfo info = mContact.getUserInfo();
+        if(info == null) {
+            return ErrorPrefix + "Failed to get user info.";
+        }
+        Contact.Message msgInfo = Contact.MakeTextMessage("test loop message", null);
+
+        int ret = mContact.sendMessage(info.humanCode, mCustomChannelStrategy.getChannel(), msgInfo);
+        if(ret < 0) {
+            return ErrorPrefix + "Failed to call testLoopMessage() ret=" + ret;
+        }
+
+        return "Success to testLoopMessage.";
+    }
+
     private byte[] processAcquire(Contact.Listener.AcquireArgs request) {
         byte[] response = null;
 
@@ -1166,7 +1191,7 @@ public class MainActivity extends Activity {
 
     String mSavedMnemonic;
     Contact mContact;
-    Contact.ChannelStrategy mCustomChannel;
+    Contact.ChannelStrategy mCustomChannelStrategy;
     Contact.Listener mContactListener;
     Contact.DataListener mContactDataListener;
     HashMap<String, Contact.Message.FileData> mContactRecvFileMap = new HashMap<>();

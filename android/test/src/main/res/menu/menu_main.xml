@@ -35,6 +35,8 @@
         android:title="   |- Sync Upload" />
     <item android:id="@+id/sync_download"
         android:title="   `- Sync Download" />
+    <item android:id="@+id/send_loop_message"
+        android:title="   `- Send Loop Message" />
 
     <item android:enabled="false"
         android:title="Friend" />

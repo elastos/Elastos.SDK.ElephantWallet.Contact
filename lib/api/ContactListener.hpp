@@ -163,17 +163,17 @@ public:
     public:
         explicit Helper(std::shared_ptr<std::recursive_mutex> mutex)
                 : mMutex(mutex)
-                , mHelperListener(nullptr) {
+                , mHelperPtr(nullptr) {
         };
         virtual ~Helper() = default;
-        void resetContactListener(T* ptr = nullptr) {
+        void resetHelperPointer(T* ptr = nullptr) {
             std::lock_guard<std::recursive_mutex> lg(*mMutex);
-            mHelperListener = ptr;
+            mHelperPtr = ptr;
         }
 
     protected:
         std::shared_ptr<std::recursive_mutex> mMutex;
-        T* mHelperListener;
+        T* mHelperPtr;
     };
 
     /*** static function and variable ***/

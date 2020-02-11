@@ -27,8 +27,7 @@ public:
     /*** type define ***/
     enum class ChannelType: int {
         Carrier = 1,
-        ElaChain = 2,
-        Email = 3,
+        Email = 2,
     };
 
     enum class MessageType: uint32_t {
@@ -201,6 +200,7 @@ public:
     virtual void setMessageListener(std::shared_ptr<MessageListener> listener);
     virtual void setDataListener(std::shared_ptr<DataListener> listener);
 
+    virtual int appendChannel(int channelId, std::shared_ptr<MessageChannelStrategy> channel);
     virtual int presetChannels(std::weak_ptr<Config> config);
     virtual int openChannels();
     virtual int closeChannels();

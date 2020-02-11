@@ -36,7 +36,7 @@ ContactDataListener::ContactDataListener()
 ContactDataListener::~ContactDataListener()
 {
     auto dataHelper = std::dynamic_pointer_cast<ContactListener::Helper<ContactDataListener>>(mDataListener);
-    dataHelper->resetContactListener();
+    dataHelper->resetHelperPointer();
 }
 
 std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::getDataListener()
@@ -72,8 +72,8 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_RETVAL(ret);
 
-            LOCK_PTR(mMutex, mHelperListener, );
-            mHelperListener->onNotify(humanCode,
+            LOCK_PTR(mMutex, mHelperPtr, );
+            mHelperPtr->onNotify(humanCode,
                                       static_cast<ChannelType>(channelType),
                                       dataId, notify);
         }
@@ -87,9 +87,9 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_ERROR(ret);
 
-            LOCK_PTR(mMutex, mHelperListener, elastos::ErrCode::PointerReleasedError);
+            LOCK_PTR(mMutex, mHelperPtr, elastos::ErrCode::PointerReleasedError);
 #ifdef WITH_CROSSPL
-            auto readData = mHelperListener->onReadData(humanCode,
+            auto readData = mHelperPtr->onReadData(humanCode,
                                                         static_cast<ChannelType>(channelType),
                                                         dataId, offset);
             if(readData.get() == nullptr) {
@@ -100,7 +100,7 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
             data.insert(data.begin(), readData->data(), readData->data() + readData->size());
             ret = data.size();
 #else
-            ret = mHelperListener->onReadData(humanCode,
+            ret = mHelperPtr->onReadData(humanCode,
                                               static_cast<ChannelType>(channelType),
                                               dataId, offset, data);
 #endif // WITH_CROSSPL
@@ -117,14 +117,14 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_ERROR(ret);
 
-            LOCK_PTR(mMutex, mHelperListener, elastos::ErrCode::PointerReleasedError);
+            LOCK_PTR(mMutex, mHelperPtr, elastos::ErrCode::PointerReleasedError);
 #ifdef WITH_CROSSPL
             std::span<uint8_t> writeData(reinterpret_cast<uint8_t*>(const_cast<uint8_t*>(data.data())), data.size());
-            ret = mHelperListener->onWriteData(humanCode,
+            ret = mHelperPtr->onWriteData(humanCode,
                                                static_cast<ChannelType>(channelType),
                                                dataId, offset, &writeData);
 #else
-            ret = mHelperListener->onWriteData(humanCode,
+            ret = mHelperPtr->onWriteData(humanCode,
                                                static_cast<ChannelType>(channelType),
                                                dataId, offset, data);
 #endif // WITH_CROSSPL
@@ -133,7 +133,7 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
     };
 
     auto listener = std::make_shared<DataListener>(mMutex);
-    listener->resetContactListener(this);
+    listener->resetHelperPointer(this);
     return listener;
 }
 

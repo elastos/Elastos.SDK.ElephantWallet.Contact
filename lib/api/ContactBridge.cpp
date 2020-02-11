@@ -12,6 +12,8 @@
 #include "Json.hpp"
 #include <JsonDefine.hpp>
 #include "ContactMessage.hpp"
+#include "ContactChannelStrategy.hpp"
+
 
 namespace crosspl {
 namespace native {
@@ -49,27 +51,30 @@ ContactBridge::~ContactBridge()
     elastos::ErrCode::SetErrorListener(nullptr);
 }
 
-void ContactBridge::appendMessageChannel(ChannelStrategyPtr channel)
+int ContactBridge::appendChannelStrategy(int channelId, ChannelStrategyPtr channelStrategy)
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
 
-//    mListener = listener;
-//#ifdef WITH_CROSSPL
-//    auto listenerPtr = dynamic_cast<ContactListener*>(mListener);
-//#else
-//    auto listenerPtr = mListener;
-//#endif // WITH_CROSSPL
-////    mListener->onCallback(0, nullptr);
-//
-//    auto errorListener = std::bind(&ContactListener::onError, listenerPtr,
-//                                   std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-//    elastos::ErrCode::SetErrorListener(errorListener);
-//
-//    auto sectyListener = listenerPtr->getSecurityListener();
-//    auto msgListener = listenerPtr->getMessageListener();
-//    mContactImpl->setListener(sectyListener, nullptr, nullptr, msgListener);
-//
-//    return;
+#ifdef WITH_CROSSPL
+    auto channelStrategyPtr = dynamic_cast<ContactChannelStrategy*>(channelStrategy);
+#else
+    auto channelStrategyPtr = channelStrategy;
+#endif // WITH_CROSSPL
+
+    auto weakMsgMgr = mContactImpl->getMessageManager();
+    auto msgMgr =  SAFE_GET_PTR(weakMsgMgr);                                                                      \
+
+    int ret = channelStrategyPtr->createChannel(static_cast<uint32_t>(channelId), msgMgr);
+    CHECK_ERROR(ret);
+
+    auto channel = channelStrategyPtr->getChannel();
+
+    ret = msgMgr->appendChannel(channelId, channel);
+    CHECK_ERROR(ret);
+
+    mCustomChannelMap[channelId] = channelStrategy;
+
+    return 0;
 }
 
 void ContactBridge::setListener(ListenerPtr listener)
@@ -388,16 +393,30 @@ int ContactBridge::sendMessage(ConstStringPtr friendCode, ChannelType chType, Me
         return elastos::ErrCode::InvalidArgument;
     }
 
+    auto weakUserMgr = mContactImpl->getUserManager();
+    auto userMgr =  SAFE_GET_PTR(weakUserMgr);
     auto weakFriendMgr = mContactImpl->getFriendManager();
     auto friendMgr =  SAFE_GET_PTR(weakFriendMgr);                                                                      \
     auto weakMsgMgr = mContactImpl->getMessageManager();
     auto msgMgr =  SAFE_GET_PTR(weakMsgMgr);                                                                      \
 
-    std::shared_ptr<elastos::FriendInfo> friendInfo;
-    int ret = friendMgr->tryGetFriendInfo(friendCode, friendInfo);
-    CHECK_ERROR(ret);
+    std::shared_ptr<elastos::HumanInfo> humanInfo;
+    if(std::string("-user-info-") == friendCode
+    || userMgr->contains(friendCode) == true) {
+        std::shared_ptr<elastos::UserInfo> userInfo;
+        int ret = userMgr->getUserInfo(userInfo);
+        CHECK_ERROR(ret);
+        humanInfo = userInfo;
+    } else if (friendMgr->contains(friendCode) == true) {
+        std::shared_ptr<elastos::FriendInfo> friendInfo;
+        int ret = friendMgr->tryGetFriendInfo(friendCode, friendInfo);
+        CHECK_ERROR(ret);
+        humanInfo = friendInfo;
+    } else {
+        return elastos::ErrCode::NotFoundError;
+    }
 
-    ret = msgMgr->sendMessage(friendInfo, static_cast<elastos::MessageManager::ChannelType>(chType), msgInfo->mMessageInfo);
+    int ret = msgMgr->sendMessage(humanInfo, static_cast<elastos::MessageManager::ChannelType>(chType), msgInfo->mMessageInfo);
     CHECK_ERROR(ret);
 
     return ret;

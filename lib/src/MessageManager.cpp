@@ -77,6 +77,13 @@ void MessageManager::setDataListener(std::shared_ptr<DataListener> listener)
     mDataListener->mMessageManager = weak_from_this();
 }
 
+int MessageManager::appendChannel(int channelId, std::shared_ptr<MessageChannelStrategy> channel)
+{
+    mMessageChannelMap[static_cast<ChannelType>(channelId)] = channel;
+
+    return 0;
+}
+
 int MessageManager::presetChannels(std::weak_ptr<Config> config)
 {
     bool hasFailed = false;
@@ -94,7 +101,6 @@ int MessageManager::presetChannels(std::weak_ptr<Config> config)
     // }
 
     mMessageChannelMap[ChannelType::Carrier] = std::make_shared<ChannelImplCarrier>(static_cast<uint32_t>(ChannelType::Carrier),
-                                                                                    mMessageListener, mDataListener,
                                                                                     config);
     // TODO mMessageChannelMap[ChannelType::ElaChain] = std::make_shared<ChannelImplElaChain>(config, mSecurityManager);
 
@@ -110,7 +116,7 @@ int MessageManager::presetChannels(std::weak_ptr<Config> config)
         //     }
         // }
 
-        int ret = channel.second->preset(profile); // TODO add carrier secretkey
+        int ret = channel.second->preset(profile, mMessageListener, mDataListener); // TODO add carrier secretkey
         if(ret < 0) {
             hasFailed = true;
             Log::W(Log::TAG, "Failed to preset channel %d", channel.first);
@@ -536,9 +542,18 @@ int MessageManager::sendMessage(const std::shared_ptr<HumanInfo> humanInfo,
             }
         }
         return ret;
-    } else {
+    } else if(humanChType == ChannelType::Email) {
         throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    } else { // custom defined channel strategy
+        std::string humanCode;
+        int ret = humanInfo->getHumanCode(humanCode);
+        CHECK_ERROR(ret);
+
+        ret = channel->sendMessage(humanCode, data, true);
+        CHECK_ERROR(ret);
     }
+
+    return 0;
 }
 
 int MessageManager::pullData(const std::shared_ptr<HumanInfo> humanInfo,

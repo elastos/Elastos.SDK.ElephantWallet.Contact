@@ -100,7 +100,9 @@ public:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    virtual int preset(const std::string& profile) = 0;
+    virtual int preset(const std::string& profile,
+                       std::shared_ptr<ChannelListener> chListener,
+                       std::shared_ptr<ChannelDataListener> dataListener);
     virtual int open() = 0;
     virtual int close() = 0;
 
@@ -116,7 +118,7 @@ public:
     virtual int removeFriend(const std::string& friendAddr) = 0;
 
     virtual int sendMessage(const std::string& friendCode,
-                            std::vector<uint8_t> msgContent,
+                            const std::vector<uint8_t>& msgContent,
                             bool ignorePackData = false) = 0;
 
 //    virtual int sendFile(const std::string& friendCode,
@@ -132,15 +134,17 @@ public:
         return ErrCode::UnimplementedError;
     }
 
-protected:
+    virtual std::shared_ptr<ChannelListener> getChannelListener();
+    virtual std::shared_ptr<ChannelDataListener> getChannelDataListener();
+    uint32_t getChannelType();
+
+    protected:
     /*** type define ***/
 
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    explicit MessageChannelStrategy(uint32_t chType,
-                                    std::shared_ptr<ChannelListener> chListener,
-                                    std::shared_ptr<ChannelDataListener> dataListener);
+    explicit MessageChannelStrategy(uint32_t chType);
     virtual ~MessageChannelStrategy();
 
     uint32_t mChannelType;

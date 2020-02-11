@@ -26,13 +26,13 @@ public:
 
     /*** class function and variable ***/
     explicit ChannelImplElaChain(uint32_t chType,
-                                 std::shared_ptr<ChannelListener> chListener,
-                                 std::shared_ptr<ChannelDataListener> dataListener,
                                  std::weak_ptr<Config> config,
                                  std::weak_ptr<SecurityManager> sectyMgr);
     virtual ~ChannelImplElaChain();
 
-    virtual int preset(const std::string& profile) override;
+    virtual int preset(const std::string& profile,
+                       std::shared_ptr<ChannelListener> chListener,
+                       std::shared_ptr<ChannelDataListener> dataListener) override;
     virtual int open() override;
     virtual int close() override;
 
@@ -48,7 +48,7 @@ public:
     virtual int removeFriend(const std::string& friendAddr) override;
 
     virtual int sendMessage(const std::string& friendCode,
-                            std::vector<uint8_t> msgContent,
+                            const std::vector<uint8_t>& msgContent,
                             bool ignorePackData = false) override;
 
 private:

@@ -35,12 +35,14 @@ class ContactMessage;
 
 #ifdef WITH_CROSSPL
 #define PERMISSION public
+#define ABSTRACT
 
 using ChannelStrategyPtr = CrossBase*;
 using ListenerPtr = CrossBase*;
 using DataListenerPtr = CrossBase*;
 using MessagePtr = CrossBase*;
 using ConstStringPtr = const char*;
+using ConstBytesPtr = const std::span<uint8_t>*;
 using HumanInfoPtr = std::stringstream*;
 using FriendListPtr = std::stringstream*;
 using OutStringPtr = std::stringstream*;
@@ -54,12 +56,14 @@ inline bool IsEmpty(ConstStringPtr str) {
 
 #else
 #define PERMISSION protected
+#define ABSTRACT =0
 
 using ChannelStrategyPtr = std::shared_ptr<ContactChannelStrategy>;
 using ListenerPtr = std::shared_ptr<ContactListener>;
 using DataListenerPtr = std::shared_ptr<ContactDataListener>;
 using MessagePtr = std::shared_ptr<crosspl::native::ContactMessage>;
 using ConstStringPtr = const std::string&;
+using ConstBytesPtr = const std::vector<uint8_t>&;
 using HumanInfoPtr = std::shared_ptr<elastos::HumanInfo>&;
 using FriendListPtr = std::vector<std::shared_ptr<elastos::FriendInfo>>;
 using OutStringPtr = std::string&;

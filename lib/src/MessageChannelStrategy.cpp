@@ -21,12 +21,10 @@ namespace elastos {
 /***********************************************/
 /***** class public function implement  ********/
 /***********************************************/
-MessageChannelStrategy::MessageChannelStrategy(uint32_t chType,
-                                               std::shared_ptr<ChannelListener> chListener,
-                                               std::shared_ptr<ChannelDataListener> dataListener)
+MessageChannelStrategy::MessageChannelStrategy(uint32_t chType)
     : mChannelType(chType)
-    , mChannelListener(chListener)
-    , mChannelDataListener(dataListener)
+    , mChannelListener()
+    , mChannelDataListener()
 {
 }
 
@@ -34,14 +32,30 @@ MessageChannelStrategy::~MessageChannelStrategy()
 {
 }
 
-//MessageChannelStrategy::FileInfo::FileInfo(const std::string& name,
-//                                           uint64_t size,
-//                                           const std::string& md5)
-//    : mName(name)
-//    , mSize(size)
-//    , mMd5(md5)
-//{
-//}
+int MessageChannelStrategy::preset(const std::string& profile,
+                                   std::shared_ptr<ChannelListener> chListener,
+                                   std::shared_ptr<ChannelDataListener> dataListener)
+{
+    mChannelListener = chListener;
+    mChannelDataListener = dataListener;
+
+    return 0;
+}
+
+std::shared_ptr<MessageChannelStrategy::ChannelListener> MessageChannelStrategy::getChannelListener()
+{
+    return mChannelListener;
+}
+
+std::shared_ptr<MessageChannelStrategy::ChannelDataListener> MessageChannelStrategy::getChannelDataListener()
+{
+    return mChannelDataListener;
+}
+
+uint32_t MessageChannelStrategy::getChannelType()
+{
+    return mChannelType;
+}
 
 /***********************************************/
 /***** class protected function implement  *****/
