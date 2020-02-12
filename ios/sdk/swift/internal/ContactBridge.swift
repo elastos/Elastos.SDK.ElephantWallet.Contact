@@ -244,6 +244,18 @@ open class ContactBridge: CrossBase {
   }
   
   /* @CrossNativeInterface */
+  public func importUserData(fromFile: String) -> Int {
+    let ret = crosspl_Proxy_ContactBridge_importUserData(nativeHandle, fromFile)
+    return Int(ret)
+  }
+  
+  /* @CrossNativeInterface */
+  public func exportUserData(toFile: String) -> Int {
+    let ret = crosspl_Proxy_ContactBridge_exportUserData(nativeHandle, toFile)
+    return Int(ret)
+  }
+  
+  /* @CrossNativeInterface */
   public func setWalletAddress(name: String, value: String) -> Int {
     let ret = crosspl_Proxy_ContactBridge_setWalletAddress(nativeHandle, name, value)
     return Int(ret)

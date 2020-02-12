@@ -73,9 +73,9 @@ public class MainActivity extends Activity {
 //            if (devId.startsWith("7134d")) {
 //                mSavedMnemonic = UploadedMnemonic1;
 //            }
-            if (devId.startsWith("fa65a")) {
-                mSavedMnemonic = UploadedMnemonic1;
-            }
+//            if (devId.startsWith("fa65a")) {
+//                mSavedMnemonic = UploadedMnemonic1;
+//            }
 //            mSavedMnemonic = UploadedMnemonic1;
 
             newAndSaveMnemonic(mSavedMnemonic);
@@ -161,6 +161,12 @@ public class MainActivity extends Activity {
                 break;
             case R.id.sync_download:
                 message = testSyncDownload();
+                break;
+            case R.id.import_userdata:
+                message = testImportUserData();
+                break;
+            case R.id.export_userdata:
+                message = testExportUserData();
                 break;
             case R.id.send_loop_message:
                 message = testLoopMessage();
@@ -962,6 +968,35 @@ public class MainActivity extends Activity {
         return "Success to syncInfoDownloadToDidChain.";
     }
 
+    private String testExportUserData() {
+        if (mContact == null) {
+            testNewContact();
+        }
+
+        String dataToPath = getCacheDir().getAbsolutePath() + "/" + UserDataFilename;
+        int ret = mContact.exportUserData(dataToPath);
+        if(ret < 0) {
+            return ErrorPrefix + "Failed to call exportUserData() ret=" + ret;
+        }
+        return "Success to exportUserData to: " + dataToPath;
+    }
+
+    private String testImportUserData() {
+        if (mContact != null) {
+            return ErrorPrefix + "Contact is not null.";
+        }
+        if (mContact == null) {
+            testNewContact();
+        }
+
+        String dataFromPath = getCacheDir().getAbsolutePath() + "/" + UserDataFilename;
+        int ret = mContact.importUserData(dataFromPath);
+        if(ret < 0) {
+            return ErrorPrefix + "Failed to call importUserData() ret=" + ret;
+        }
+        return "Success to importUserData from: " + dataFromPath;
+    }
+
     private String testLoopMessage() {
         if(mContact == null) {
             return ErrorPrefix + "Contact is null.";
@@ -1207,7 +1242,8 @@ public class MainActivity extends Activity {
 
     private static final String SavedMnemonicKey = "mnemonic";
 
-
     private static final String UploadedMnemonic1 = "grab fiber sail lonely film salmon seven tackle solid news ribbon giggle";
+
+    private static final String UserDataFilename = "info.dat";
 //    private static final String UploadedMnemonic2 = "rare diamond fit plastic friend pull hollow adjust radar fun hedgehog endless";
 }

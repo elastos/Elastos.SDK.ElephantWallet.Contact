@@ -195,6 +195,7 @@ int HumanInfo::addCarrierInfo(const HumanInfo::CarrierInfo& info, const HumanInf
             } else { // update info
                 existsInfo.mUsrAddr = correctedInfo.mUsrAddr;
                 existsInfo.mUsrId = correctedInfo.mUsrId;
+                existsInfo.mUpdateTime = correctedInfo.mUpdateTime;
                 return idx;
             }
         } else if(existsInfo.mDevInfo.mDevId == "Unknown"

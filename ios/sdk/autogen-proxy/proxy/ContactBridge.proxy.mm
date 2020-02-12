@@ -98,6 +98,28 @@ int crosspl_Proxy_ContactBridge_syncInfoUploadToDidChain(int64_t nativeHandle)
   int ocret = ret;
   return ocret;
 }
+int crosspl_Proxy_ContactBridge_importUserData(int64_t nativeHandle, NSString* ocvar0)
+{
+  auto var0 = crosspl::CrossPLUtils::SafeCastString(ocvar0);
+
+  auto obj = crosspl::CrossPLUtils::SafeCastCrossObjectToCpp<crosspl::native::ContactBridge>(nativeHandle);
+  int ret = obj->importUserData(var0.get());
+
+
+  int ocret = ret;
+  return ocret;
+}
+int crosspl_Proxy_ContactBridge_exportUserData(int64_t nativeHandle, NSString* ocvar0)
+{
+  auto var0 = crosspl::CrossPLUtils::SafeCastString(ocvar0);
+
+  auto obj = crosspl::CrossPLUtils::SafeCastCrossObjectToCpp<crosspl::native::ContactBridge>(nativeHandle);
+  int ret = obj->exportUserData(var0.get());
+
+
+  int ocret = ret;
+  return ocret;
+}
 int crosspl_Proxy_ContactBridge_setWalletAddress(int64_t nativeHandle, NSString* ocvar0, NSString* ocvar1)
 {
   auto var0 = crosspl::CrossPLUtils::SafeCastString(ocvar0);

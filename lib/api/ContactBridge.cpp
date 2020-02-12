@@ -511,23 +511,23 @@ int ContactBridge::syncInfoUploadToDidChain()
     return 0;
 }
 
-int ContactBridge::importUserData(ConstStringPtr fromFile)
-{
-//    if(mContactImpl->isStarted() == false) {
-//        return elastos::ErrCode::NotReadyError;
-//    }
-    int ret = mContactImpl->importUserData(fromFile);
-    CHECK_ERROR(ret);
-
-    return 0;
-}
-
 int ContactBridge::exportUserData(ConstStringPtr toFile)
 {
 //    if(mContactImpl->isStarted() == false) {
 //        return elastos::ErrCode::NotReadyError;
 //    }
     int ret = mContactImpl->exportUserData(toFile);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactBridge::importUserData(ConstStringPtr fromFile)
+{
+//    if(mContactImpl->isStarted() == false) {
+//        return elastos::ErrCode::NotReadyError;
+//    }
+    int ret = mContactImpl->importUserData(fromFile);
     CHECK_ERROR(ret);
 
     return 0;

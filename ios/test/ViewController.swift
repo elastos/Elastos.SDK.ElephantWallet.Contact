@@ -168,6 +168,10 @@ class ViewController: UIViewController {
 
   
   private func testNewContact() -> String {
+    if(mContact != nil) {
+      return ViewController.ErrorPrefix + "Contact is created.";
+    }
+    
     Contact.Factory.SetLogLevel(level: 7)
 
     Contact.Factory.SetDeviceId(devId: getDeviceId())
@@ -175,12 +179,12 @@ class ViewController: UIViewController {
     mCacheDir = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first
     let ret = Contact.Factory.SetLocalDataDir(dir: mCacheDir!.path)
     if ret < 0 {
-      return "Failed to call Contact.Factory.SetLocalDataDir() ret=\(ret)"
+      return ViewController.ErrorPrefix + "Failed to call Contact.Factory.SetLocalDataDir() ret=\(ret)"
     }
 
     mContact = Contact.Factory.Create()
     if mContact == nil {
-      return "Failed to call Contact.Factory.Create()"
+      return ViewController.ErrorPrefix + "Failed to call Contact.Factory.Create()"
     }
 
     mCustomChannelStrategy = {
@@ -197,7 +201,7 @@ class ViewController: UIViewController {
     }()
     let cret = mContact!.appendChannelStrategy(channelStrategy: mCustomChannelStrategy!)
     if cret < 0 {
-      return "Failed to call Contact.appendChannelStrategy() ret=\(ret)"
+      return ViewController.ErrorPrefix + "Failed to call Contact.appendChannelStrategy() ret=\(ret)"
     }
     
     mContactListener = {
@@ -587,7 +591,37 @@ class ViewController: UIViewController {
 
     return "Success to syncInfoDownloadFromDidChain ."
   }
+  
+  private func testExportUserData() -> String {
+    if (mContact == nil) {
+        _ = testNewContact()
+    }
 
+    let dataToPath = mCacheDir!.path + "/" + ViewController.UserDataFilename
+    let ret = mContact!.exportUserData(toFile: dataToPath)
+    if(ret < 0) {
+      return ViewController.ErrorPrefix + "Failed to call exportUserData() ret=\(ret)"
+    }
+    return "Success to exportUserData to: " + dataToPath;
+
+  }
+  
+  private func testImportUserData() -> String {
+    if mContact != nil {
+      return ViewController.ErrorPrefix + "Contact is not null."
+    }
+    if (mContact == nil) {
+        _ = testNewContact()
+    }
+
+    let dataFromPath = mCacheDir!.path + "/" + ViewController.UserDataFilename
+    let ret = mContact!.importUserData(fromFile: dataFromPath)
+    if(ret < 0) {
+      return ViewController.ErrorPrefix + "Failed to call importUserData() ret=\(ret)"
+    }
+    return "Success to importUserData from: " + dataFromPath
+  }
+  
   private func testLoopMessage() -> String {
     if mContact == nil {
       return ViewController.ErrorPrefix + "Contact is null."
@@ -1068,6 +1102,7 @@ class ViewController: UIViewController {
   private static let KeypairLanguage = "english"
   private static let KeypairWords = ""
   private static let SavedMnemonicKey = "mnemonic"
+  private static let UserDataFilename = "info.dat"
   private static let ErrorPrefix = "Error: "
   private static let TAG = "ContactTest"
   private static let MENU_WIDTH: CGFloat = 280
@@ -1086,7 +1121,9 @@ class ViewController: UIViewController {
     "   |- Set User Details": showSetUserDetails,
     "   |- Set Wallet Address": showSetWalletAddress,
     "   |- Sync Upload": testSyncUpload,
-    "   `- Sync Download": testSyncDownload,
+    "   |- Sync Download": testSyncDownload,
+    "   |- Export User Data": testExportUserData,
+    "   |- Import User Data": testImportUserData,
     "   `- Send Loop Message": testLoopMessage,
     "Friend": nil,
     "   |- Friend Info": listFriendInfo,

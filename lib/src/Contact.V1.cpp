@@ -181,6 +181,56 @@ int ContactV1::syncInfoUploadToDidChain()
     return 0;
 }
 
+int ContactV1::exportUserData(const std::string& toFile)
+{
+    if(mHasListener == false) {
+        return ErrCode::NoSecurityListener;
+    }
+
+    std::string userDataDir;
+    int ret = getUserDataDir(userDataDir);
+    CHECK_ERROR(ret);
+
+    std::vector<uint8_t> originData;
+    auto userDataFilePath = elastos::filesystem::path(userDataDir) / UserManager::DataFileName;
+    ret = mSecurityManager->loadCryptoFile(userDataFilePath, originData);
+    if(ret == ErrCode::FileNotExistsError) {
+        Log::W(Log::TAG, "Ignore to export user, data is not exists.");
+    } else {
+        CHECK_ERROR(ret)
+    }
+    std::string userData {originData.begin(), originData.end()};
+
+    originData.clear();
+    auto friendDataFilePath = elastos::filesystem::path(userDataDir) / FriendManager::DataFileName;
+    ret = mSecurityManager->loadCryptoFile(friendDataFilePath, originData);
+    if(ret == ErrCode::FileNotExistsError) {
+        Log::W(Log::TAG, "Ignore to export friend, data is not exists.");
+    } else {
+        CHECK_ERROR(ret)
+    }
+    std::string friendData {originData.begin(), originData.end()};
+
+    std::string bundledData;
+    try {
+        Json jsonCache;
+        jsonCache[JsonKey::UserData] = userData;
+        jsonCache[JsonKey::FriendData] = friendData;
+        bundledData = jsonCache.dump();
+    } catch(const std::exception& ex) {
+        Log::E(Log::TAG, "Failed to export local data to: %s.\nex=%s", toFile.c_str(), ex.what());
+        return ErrCode::JsonParseException;
+    }
+
+    originData = std::vector<uint8_t> {bundledData.begin(), bundledData.end()};
+    ret = mSecurityManager->saveCryptoFile(toFile, originData);
+    CHECK_ERROR(ret)
+
+    Log::D(Log::TAG, "Success to export local data to: %s", toFile.c_str());
+    return 0;
+}
+
+
 int ContactV1::importUserData(const std::string& fromFile)
 {
     if(mHasListener == false) {
@@ -211,58 +261,23 @@ int ContactV1::importUserData(const std::string& fromFile)
     ret = getUserDataDir(userDataDir);
     CHECK_ERROR(ret);
 
-    originData = std::vector<uint8_t> {userData.begin(), userData.end()};
     auto userDataFilePath = elastos::filesystem::path(userDataDir) / UserManager::DataFileName;
-    ret = mSecurityManager->saveCryptoFile(userDataFilePath, originData);
-    CHECK_ERROR(ret)
+    elastos::filesystem::remove(userDataFilePath);
+    if(userData.empty() == false) {
+        originData = std::vector<uint8_t>{userData.begin(), userData.end()};
+        ret = mSecurityManager->saveCryptoFile(userDataFilePath, originData);
+        CHECK_ERROR(ret)
+    }
 
-    originData = std::vector<uint8_t> {friendData.begin(), friendData.end()};
     auto friendDataFilePath = elastos::filesystem::path(userDataDir) / FriendManager::DataFileName;
-    ret = mSecurityManager->saveCryptoFile(friendDataFilePath, originData);
-    CHECK_ERROR(ret)
+    elastos::filesystem::remove(friendDataFilePath);
+    if(friendData.empty() == false) {
+        originData = std::vector<uint8_t>{friendData.begin(), friendData.end()};
+        ret = mSecurityManager->saveCryptoFile(friendDataFilePath, originData);
+        CHECK_ERROR(ret)
+    }
 
     Log::D(Log::TAG, "Success to import local data from: %s", fromFile.c_str());
-    return 0;
-}
-
-int ContactV1::exportUserData(const std::string& toFile)
-{
-    if(mHasListener == false) {
-        return ErrCode::NoSecurityListener;
-    }
-
-    std::string userDataDir;
-    int ret = getUserDataDir(userDataDir);
-    CHECK_ERROR(ret);
-
-    std::vector<uint8_t> originData;
-    auto userDataFilePath = elastos::filesystem::path(userDataDir) / UserManager::DataFileName;
-    ret = mSecurityManager->loadCryptoFile(userDataFilePath, originData);
-    CHECK_ERROR(ret)
-    std::string userData {originData.begin(), originData.end()};
-
-    originData.clear();
-    auto friendDataFilePath = elastos::filesystem::path(userDataDir) / FriendManager::DataFileName;
-    ret = mSecurityManager->loadCryptoFile(friendDataFilePath, originData);
-    CHECK_ERROR(ret)
-    std::string friendData {originData.begin(), originData.end()};
-
-    std::string bundledData;
-    try {
-        Json jsonCache;
-        jsonCache[JsonKey::UserData] = userData;
-        jsonCache[JsonKey::FriendData] = friendData;
-        bundledData = jsonCache.dump();
-    } catch(const std::exception& ex) {
-        Log::E(Log::TAG, "Failed to export local data to: %s.\nex=%s", toFile.c_str(), ex.what());
-        return ErrCode::JsonParseException;
-    }
-
-    originData = std::vector<uint8_t> {bundledData.begin(), bundledData.end()};
-    ret = mSecurityManager->saveCryptoFile(toFile, originData);
-    CHECK_ERROR(ret)
-
-    Log::D(Log::TAG, "Success to export local data to: %s", toFile.c_str());
     return 0;
 }
 

@@ -15,6 +15,8 @@ int crosspl_Proxy_ContactBridge_removeFriend(int64_t nativeHandle, NSString* ocv
 int crosspl_Proxy_ContactBridge_acceptFriend(int64_t nativeHandle, NSString* ocvar0);
 int crosspl_Proxy_ContactBridge_syncInfoDownloadFromDidChain(int64_t nativeHandle);
 int crosspl_Proxy_ContactBridge_syncInfoUploadToDidChain(int64_t nativeHandle);
+int crosspl_Proxy_ContactBridge_importUserData(int64_t nativeHandle, NSString* ocvar0);
+int crosspl_Proxy_ContactBridge_exportUserData(int64_t nativeHandle, NSString* ocvar0);
 int crosspl_Proxy_ContactBridge_setWalletAddress(int64_t nativeHandle, NSString* ocvar0, NSString* ocvar1);
 int crosspl_Proxy_ContactBridge_appendChannelStrategy(int64_t nativeHandle, NSObject* ocvar0);
 void crosspl_Proxy_ContactBridge_setListener(int64_t nativeHandle, NSObject* ocvar0);

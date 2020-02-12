@@ -273,6 +273,12 @@ class ContactBridge extends CrossBase {
     public native int syncInfoUploadToDidChain();
 
     @CrossInterface
+    public native int exportUserData(String toFile);
+
+    @CrossInterface
+    public native int importUserData(String fromFile);
+
+    @CrossInterface
     public native int setWalletAddress(String name, String value);
 
     @CrossInterface

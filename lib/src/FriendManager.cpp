@@ -184,7 +184,7 @@ int FriendManager::ensureFriendsCarrierInfo(int64_t currCarrierUpdateTime)
     for(auto& friendInfo: mFriendList) {
         auto status = friendInfo->getHumanStatus();
         if(status == HumanInfo::Status::Invalid
-           || status == HumanInfo::Status::Removed) {
+        || status == HumanInfo::Status::Removed) {
             continue;
         }
 

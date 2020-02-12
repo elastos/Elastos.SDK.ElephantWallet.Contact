@@ -58,8 +58,8 @@ public:
 
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
-    int importUserData(ConstStringPtr fromFile);
     int exportUserData(ConstStringPtr toFile);
+    int importUserData(ConstStringPtr fromFile);
 
     int setWalletAddress(ConstStringPtr name, ConstStringPtr value);
 

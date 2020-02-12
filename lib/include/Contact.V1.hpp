@@ -63,8 +63,8 @@ public:
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
 
-    int importUserData(const std::string& fromFile);
     int exportUserData(const std::string& toFile);
+    int importUserData(const std::string& fromFile);
 
 private:
     /*** type define ***/

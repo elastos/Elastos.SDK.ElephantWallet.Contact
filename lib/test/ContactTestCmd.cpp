@@ -49,14 +49,16 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { ' ', "rc-contact",     ContactTestCmd::RecreateContact,     "\tRecreate Contact" },
     { ' ', "rs-contact",     ContactTestCmd::RestartContact,      "\tRestart Contact" },
 
-    { '-', "",               nullptr,                             "\n User" },
-    { 'g', "get-uinfo",      ContactTestCmd::GetUserInfo,         "\tGet User Info [g]" },
-    { ' ', "set-uid",        ContactTestCmd::Unimplemention,      "\t\tSet User Identifycode" },
-    { 's', "set-udetails",   ContactTestCmd::SetUserDetails,      "\tSet User Details [s [4:Nickname|7:Description|8:Addition] ${text}]" },
-    { ' ', "set-uwaddr",     ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
-    { 'u', "sync-upload",    ContactTestCmd::SyncUpload,          "\tSync Upload" },
-    { ' ', "sync-download",  ContactTestCmd::Unimplemention,      "\tSync Download" },
-    { 'o', "loop-message",   ContactTestCmd::LoopMessage,         "\tTest Loop Message" },
+    { '-', "",                nullptr,                             "\n User" },
+    { 'g', "get-uinfo",       ContactTestCmd::GetUserInfo,         "\tGet User Info [g]" },
+    { ' ', "set-uid",         ContactTestCmd::Unimplemention,      "\t\tSet User Identifycode" },
+    { 's', "set-udetails",    ContactTestCmd::SetUserDetails,      "\tSet User Details [s [4:Nickname|7:Description|8:Addition] ${text}]" },
+    { ' ', "set-uwaddr",      ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
+    { 'u', "sync-upload",     ContactTestCmd::SyncUpload,          "\tSync Upload" },
+    { ' ', "sync-download",   ContactTestCmd::Unimplemention,      "\tSync Download" },
+    { 'w', "export-userdata", ContactTestCmd::ExportUserData,      "\tExport User Data [x ${toFilePath}]" },
+    { 'x', "import-userdata", ContactTestCmd::ImportUserData,      "\tImport User Data [w ${fromFilePath}]" },
+    { 'o', "loop-message",    ContactTestCmd::LoopMessage,         "\tTest Loop Message" },
 
     { '-', "",               nullptr,                             "\n Friend" },
     { 'l', "list-finfo",     ContactTestCmd::ListFriendInfo,      "\tList Friend Info [e]" },
@@ -75,9 +77,6 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { 'm', "new-mnemonic",   ContactTestCmd::NewAndSaveMnemonic,   "\t\tnew mnemonic" },
 
     { '-', "",               nullptr,                              "\n Debug" },
-
-    { 'w', "import-userdata", ContactTestCmd::ImportUserData,      "\t\tImport User Data [w ${fromFilePath}]" },
-    { 'x', "export-userdata", ContactTestCmd::ExportUserData,      "\t\tExport User Data [x ${toFilePath}]" },
     { 'y', "cached-didprop", ContactTestCmd::ShowCachedDidProp,    "\t\tShow Cached DidProp [y]" },
     { 'z', "thread-sendmsg", ContactTestCmd::ThreadSendMessage,    "\t\tLoop Send Message in new thread [z fid]" },
 };
