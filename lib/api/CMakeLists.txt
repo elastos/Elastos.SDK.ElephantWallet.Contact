@@ -35,4 +35,3 @@ install(TARGETS Elastos.SDK.Contact
         LIBRARY DESTINATION lib
         ARCHIVE DESTINATION lib
         PUBLIC_HEADER DESTINATION include/Elastos.SDK.Contact)
-

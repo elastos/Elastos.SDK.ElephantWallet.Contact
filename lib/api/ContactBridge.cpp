@@ -65,7 +65,7 @@ int ContactBridge::appendChannelStrategy(ChannelStrategyPtr channelStrategy)
     auto msgMgr =  SAFE_GET_PTR(weakMsgMgr);                                                                      \
 
     auto channel = channelStrategyPtr->getChannel();
-    auto channelId = channel->getChannelType();
+    auto channelId = channelStrategyPtr->getChannelId();
 
     int ret = msgMgr->appendChannel(channelId, channel);
     CHECK_ERROR(ret);
