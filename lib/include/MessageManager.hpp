@@ -25,10 +25,10 @@ namespace elastos {
 class MessageManager : public std::enable_shared_from_this<MessageManager> {
 public:
     /*** type define ***/
-    enum class ChannelType: int {
+    enum ChannelType {
         Carrier = 1,
         Email = 2,
-        Custom = 3
+        CustomId = 10
     };
 
     enum class MessageType: uint32_t {

@@ -259,7 +259,7 @@ public class MainActivity extends Activity {
             return "Failed to call Contact.Factory.Create()";
         }
 
-        mCustomChannelStrategy = new Contact.ChannelStrategy("LoopChannelStrategy") {
+        mCustomChannelStrategy = new Contact.ChannelStrategy(Contact.Channel.CustomId, "LoopChannelStrategy") {
             @Override
             public int onSendMessage(String friendCode, byte[] data) {
                 int ret = receivedMessage(friendCode, data);

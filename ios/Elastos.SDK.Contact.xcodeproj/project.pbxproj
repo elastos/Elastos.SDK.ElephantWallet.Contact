@@ -139,6 +139,7 @@
 		DE78BACE23F2692D004F5A8B /* ContactChannelStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE78BACD23F2692D004F5A8B /* ContactChannelStrategy.swift */; };
 		DE78BAD123F26C54004F5A8B /* ContactChannelStrategy.proxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = DE78BACF23F26C53004F5A8B /* ContactChannelStrategy.proxy.mm */; };
 		DE78BAD223F26C54004F5A8B /* ContactChannelStrategy.proxy.h in Headers */ = {isa = PBXBuildFile; fileRef = DE78BAD023F26C54004F5A8B /* ContactChannelStrategy.proxy.h */; };
+		DE78BADF23F38E54004F5A8B /* SwiftPopMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE78BADE23F38E54004F5A8B /* SwiftPopMenu.swift */; };
 		DE8A33F223712C77008F5FA5 /* ContactDataListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE8A33F123712C77008F5FA5 /* ContactDataListener.swift */; };
 		DE8A33F823713570008F5FA5 /* EnumMask.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE8A33F723713570008F5FA5 /* EnumMask.hpp */; };
 		DE8A33FB23713AF6008F5FA5 /* ChannelImplCarrierDataTrans.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE8A33F923713AF6008F5FA5 /* ChannelImplCarrierDataTrans.cpp */; };
@@ -347,6 +348,7 @@
 		DE78BACD23F2692D004F5A8B /* ContactChannelStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactChannelStrategy.swift; sourceTree = "<group>"; };
 		DE78BACF23F26C53004F5A8B /* ContactChannelStrategy.proxy.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ContactChannelStrategy.proxy.mm; sourceTree = "<group>"; };
 		DE78BAD023F26C54004F5A8B /* ContactChannelStrategy.proxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContactChannelStrategy.proxy.h; sourceTree = "<group>"; };
+		DE78BADE23F38E54004F5A8B /* SwiftPopMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftPopMenu.swift; sourceTree = "<group>"; };
 		DE8A33F123712C77008F5FA5 /* ContactDataListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDataListener.swift; sourceTree = "<group>"; };
 		DE8A33F723713570008F5FA5 /* EnumMask.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = EnumMask.hpp; path = ../../../../../lib/common/EnumMask.hpp; sourceTree = "<group>"; };
 		DE8A33F923713AF6008F5FA5 /* ChannelImplCarrierDataTrans.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ChannelImplCarrierDataTrans.cpp; path = ../../../../../lib/src/ChannelImplCarrierDataTrans.cpp; sourceTree = "<group>"; };
@@ -615,6 +617,7 @@
 		DE27584C23345AD4001B635B /* test */ = {
 			isa = PBXGroup;
 			children = (
+				DE78BADE23F38E54004F5A8B /* SwiftPopMenu.swift */,
 				DE27584D23345AD4001B635B /* AppDelegate.swift */,
 				DE27585423345AD6001B635B /* Assets.xcassets */,
 				DE978FDA233BB47B00F5B5F9 /* Helper.swift */,
@@ -1154,6 +1157,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DE27585023345AD4001B635B /* ViewController.swift in Sources */,
+				DE78BADF23F38E54004F5A8B /* SwiftPopMenu.swift in Sources */,
 				DE27584E23345AD4001B635B /* AppDelegate.swift in Sources */,
 				DE271CBF23A10C7000F531A3 /* Misc.swift in Sources */,
 				DE598EDA2350106800ECA160 /* ImagePicker.swift in Sources */,
@@ -1275,6 +1279,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.elastos.sdk.elephantwallet.contact.sdk;
 				PRODUCT_NAME = ContactSDK;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "sdk/Contact-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1330,6 +1335,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = org.elastos.sdk.elephantwallet.contact.sdk;
 				PRODUCT_NAME = ContactSDK;
 				SKIP_INSTALL = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "sdk/Contact-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -1475,7 +1481,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OBJC_BRIDGING_HEADER = "sdk/Contact-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				VALID_ARCHS = "arm64 arm64e x86_64";
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1537,7 +1543,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OBJC_BRIDGING_HEADER = "sdk/Contact-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				VALIDATE_PRODUCT = YES;
 				VALID_ARCHS = "arm64 arm64e x86_64";

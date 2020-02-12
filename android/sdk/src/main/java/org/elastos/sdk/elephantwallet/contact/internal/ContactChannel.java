@@ -16,7 +16,7 @@ class ContactChannel {
     }
 
     public static <T extends ContactChannel> T[] values() {
-        ContactChannel[] v = mValueList.toArray(new ContactChannel[0]);
+        ContactChannel[] v = sValueList.toArray(new ContactChannel[0]);
         return (T[]) v;
     }
 
@@ -25,27 +25,17 @@ class ContactChannel {
         return this.name + "(" + this.id + ")";
     }
 
-    public ContactChannel(String name){
-        ContactChannel lastChannel = mValueList.get(mValueList.size() - 1);
-        int id = lastChannel.id + 1;
-        init(id, name);
-    }
-
     int id(){
         return this.id;
     }
 
     protected ContactChannel(int id, String name){
-        init(id, name);
-    }
-
-    private void init(int id, String name){
         this.id = id;
         this.name = name;
-        mValueList.add(this);
+        sValueList.add(this);
     }
 
     private int id;
     private String name;
-    private static ArrayList<ContactChannel> mValueList = new ArrayList<>();
+    private static ArrayList<ContactChannel> sValueList = new ArrayList<>();
 }

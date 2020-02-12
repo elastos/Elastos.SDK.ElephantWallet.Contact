@@ -24,8 +24,7 @@ open class ContactBridge: CrossBase {
     oldChannelStrategy?.unbind()
     
     channelStrategy.bind()
-    let ret = appendChannelStrategy(channelId: channelStrategy.getChannelId(),
-                                    channelStrategy: channelStrategy as CrossBase)
+    let ret = appendChannelStrategy(channelStrategy: channelStrategy as CrossBase)
     if(ret < 0) {
         channelStrategy.unbind();
         return ret;
@@ -251,10 +250,8 @@ open class ContactBridge: CrossBase {
   }
   
   /* @CrossNativeInterface */
-  private func appendChannelStrategy(channelId: Int, channelStrategy: CrossBase?) -> Int {
-    let ret = crosspl_Proxy_ContactBridge_appendChannelStrategy(nativeHandle,
-                                                                Int32(channelId),
-                                                                channelStrategy)
+  private func appendChannelStrategy(channelStrategy: CrossBase?) -> Int {
+    let ret = crosspl_Proxy_ContactBridge_appendChannelStrategy(nativeHandle, channelStrategy)
     return Int(ret)
   }
   

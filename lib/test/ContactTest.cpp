@@ -86,6 +86,13 @@ int ContactTest::testNewContact()
     }
 
     class ChannelStrategy: public elastos::sdk::Contact::ChannelStrategy {
+    public:
+        explicit ChannelStrategy()
+                : elastos::sdk::Contact::ChannelStrategy(elastos::sdk::Contact::Channel::CustomId,
+                                                         "LoopMessage") {
+        }
+        virtual ~ChannelStrategy() = default;
+
         virtual int onSendMessage(const std::string& humanCode,
                                   elastos::sdk::Contact::Channel channelType,
                                   const std::vector<uint8_t>& data) override {
@@ -95,7 +102,7 @@ int ContactTest::testNewContact()
     };
 
     mCustomChannelStrategy = std::make_shared<ChannelStrategy>();
-    mContact->appendChannelStrategy(static_cast<int>(elastos::sdk::Contact::Channel::Custom), mCustomChannelStrategy);
+    mContact->appendChannelStrategy(mCustomChannelStrategy);
 
     class Listener: public elastos::sdk::Contact::Listener {
         virtual std::shared_ptr<std::vector<uint8_t>> onAcquire(const AcquireArgs& request) override {
@@ -287,7 +294,7 @@ int ContactTest::doLoopMessage()
 
     auto msgInfo = elastos::sdk::Contact::MakeTextMessage("test loop message");
     ret = mContact->sendMessage(humanCode,
-                                mCustomChannelStrategy->getChannel()->getChannelType<elastos::sdk::Contact::Channel>(),
+                                mCustomChannelStrategy->getChannelId(),
                                 msgInfo);
     CHECK_ERROR(ret);
 

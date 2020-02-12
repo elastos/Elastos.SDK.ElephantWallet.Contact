@@ -136,10 +136,7 @@ public:
 
     virtual std::shared_ptr<ChannelListener> getChannelListener();
     virtual std::shared_ptr<ChannelDataListener> getChannelDataListener();
-    template<typename T> T getChannelType() {
-        return static_cast<T>(mChannelType);
-    };
-
+    int getChannelType();
 
     protected:
     /*** type define ***/
@@ -147,10 +144,10 @@ public:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    explicit MessageChannelStrategy(uint32_t chType);
+    explicit MessageChannelStrategy(int chType);
     virtual ~MessageChannelStrategy();
 
-    uint32_t mChannelType;
+    int mChannelType;
     std::shared_ptr<ChannelListener> mChannelListener;
     std::shared_ptr<ChannelDataListener> mChannelDataListener;
 

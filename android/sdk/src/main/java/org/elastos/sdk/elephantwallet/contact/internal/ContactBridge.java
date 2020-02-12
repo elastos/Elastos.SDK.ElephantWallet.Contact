@@ -48,7 +48,7 @@ class ContactBridge extends CrossBase {
         }
 
         channelStrategy.bind();
-        int ret = appendChannelStrategy(channelStrategy.getChannelId(), (CrossBase)channelStrategy);
+        int ret = appendChannelStrategy((CrossBase)channelStrategy);
         if(ret < 0) {
             channelStrategy.unbind();
             return ret;
@@ -276,7 +276,7 @@ class ContactBridge extends CrossBase {
     public native int setWalletAddress(String name, String value);
 
     @CrossInterface
-    private native int appendChannelStrategy(int channelId, CrossBase channelStrategy);
+    private native int appendChannelStrategy(CrossBase channelStrategy);
 
     @CrossInterface
     private native void setListener(CrossBase listener);

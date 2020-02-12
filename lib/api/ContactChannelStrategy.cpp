@@ -29,27 +29,42 @@ namespace native {
 /***********************************************/
 /***** class public function implement  ********/
 /***********************************************/
+#ifdef WITH_CROSSPL
 ContactChannelStrategy::ContactChannelStrategy()
         : mMutex(std::make_shared<std::recursive_mutex>())
+        , mChannelStrategy(nullptr)
 {
 }
+#else
+ContactChannelStrategy::ContactChannelStrategy(int channelId, const std::string& name)
+        : mMutex(std::make_shared<std::recursive_mutex>())
+        , mChannelStrategy(nullptr)
+{
+    syncChannelToNative(channelId, name);
+}
+#endif // WITH_CROSSPL
+
 ContactChannelStrategy::~ContactChannelStrategy()
 {
     auto dataHelper = std::dynamic_pointer_cast<ContactListener::Helper<ContactChannelStrategy>>(mChannelStrategy);
     dataHelper->resetHelperPointer();
 }
 
-int ContactChannelStrategy::createChannel(uint32_t channelId, std::shared_ptr<elastos::MessageManager> msgMgr)
-{
-    std::lock_guard<std::recursive_mutex> lock(*mMutex);
-    mChannelStrategy = makeChannelStrategy(channelId, msgMgr);
-
-    return 0;
-}
-
 std::shared_ptr<elastos::MessageChannelStrategy> ContactChannelStrategy::getChannel()
 {
     return mChannelStrategy;
+}
+
+ChannelType ContactChannelStrategy::getChannelId()
+{
+    return static_cast<ChannelType>(mChannelStrategy->getChannelType());
+}
+
+int ContactChannelStrategy::syncChannelToNative(int channelId, ConstStringPtr name)
+{
+    std::lock_guard<std::recursive_mutex> lock(*mMutex);
+    mChannelStrategy = makeChannelStrategy(channelId);
+    return 0;
 }
 
 int ContactChannelStrategy::receivedMessage(const std::string& humanCode,
@@ -79,8 +94,7 @@ int ContactChannelStrategy::receivedMessage(const std::string& humanCode,
 /***********************************************/
 /***** class private function implement  *******/
 /***********************************************/
-std::shared_ptr<elastos::MessageChannelStrategy> ContactChannelStrategy::makeChannelStrategy(uint32_t chType,
-                                                                                             std::shared_ptr<elastos::MessageManager> msgMgr)
+std::shared_ptr<elastos::MessageChannelStrategy> ContactChannelStrategy::makeChannelStrategy(uint32_t chType)
 {
     class ChannelStrategy final : public elastos::MessageChannelStrategy
                                 , public ContactListener::Helper<ContactChannelStrategy> {
@@ -140,7 +154,9 @@ std::shared_ptr<elastos::MessageChannelStrategy> ContactChannelStrategy::makeCha
 #else
             const auto& msgData = msgContent;
 #endif // WITH_CROSSPL
-            int ret = mHelperPtr->onSendMessage(friendCode, this->getChannelType<ChannelType>(), msgData);
+            int ret = mHelperPtr->onSendMessage(friendCode,
+                                                static_cast<ChannelType>(this->getChannelType()),
+                                                msgData);
             return ret;
         };
     };

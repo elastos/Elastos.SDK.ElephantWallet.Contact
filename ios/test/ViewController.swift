@@ -28,124 +28,43 @@ class ViewController: UIViewController {
         showMessage(ViewController.ErrorPrefix + "Failed to call Contact.Debug.Keypair.GenerateMnemonic()")
         return
       }
-      _ = newAndSaveMnemonic(mnem)
+      _ = newOrLoadMnemonic(mnem)
     }
 
     showMessage("Mnemonic:\(mSavedMnemonic ?? "nil")\n")
   }
 
-  @IBAction func onOptionsMenuTapped(_ sender: Any) {
-    optionsMenu.isHidden = !optionsMenu.isHidden
+  @IBAction func onOptionsMenuTapped(_ sender: UIView) {
+//    optionsMenu.isHidden = !optionsMenu.isHidden
+    if(mPopMenu == nil) {
+      let screenSize = UIScreen.main.bounds.size
+      let menuRect = CGRect(x:screenSize.width - 10 - ViewController.MENU_WIDTH, y:100,
+                            width:ViewController.MENU_WIDTH, height:screenSize.height - 100)
+      mPopMenu = SwiftPopMenu(frame: menuRect)
+      var popData = [(icon:String,title:String)]()
+      for (key,_) in ViewController.MENU_ITEM {
+        popData.append((icon: "", title: key))
+      }
+      mPopMenu!.popData = popData
+      mPopMenu!.didSelectMenuBlock = self.onOptionsItemSelected
+    }
+    mPopMenu!.show()
   }
   
-  @IBAction func onOptionsItemSelected(_ sender: UIButton) {
-    optionsMenu.isHidden = true
-
-    enum ButtonTag: Int {
-      case get_started = 100
-      case clear_event = 101
-      case new_mnemonic = 102
-      case import_mnemonic = 103
-      case new_and_start_contact = 104
-      case stop_and_del_contact = 105
-      case recreate_contact = 106
-      case restart_contact = 107
-      case get_user_info = 108
-      case set_user_identifycode = 109
-      case set_user_details = 110
-      case set_wallet_address = 111
-      case sync_upload = 112
-      case sync_download = 113
-      case friend_info = 114
-      case add_friend = 115
-      case del_friend = 116
-      case send_text_message = 117
-      case send_file_message = 118
-      case pull_file = 119
-      case cancel_pull_file = 120
-      case show_cached_didprop = 121
+  private func onOptionsItemSelected(_ index: Int) {
+    mPopMenu!.dismiss()
+    let (_,value) = Array(ViewController.MENU_ITEM)[index]
+    guard value != nil else {
+      self.showToast("Unimplement!")
+      return
+    }
+    let callback = value!(self)
+    let message = callback()
+    guard ((message as? String) != nil) else {
+      return
     }
     
-    var message = ""
-    switch sender.tag {
-    case ButtonTag.get_started.rawValue:
-      getStarted()
-      break
-    case ButtonTag.clear_event.rawValue:
-      clearEvent()
-      break
-    case ButtonTag.new_mnemonic.rawValue:
-      message = newAndSaveMnemonic(nil) ?? ""
-      break
-    case ButtonTag.import_mnemonic.rawValue:
-      message = importMnemonic()
-      break
-    case ButtonTag.new_and_start_contact.rawValue:
-      message = testNewContact()
-      message += testStartContact()
-      break
-    case ButtonTag.stop_and_del_contact.rawValue:
-      message = testStopContact()
-      message += testDelContact()
-      break
-    case ButtonTag.recreate_contact.rawValue:
-      message = testStopContact()
-      message += testDelContact()
-      message += testNewContact()
-      message += testStartContact()
-      break
-    case ButtonTag.restart_contact.rawValue:
-      message = testStopContact()
-      message += testStartContact()
-      break
-    case ButtonTag.get_user_info.rawValue:
-      message = showGetUserInfo()
-      break
-    case ButtonTag.set_user_identifycode.rawValue:
-      message = showSetUserIdentifyCode()
-      break
-    case ButtonTag.set_user_details.rawValue:
-      message = showSetUserDetails()
-      break
-    case ButtonTag.set_wallet_address.rawValue:
-      message = showSetWalletAddress()
-      break
-    case ButtonTag.sync_upload.rawValue:
-      message = testSyncUpload()
-      break
-    case ButtonTag.sync_download.rawValue:
-      message = testSyncDownload()
-      break
-    case ButtonTag.friend_info.rawValue:
-      message = listFriendInfo()
-      break
-    case ButtonTag.add_friend.rawValue:
-      message = scanUserInfo()
-      break
-    case ButtonTag.del_friend.rawValue:
-      message = removeFriend()
-      break
-    case ButtonTag.send_text_message.rawValue:
-      message = sendTextMessage()
-      break
-    case ButtonTag.send_file_message.rawValue:
-      message = sendFileMessage()
-      break
-    case ButtonTag.pull_file.rawValue:
-      message = pullFile()
-      break
-    case ButtonTag.cancel_pull_file.rawValue:
-      message = cancelPullFile()
-      break
-    case ButtonTag.show_cached_didprop.rawValue:
-      message = getCachedDidProp()
-      break
-
-    default:
-      fatalError("Button [\(sender.currentTitle!)(\(sender.tag))] not decleared.")
-    }
-    
-    showMessage(message)
+    showMessage(message as! String)
   }
 
   private func getStarted() {
@@ -162,11 +81,41 @@ class ViewController: UIViewController {
   
   private func clearEvent() {
     DispatchQueue.main.async { [weak self] in
-      self?.eventLog.text = ""
+      self?.mEventLog.text = ""
     }
   }
+
+  private func newAndSaveMnemonic() -> String {
+    return newOrLoadMnemonic(nil) ?? ""
+  }
   
-  private func newAndSaveMnemonic(_ newMnemonic: String?) -> String? {
+  private func newAndStartContact() -> String {
+    var message = testNewContact()
+    message += testStartContact()
+    return message
+  }
+  
+  private func stopAndDelContact() -> String {
+    var message = testStopContact()
+    message += testDelContact()
+    return message
+  }
+  
+  private func recreateContact() -> String {
+    var message = testStopContact()
+    message += testDelContact()
+    message += testNewContact()
+    message += testStartContact()
+    return message
+  }
+  
+  private func restartContact() -> String {
+    var message = testStopContact()
+    message += testStartContact()
+    return message
+  }
+  
+  private func newOrLoadMnemonic(_ newMnemonic: String?) -> String? {
     mSavedMnemonic = newMnemonic
     if mSavedMnemonic == nil {
       var mnem = String()
@@ -197,7 +146,7 @@ class ViewController: UIViewController {
 
     return ("Cancel to save mnemonic: \(newMnemonic ?? "nil")\n")
   }
-
+  
   private func importMnemonic() -> String {
     Helper.showImportMnemonic(view: self, listener: { result in
         if self.isEnglishWords(result) == false {
@@ -210,7 +159,7 @@ class ViewController: UIViewController {
           return
         }
 
-        let message = self.newAndSaveMnemonic(result)
+        let message = self.newOrLoadMnemonic(result)
         self.showMessage(message!)
     })
 
@@ -236,6 +185,13 @@ class ViewController: UIViewController {
 
     mCustomChannelStrategy = {
       class Impl: Contact.ChannelStrategy {
+        init() {
+          super.init(channelId: Contact.Channel.CustomId.rawValue, name: "LoopMessage")
+        }
+        
+        override func onSendMessage(humanCode: String, data: Data?) -> Int {
+          self.receivedMessage(humanCode: humanCode, data: data)
+        }
       }
       return Impl()
     }()
@@ -443,7 +399,7 @@ class ViewController: UIViewController {
     
     return "Success to start contact instance."
   }
-
+  
   private func testStopContact() -> String {
     if mContact == nil {
       return ViewController.ErrorPrefix + "Contact is null."
@@ -632,6 +588,26 @@ class ViewController: UIViewController {
     return "Success to syncInfoDownloadFromDidChain ."
   }
 
+  private func testLoopMessage() -> String {
+    if mContact == nil {
+      return ViewController.ErrorPrefix + "Contact is null."
+    }
+    let info = mContact!.getUserInfo()
+    if info == nil {
+      return ViewController.ErrorPrefix + "Failed to get user info."
+    }
+    
+    let msgInfo = Contact.MakeTextMessage(text: "test loop message", cryptoAlgorithm: nil)
+    let ret = mContact!.sendMessage(friendCode: info!.humanCode!,
+                                    channelType: mCustomChannelStrategy!.getChannel(),
+                                    message: msgInfo)
+    if(ret < 0) {
+      return ViewController.ErrorPrefix + "Failed to call testLoopMessage() ret=\(ret)"
+    }
+
+    return "Success to testLoopMessage."
+  }
+  
   private func listFriendInfo() -> String {
     if mContact == nil {
       return ViewController.ErrorPrefix + "Contact is null."
@@ -1025,7 +1001,7 @@ class ViewController: UIViewController {
     Log.i(tag: ViewController.TAG, msg: "\(msg)")
     
     DispatchQueue.main.async { [weak self] in
-      self?.msgLog.text = msg
+      self?.mMsgLog.text = msg
     }
     
     if msg.hasPrefix(ViewController.ErrorPrefix) {
@@ -1036,8 +1012,8 @@ class ViewController: UIViewController {
   private func showEvent(_ newMsg: String) {
     print("\(newMsg)")
     DispatchQueue.main.async { [weak self] in
-      self?.eventLog.text += "\n"
-      self?.eventLog.text += newMsg
+      self?.mEventLog.text += "\n"
+      self?.mEventLog.text += newMsg
     }
   }
   
@@ -1045,7 +1021,7 @@ class ViewController: UIViewController {
     Log.e(tag: ViewController.TAG, msg: newErr)
 
     DispatchQueue.main.async { [weak self] in
-      self?.errLog.text = newErr
+      self?.mErrLog.text = newErr
     }
   }
 
@@ -1073,10 +1049,11 @@ class ViewController: UIViewController {
     return isEnglish
   }
   
-  @IBOutlet weak var optionsMenu: UIScrollView!
-  @IBOutlet weak var errLog: UITextView!
-  @IBOutlet weak var msgLog: UITextView!
-  @IBOutlet weak var eventLog: UITextView!
+  private var mPopMenu: SwiftPopMenu?
+  
+  @IBOutlet weak var mErrLog: UITextView!
+  @IBOutlet weak var mMsgLog: UITextView!
+  @IBOutlet weak var mEventLog: UITextView!
   
   private var mCacheDir: URL?
   private var mSavedMnemonic: String?
@@ -1093,6 +1070,39 @@ class ViewController: UIViewController {
   private static let SavedMnemonicKey = "mnemonic"
   private static let ErrorPrefix = "Error: "
   private static let TAG = "ContactTest"
-
+  private static let MENU_WIDTH: CGFloat = 280
+  private static let MENU_ITEM: KeyValuePairs = [
+    "Get Started": getStarted,
+    "Log": nil,
+    "   `- Clear Event": clearEvent,
+    "Contact": nil,
+    "   |- New and Start Contact": newAndStartContact,
+    "   |- Stop and Del Contact": stopAndDelContact,
+    "   |- Recreate Contact": recreateContact,
+    "   `- Restart Contact": restartContact,
+    "User": nil,
+    "   |- Get User Info": showGetUserInfo,
+    "   |- Set User IdentifyCode": showSetUserIdentifyCode,
+    "   |- Set User Details": showSetUserDetails,
+    "   |- Set Wallet Address": showSetWalletAddress,
+    "   |- Sync Upload": testSyncUpload,
+    "   `- Sync Download": testSyncDownload,
+    "   `- Send Loop Message": testLoopMessage,
+    "Friend": nil,
+    "   |- Friend Info": listFriendInfo,
+    "   |- Add Friend": scanUserInfo,
+    "   |- Del Friend": removeFriend,
+    "   |- Set Friend Details": nil,
+    "   |- Send Text Message": sendTextMessage,
+    "   |- Send Binary Message": nil,
+    "   |- Send File Message": sendFileMessage,
+    "   |- Pull File": pullFile,
+    "   `- Cancel Pull File": cancelPullFile,
+    "Debug": nil,
+    "   `- Show Cached DidProp": getCachedDidProp,
+    "Mnemonic": nil,
+    "   |- New And Save Mnemonic": newAndSaveMnemonic,
+    "   `- Import Mnemonic": importMnemonic,
+  ]
 }
 

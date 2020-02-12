@@ -60,4 +60,16 @@ int crosspl_Proxy_ContactChannelStrategy_receivedMessage(int64_t nativeHandle, N
   int ocret = ret;
   return ocret;
 }
+int crosspl_Proxy_ContactChannelStrategy_syncChannelToNative(int64_t nativeHandle, int ocvar0, NSString* ocvar1)
+{
+  int var0 = ocvar0;
+  auto var1 = crosspl::CrossPLUtils::SafeCastString(ocvar1);
+
+  auto obj = crosspl::CrossPLUtils::SafeCastCrossObjectToCpp<crosspl::native::ContactChannelStrategy>(nativeHandle);
+  int ret = obj->syncChannelToNative(var0, var1.get());
+
+
+  int ocret = ret;
+  return ocret;
+}
 

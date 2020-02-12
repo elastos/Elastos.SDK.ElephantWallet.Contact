@@ -7,9 +7,13 @@ import org.elastos.tools.crosspl.annotation.CrossInterface;
 
 @CrossClass
 abstract class ContactChannelStrategy extends CrossBase {
-    protected ContactChannelStrategy(String name) {
+    protected ContactChannelStrategy(int channelId, String name) {
         super(ContactChannelStrategy.class.getName(), 0);
-        mChannel = new Contact.Channel(name);
+        mChannel = new Contact.Channel(channelId, name);
+        int ret = syncChannelToNative(channelId, name);
+        if(ret < 0) {
+            throw new RuntimeException("Failed to sync channel to native.");
+        }
     }
 
     public Contact.Channel getChannel() {
@@ -47,6 +51,9 @@ abstract class ContactChannelStrategy extends CrossBase {
 
     @CrossInterface
     public native int receivedMessage(String humanCode, int channelId, byte[] data);
+
+    @CrossInterface
+    public native int syncChannelToNative(int channelId, String name);
 
     Contact.Channel mChannel;
 }

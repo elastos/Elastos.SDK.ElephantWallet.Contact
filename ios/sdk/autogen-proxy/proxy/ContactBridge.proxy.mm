@@ -110,13 +110,12 @@ int crosspl_Proxy_ContactBridge_setWalletAddress(int64_t nativeHandle, NSString*
   int ocret = ret;
   return ocret;
 }
-int crosspl_Proxy_ContactBridge_appendChannelStrategy(int64_t nativeHandle, int ocvar0, NSObject* ocvar1)
+int crosspl_Proxy_ContactBridge_appendChannelStrategy(int64_t nativeHandle, NSObject* ocvar0)
 {
-  int var0 = ocvar0;
-  auto var1 = crosspl::CrossPLUtils::SafeCastCrossObjectToNative(ocvar1);
+  auto var0 = crosspl::CrossPLUtils::SafeCastCrossObjectToNative(ocvar0);
 
   auto obj = crosspl::CrossPLUtils::SafeCastCrossObjectToCpp<crosspl::native::ContactBridge>(nativeHandle);
-  int ret = obj->appendChannelStrategy(var0, var1);
+  int ret = obj->appendChannelStrategy(var0);
 
 
   int ocret = ret;

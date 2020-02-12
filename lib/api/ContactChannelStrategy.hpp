@@ -25,9 +25,10 @@ public:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    int createChannel(uint32_t channelId, std::shared_ptr<elastos::MessageManager> msgMgr);
     std::shared_ptr<elastos::MessageChannelStrategy> getChannel();
+    ChannelType getChannelId();
 
+    virtual int syncChannelToNative(int channelId, ConstStringPtr name);
     virtual int receivedMessage(const std::string& humanCode, ChannelType chType, ConstBytesPtr data);
 
     virtual int onOpen();
@@ -35,7 +36,12 @@ public:
     virtual int onSendMessage(const std::string& humanCode, ChannelType chType, ConstBytesPtr data) ABSTRACT;
 
 PERMISSION:
+#ifdef WITH_CROSSPL
     explicit ContactChannelStrategy();
+#else
+    explicit ContactChannelStrategy(int channelId, const std::string& name);
+#endif // WITH_CROSSPL
+
     virtual ~ContactChannelStrategy();
 
 private:
@@ -44,8 +50,7 @@ private:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    std::shared_ptr<elastos::MessageChannelStrategy> makeChannelStrategy(uint32_t chType,
-                                                                         std::shared_ptr<elastos::MessageManager> msgMgr);
+    std::shared_ptr<elastos::MessageChannelStrategy> makeChannelStrategy(uint32_t chType);
 //
     std::shared_ptr<std::recursive_mutex> mMutex;
     std::shared_ptr<elastos::MessageChannelStrategy> mChannelStrategy;

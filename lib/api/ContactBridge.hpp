@@ -34,7 +34,7 @@ public:
 
     /*** class function and variable ***/
 
-    int appendChannelStrategy(int channelId, ChannelStrategyPtr channelStrategy);
+    int appendChannelStrategy(ChannelStrategyPtr channelStrategy);
     void setListener(ListenerPtr listener);
     void setDataListener(DataListenerPtr listener);
     int start();
@@ -77,7 +77,7 @@ private:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    std::map<int, ChannelStrategyPtr> mCustomChannelMap;
+    std::map<uint32_t, ChannelStrategyPtr> mCustomChannelMap;
     ListenerPtr mListener;
     DataListenerPtr mDataListener;
 

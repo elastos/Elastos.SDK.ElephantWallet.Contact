@@ -58,8 +58,8 @@ public interface ContactInterface {
     } // class FriendInfo
 
     public abstract static class ChannelStrategy extends ContactChannelStrategy {
-        protected ChannelStrategy(String name) {
-            super(name);
+        protected ChannelStrategy(int channelId, String name) {
+            super(channelId, name);
         }
 
         static { Utils.EnsureNativeLibrary(); }
@@ -68,12 +68,9 @@ public interface ContactInterface {
     public static class Channel extends ContactChannel {
         public static final Channel Carrier = new Channel(1, "Carrier");
         public static final Channel Email = new Channel(2, "Email");
+        public static final int CustomId = 10;
 
-        public Channel(String name) {
-            super(name);
-        }
-
-        private Channel(int id, String name) {
+        public Channel(int id, String name) {
             super(id, name);
         }
         static { Utils.EnsureNativeLibrary(); }

@@ -144,6 +144,14 @@ public:
 
 
     class ChannelStrategy: public crosspl::native::ContactChannelStrategy {
+    public:
+#ifdef WITH_CROSSPL
+        explicit ChannelStrategy() = default;
+#else
+        explicit ChannelStrategy(int channelId, const std::string& name)
+            : crosspl::native::ContactChannelStrategy(channelId, name) {
+        };
+#endif // WITH_CROSSPL
     };
 
     class Listener: public crosspl::native::ContactListener {

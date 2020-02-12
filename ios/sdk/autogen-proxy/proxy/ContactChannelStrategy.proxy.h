@@ -8,6 +8,7 @@ extern "C" {
 #endif
 
 int crosspl_Proxy_ContactChannelStrategy_receivedMessage(int64_t nativeHandle, NSString* ocvar0, int ocvar1, NSData* ocvar2);
+int crosspl_Proxy_ContactChannelStrategy_syncChannelToNative(int64_t nativeHandle, int ocvar0, NSString* ocvar1);
 
 
 #ifdef __cplusplus

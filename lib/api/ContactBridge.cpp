@@ -51,7 +51,7 @@ ContactBridge::~ContactBridge()
     elastos::ErrCode::SetErrorListener(nullptr);
 }
 
-int ContactBridge::appendChannelStrategy(int channelId, ChannelStrategyPtr channelStrategy)
+int ContactBridge::appendChannelStrategy(ChannelStrategyPtr channelStrategy)
 {
     Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
 
@@ -64,12 +64,10 @@ int ContactBridge::appendChannelStrategy(int channelId, ChannelStrategyPtr chann
     auto weakMsgMgr = mContactImpl->getMessageManager();
     auto msgMgr =  SAFE_GET_PTR(weakMsgMgr);                                                                      \
 
-    int ret = channelStrategyPtr->createChannel(static_cast<uint32_t>(channelId), msgMgr);
-    CHECK_ERROR(ret);
-
     auto channel = channelStrategyPtr->getChannel();
+    auto channelId = channel->getChannelType();
 
-    ret = msgMgr->appendChannel(channelId, channel);
+    int ret = msgMgr->appendChannel(channelId, channel);
     CHECK_ERROR(ret);
 
     mCustomChannelMap[channelId] = channelStrategy;

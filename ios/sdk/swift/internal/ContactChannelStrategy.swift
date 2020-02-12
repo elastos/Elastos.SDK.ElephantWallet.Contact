@@ -2,8 +2,13 @@ import CrossPL
 
 /* @CrossClass */
 @objc open class ContactChannelStrategy: CrossBase {
-  public init() {
+  public init(channelId: Int, name: String) {
     super.init(className: String(describing: ContactChannelStrategy.self))
+    mChannel = Contact.Channel(rawValue: channelId)
+    let ret = syncChannelToNative(channelId, name)
+    if(ret < 0) {
+      fatalError("Failed to sync channel to native.");
+    }
   }
   
   public func getChannel() -> Contact.Channel {
@@ -43,6 +48,13 @@ import CrossPL
   private func receivedMessage(_ humanCode: String, _ channelType: Int, _ data: Data?) -> Int {
     let ret = crosspl_Proxy_ContactChannelStrategy_receivedMessage(nativeHandle,
                                                                    humanCode, Int32(channelType), data)
+    return Int(ret)
+  }
+  
+  /* @CrossNativeInterface */
+  private func syncChannelToNative(_ channelId: Int, _ name: String) -> Int {
+    let ret = crosspl_Proxy_ContactChannelStrategy_syncChannelToNative(nativeHandle,
+                                                                       Int32(channelId), name)
     return Int(ret)
   }
   

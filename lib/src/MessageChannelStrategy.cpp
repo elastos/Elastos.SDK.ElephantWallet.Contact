@@ -21,7 +21,7 @@ namespace elastos {
 /***********************************************/
 /***** class public function implement  ********/
 /***********************************************/
-MessageChannelStrategy::MessageChannelStrategy(uint32_t chType)
+MessageChannelStrategy::MessageChannelStrategy(int chType)
     : mChannelType(chType)
     , mChannelListener()
     , mChannelDataListener()
@@ -51,6 +51,11 @@ std::shared_ptr<MessageChannelStrategy::ChannelDataListener> MessageChannelStrat
 {
     return mChannelDataListener;
 }
+
+int MessageChannelStrategy::getChannelType() {
+    return mChannelType;
+};
+
 
 /***********************************************/
 /***** class protected function implement  *****/
