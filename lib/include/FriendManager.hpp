@@ -81,6 +81,7 @@ private:
     /*** type define ***/
 
     /*** static function and variable ***/
+    static constexpr int ADDFRIEND_SUMMARY_MAXSIZE = 100;
 
     /*** class function and variable ***/
     virtual int addFriendByDid(const std::string& did, const std::string& summary, bool remoteRequest, bool forceRequest = false);

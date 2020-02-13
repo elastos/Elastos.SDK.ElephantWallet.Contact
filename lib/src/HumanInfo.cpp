@@ -339,6 +339,9 @@ int HumanInfo::setHumanInfo(Item item, const std::string& value)
         CHECK_ERROR(ret)
 
         mWalletAddressMap["ELA"] = expectedElaAddr;
+    } else if(item == Item::Nickname
+    && value.length() > NICKNAME_MAXSIZE) {
+        CHECK_ERROR(ErrCode::SizeOverflowError);
     }
 
     mCommonInfoMap[item] = value;

@@ -43,6 +43,7 @@ struct JsonKey {
 
     // MessageInfo
     static constexpr const char* Did         = "Did";
+    static constexpr const char* Nickname    = "Nickname";
     static constexpr const char* Summary     = "Summary";
     static constexpr const char* MessageData = "MessageData";
 

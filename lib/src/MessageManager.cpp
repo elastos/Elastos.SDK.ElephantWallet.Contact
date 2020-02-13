@@ -208,6 +208,10 @@ int MessageManager::requestFriend(const std::string& friendAddr,
     int ret = userInfo->getHumanInfo(HumanInfo::Item::Did, userDid);
     CHECK_ERROR(ret)
 
+    std::string userNickname;
+    ret = userInfo->getHumanInfo(HumanInfo::Item::Nickname, userNickname);
+    CHECK_ERROR(ret)
+
     std::string currDevId;
     ret = Platform::GetCurrentDevId(currDevId);
     CHECK_ERROR(ret);
@@ -216,12 +220,13 @@ int MessageManager::requestFriend(const std::string& friendAddr,
     ret = userInfo->getCurrDevCarrierAddr(currDevCarrierAddr);
     CHECK_ERROR(ret);
 
-    std::string humanInfo;
-    ret = userInfo->HumanInfo::serialize(humanInfo, true);
-    CHECK_ERROR(ret)
+//    std::string humanInfo;
+//    ret = userInfo->HumanInfo::serialize(humanInfo, true);
+//    CHECK_ERROR(ret)
 
     Json jsonInfo = Json::object();
     jsonInfo[JsonKey::Did] = userDid;
+    jsonInfo[JsonKey::Nickname] = userNickname;
     jsonInfo[JsonKey::DeviceId] = currDevId;
     jsonInfo[JsonKey::CarrierAddr] = currDevCarrierAddr;
     jsonInfo[JsonKey::Summary] = summary;
@@ -823,6 +828,7 @@ void MessageManager::MessageListener::onFriendRequest(const std::string& friendC
     auto friendMgr = SAFE_GET_PTR_NO_RETVAL(msgMgr->mFriendManager);
 
     std::string friendDid;
+    std::string friendNickname;
     std::string friendDevId;
     std::string friendDevCarrierAddr;
     std::string summary;
@@ -830,12 +836,15 @@ void MessageManager::MessageListener::onFriendRequest(const std::string& friendC
     try {
         Json jsonInfo= Json::parse(details);
         friendDid = jsonInfo[JsonKey::Did];
+        friendNickname = jsonInfo[JsonKey::Nickname];
         friendDevId = jsonInfo[JsonKey::DeviceId];
         friendDevCarrierAddr = jsonInfo[JsonKey::CarrierAddr];
         summary = jsonInfo[JsonKey::Summary];
 
         std::ignore = humanInfo.setHumanInfo(HumanInfo::Item::Did, friendDid);
+        std::ignore = humanInfo.setHumanInfo(HumanInfo::Item::Nickname, friendNickname);
     } catch(const std::exception& ex) {
+        // compatible with original carrier app.
         friendDid = "";
         summary = details;
     }

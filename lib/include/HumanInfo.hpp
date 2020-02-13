@@ -97,6 +97,7 @@ protected:
     /*** type define ***/
 
     /*** static function and variable ***/
+    static constexpr int NICKNAME_MAXSIZE = 100;
 
     /*** class function and variable ***/
     std::vector<CarrierInfo> mBoundCarrierArray;

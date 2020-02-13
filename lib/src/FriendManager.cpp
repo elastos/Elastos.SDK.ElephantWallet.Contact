@@ -271,8 +271,11 @@ int FriendManager::tryGetFriendInfo(const std::string& friendCode, std::shared_p
 int FriendManager::addFriend(FriendInfo::HumanKind friendKind, const std::string& friendCode,
                              const std::string& summary, bool remoteRequest, bool forceRequest)
 {
-    int ret = ErrCode::InvalidArgument;
+    if(summary.length() > ADDFRIEND_SUMMARY_MAXSIZE) {
+        CHECK_ERROR(ErrCode::SizeOverflowError);
+    }
 
+    int ret = ErrCode::InvalidArgument;
     if(friendKind == FriendInfo::HumanKind::Did) {
         ret = addFriendByDid(friendCode, summary, remoteRequest, forceRequest);
     } else if(friendKind == FriendInfo::HumanKind::Ela) {
