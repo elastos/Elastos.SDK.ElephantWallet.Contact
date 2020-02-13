@@ -78,8 +78,9 @@ int Config::loadDefaultValues()
     mDidChainConfig->mUrl = "https://api-wallet-did.elastos.org/api/1";
     //mDidChainConfig->mUrl = "https://api-wallet-did-testnet.elastos.org/api/1";
     mDidChainConfig->mApi = mElaChainConfig->mApi;
-    mDidChainConfig->mAgentApi.mGetDidProps = "/didexplorer/did/"; //{did}
     mDidChainConfig->mAgentApi.mUploadDidProps = "/blockagent/upchain/data";
+    mDidChainConfig->mAgentApi.mGetDidProps = "/didexplorer/did/"; //{did}
+    mDidChainConfig->mAgentApi.mGetCacheDidProps = "/didexplorer/cache/did/"; //{did}
     mDidChainConfig->mAgentApi.mDidPropHistory = "/property_history?key="; //{key}
     mDidChainConfig->mAgentApi.mDidProp = "/property?key="; //{key}
 

@@ -558,18 +558,50 @@ int DidChnClient::downloadDidPropsByAgent(std::shared_ptr<HttpClient>& httpClien
                                           const std::string& did, const std::string& key, bool withHistory,
                                           std::vector<std::string>& values)
 {
+    std::string dataCachePath;
+    int ret = getDidPropPath(did, key, withHistory, dataCachePath, true);
+    CHECK_ERROR(ret)
+    std::string propCacheArrayStr;
+    ret = downloadDidChnData(httpClient, dataCachePath, propCacheArrayStr);
+    if(ret == ErrCode::BlkChnEmptyPropError) {
+        Log::W(Log::TAG, "Get property from DidChain Cache return empty. urlpath=%s", dataCachePath.c_str());
+        ret = 0;
+    }
+    CHECK_ERROR(ret);
 
     std::string dataPath;
-    int ret = getDidPropPath(did, key, withHistory, dataPath);
+    ret = getDidPropPath(did, key, withHistory, dataPath, false);
     CHECK_ERROR(ret)
-
     std::string propArrayStr;
     ret = downloadDidChnData(httpClient, dataPath, propArrayStr);
-    CHECK_ERROR(ret)
+    if(ret == ErrCode::BlkChnEmptyPropError) {
+        Log::W(Log::TAG, "Get property from DidChain return empty. urlpath=%s", dataPath.c_str());
+        ret = 0;
+    }
+    CHECK_ERROR(ret);
 
-    Json jsonPropArray = Json::parse(propArrayStr);
-    for(const auto& it: jsonPropArray) {
-        values.push_back(it["value"]);
+    if(propCacheArrayStr.empty() == true
+    && propArrayStr.empty() == true) {
+        ret = ErrCode::BlkChnEmptyPropError;
+    }
+    CHECK_ERROR(ret);
+
+    try {
+//        if(propCacheArrayStr.empty() == false) {
+//            Json jsonPropArray = Json::parse(propCacheArrayStr);
+//            for (const auto &it: jsonPropArray) {
+//                values.push_back(it["value"]);
+//            }
+//        }
+        if(propArrayStr.empty() == false) {
+            Json jsonPropArray = Json::parse(propArrayStr);
+            for (const auto &it: jsonPropArray) {
+                values.push_back(it["value"]);
+            }
+        }
+    } catch(const std::exception& ex) {
+        Log::E(Log::TAG, "Failed to parse properties from DidChain.\nex=%s", ex.what());
+        return ErrCode::JsonParseException;
     }
 
     return 0;
@@ -613,7 +645,7 @@ int DidChnClient::downloadDidChnData(std::shared_ptr<HttpClient>& httpClient,
 }
 
 int DidChnClient::getDidPropPath(const std::string& did, const std::string& key, bool withHistory,
-                                  std::string& path)
+                                  std::string& path, bool useCache)
 {
     path.clear();
 
@@ -623,7 +655,12 @@ int DidChnClient::getDidPropPath(const std::string& did, const std::string& key,
     int ret = getPropKeyPath(key, keyPath);
     CHECK_ERROR(ret)
 
-    auto agentGetProps = config->mDidChainConfig->mAgentApi.mGetDidProps;
+    std::string agentGetProps;
+    if(useCache == true) {
+        agentGetProps = config->mDidChainConfig->mAgentApi.mGetCacheDidProps;
+    } else {
+        agentGetProps = config->mDidChainConfig->mAgentApi.mGetDidProps;
+    }
     auto agentDidPropApi = (withHistory == true
                             ? config->mDidChainConfig->mAgentApi.mDidPropHistory
                             : config->mDidChainConfig->mAgentApi.mDidProp);

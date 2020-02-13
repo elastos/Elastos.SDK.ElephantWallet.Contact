@@ -48,8 +48,9 @@ public:
 
     struct DidChainConfig : ElaChainConfig {
         struct AgentApi {
-            std::string mGetDidProps;
             std::string mUploadDidProps;
+            std::string mGetDidProps;
+            std::string mGetCacheDidProps;
             std::string mDidPropHistory;
             std::string mDidProp;
         };

@@ -117,7 +117,7 @@ private:
                                 std::vector<std::string>& values);
     int downloadDidChnData(std::shared_ptr<HttpClient>& httpClient, const std::string& path, std::string& result);
 
-    int getDidPropPath(const std::string& did, const std::string& key, bool withHistory, std::string& path);
+    int getDidPropPath(const std::string& did, const std::string& key, bool withHistory, std::string& path, bool useCache);
 
     void refreshUpdateTime(const std::string& did, const std::string& key, int64_t updateTime);
     bool checkUpdateTime(const std::string& did, const std::string& key, int64_t updateTime);
