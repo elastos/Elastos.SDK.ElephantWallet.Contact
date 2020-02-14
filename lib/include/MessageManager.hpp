@@ -239,6 +239,8 @@ private:
 
     /*** static function and variable ***/
     static std::shared_ptr<MessageInfo> MakeMessage(std::shared_ptr<MessageInfo> from, bool ignoreContent = true);
+    static constexpr int32_t MsgSeparatorSize = 4;
+    static constexpr uint8_t MsgSeparator[] = { 0x00, 0x00, 0x00, 0x00 };
 
     /*** class function and variable ***/
     template <class T>
@@ -248,6 +250,12 @@ private:
                            const std::string& friendCode,
                            const std::shared_ptr<MessageInfo> msgInfo);
     int sendDescMessage(const std::vector<std::shared_ptr<HumanInfo>>& humanList, ChannelType chType);
+    int packMessageInfo(const std::string& publicKey,
+                        const std::shared_ptr<MessageInfo> msgInfo,
+                        std::vector<uint8_t>& data);
+    int unpackMessageInfo(const std::vector<uint8_t>& data,
+                          std::shared_ptr<MessageInfo>& msgInfo);
+
 
     std::weak_ptr<SecurityManager> mSecurityManager;
     std::weak_ptr<UserManager> mUserManager;

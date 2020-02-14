@@ -210,6 +210,10 @@ int MessageManager::requestFriend(const std::string& friendAddr,
 
     std::string userNickname;
     ret = userInfo->getHumanInfo(HumanInfo::Item::Nickname, userNickname);
+    if(ret == ErrCode::NotFoundError) {
+        Log::W(Log::TAG, "MessageManager::requestFriend() Failed to get user nickname, ignore it.");
+        ret = 0;
+    }
     CHECK_ERROR(ret)
 
     std::string currDevId;
@@ -457,26 +461,12 @@ int MessageManager::sendMessage(const std::shared_ptr<HumanInfo> humanInfo,
         //return ErrCode::InvalidArgument;
     //}
 
-    auto cryptoMsgInfo = MakeMessage(msgInfo);
-    if(msgInfo->mCryptoAlgorithm.empty() == true
-    || msgInfo->mCryptoAlgorithm == "plain") {
-        cryptoMsgInfo->mPlainContent = msgInfo->mPlainContent;
-    } else {
-        std::string pubKey;
-        int ret = humanInfo->getHumanInfo(HumanInfo::Item::ChainPubKey, pubKey);
-        CHECK_ERROR(ret)
+    std::string pubKey;
+    std::ignore = humanInfo->getHumanInfo(HumanInfo::Item::ChainPubKey, pubKey);
 
-        auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
-        ret = sectyMgr->encryptData(pubKey, msgInfo->mPlainContent, cryptoMsgInfo->mPlainContent);
-        CHECK_ERROR(ret)
-    }
-
-    Json jsonData = Json::object();
-    jsonData[JsonKey::MessageData] = cryptoMsgInfo;
-    //std::vector<uint8_t> data = Json::to_cbor(jsonData);
-    std::string jsonStr = jsonData.dump();
-//    Log::W(Log::TAG, ">>>>>>>>>>>>> %s", jsonStr.c_str());
-    std::vector<uint8_t> data(jsonStr.begin(), jsonStr.end());
+    std::vector<uint8_t> data;
+    int ret = packMessageInfo(pubKey, msgInfo, data);
+    CHECK_ERROR(ret);
 
     if(humanChType == ChannelType::Carrier) {
         std::vector<HumanInfo::CarrierInfo> infoArray;
@@ -766,26 +756,9 @@ void MessageManager::MessageListener::onReceivedMessage(const std::string& frien
     ret = userMgr->getUserInfo(userInfo);
     CHECK_AND_NOTIFY_RETVAL(ret)
 
-    std::string jsonStr(msgContent.begin(), msgContent.end());
-//    Log::W(Log::TAG, "<<<<<<<<<<<<< %s", jsonStr.c_str());
-    std::shared_ptr<MessageInfo> cryptoMsgInfo;
-    if(jsonStr.find(JsonKey::MessageData) != std::string::npos) { // it's contact sdk
-        auto jsonData = Json::parse(jsonStr);
-        //auto jsonData = Json::from_cbor(msgContent);
-        cryptoMsgInfo = jsonData[JsonKey::MessageData];
-    } else { // from other carrier app
-        cryptoMsgInfo = MessageManager::MakeTextMessage(jsonStr);
-    }
-
-    auto msgInfo = MessageManager::MakeMessage(cryptoMsgInfo);
-    if(cryptoMsgInfo->mCryptoAlgorithm.empty() == true
-    || cryptoMsgInfo->mCryptoAlgorithm == "plain") {
-        msgInfo->mPlainContent = cryptoMsgInfo->mPlainContent;
-    } else {
-        auto sectyMgr = SAFE_GET_PTR_NO_RETVAL(msgMgr->mSecurityManager);
-        ret = sectyMgr->decryptData(cryptoMsgInfo->mPlainContent, msgInfo->mPlainContent);
-        CHECK_AND_NOTIFY_RETVAL(ret)
-    }
+    std::shared_ptr<MessageInfo> msgInfo;
+    ret = msgMgr->unpackMessageInfo(msgContent, msgInfo);
+    CHECK_AND_NOTIFY_RETVAL(ret)
 
     std::shared_ptr<HumanInfo> humanInfo;
     if(userMgr->contains(friendCode)) {
@@ -1145,11 +1118,11 @@ int MessageManager::processCtrlMessage(std::shared_ptr<HumanInfo> humanInfo,
         int ret = channel->sendData(friendCode, infoStr);
         std::vector<uint8_t> dataRetBytes({(uint8_t)(ret < 0 ? -1 : 0)});
         auto msgInfo = MakeMessage(MessageType::CtrlPullDataAck, dataRetBytes);
-        Json jsonData = Json::object();
-        jsonData[JsonKey::MessageData] = msgInfo;
-        std::string jsonStr = jsonData.dump();
-        std::vector<uint8_t> data(jsonStr.begin(), jsonStr.end());
-        std::ignore = channel->sendMessage(friendCode, data); // ignore to check ack
+        std::vector<uint8_t> data;
+        ret = packMessageInfo("", msgInfo, data);
+        if(ret >= 0) {
+            std::ignore = channel->sendMessage(friendCode, data); // ignore to check return value
+        }
 
         CHECK_ERROR(ret); // check sendData result
     } else if(msgInfo->mType == MessageType::CtrlPullDataAck) {
@@ -1201,6 +1174,76 @@ int MessageManager::sendDescMessage(const std::vector<std::shared_ptr<HumanInfo>
             Log::I(Log::TAG, "Failed to send sync desc message to %s. ret=%d", humanCode.c_str(), ret);
             continue;
         }
+    }
+
+    return 0;
+}
+
+int MessageManager::packMessageInfo(const std::string& publicKey,
+                                    const std::shared_ptr<MessageInfo> msgInfo,
+                                    std::vector<uint8_t>& data)
+{
+    std::vector<uint8_t> msgCryptoContent;
+    if(msgInfo->mCryptoAlgorithm.empty() == true
+       || msgInfo->mCryptoAlgorithm == "plain") {
+        msgCryptoContent = msgInfo->mPlainContent;
+    } else {
+        if(publicKey.empty() == true) {
+            CHECK_ERROR(ErrCode::NotFoundError);
+        }
+
+        auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+        int ret = sectyMgr->encryptData(publicKey, msgInfo->mPlainContent, msgCryptoContent);
+        CHECK_ERROR(ret)
+    }
+
+    Json jsonData = Json::object();
+    jsonData[JsonKey::MessageData] = msgInfo;
+    //std::vector<uint8_t> data = Json::to_cbor(jsonData);
+    std::string jsonStr = jsonData.dump();
+    Log::W(Log::TAG, ">>>>>>>>>>>>> %s", jsonStr.c_str());
+    data.reserve(jsonStr.size() +  MsgSeparatorSize + msgCryptoContent.size());
+    data.insert(data.end(), jsonStr.begin(), jsonStr.end());
+    data.insert(data.end(), MsgSeparator, MsgSeparator + MsgSeparatorSize);
+    data.insert(data.end(), msgCryptoContent.begin(), msgCryptoContent.end());
+
+    return 0;
+}
+
+int MessageManager::unpackMessageInfo(const std::vector<uint8_t>& data,
+                                      std::shared_ptr<MessageInfo>& msgInfo)
+{
+    auto msgSepStartIt = std::find(data.begin(), data.end(), MsgSeparator[0]);
+    for(auto idx = 0; idx < MsgSeparatorSize; idx++) {
+        if(msgSepStartIt + idx == data.end()) {
+            // compatible with origin carrier app
+            break;
+        }
+        if(*(msgSepStartIt + idx) != MsgSeparator[idx]) {
+            msgSepStartIt = msgSepStartIt + idx + 1;
+            idx = -1;
+        }
+    }
+
+    std::string jsonStr(data.begin(), msgSepStartIt);
+    Log::W(Log::TAG, "<<<<<<<<<<<<< %s", jsonStr.c_str());
+    if(jsonStr.find(JsonKey::MessageData) != std::string::npos) { // it's contact sdk
+        auto jsonData = Json::parse(jsonStr);
+        //auto jsonData = Json::from_cbor(msgContent);
+        msgInfo = jsonData[JsonKey::MessageData];
+    } else { // from other carrier app
+        msgInfo = MessageManager::MakeTextMessage(jsonStr);
+    }
+
+    auto msgContentStartIt = msgSepStartIt + MsgSeparatorSize;
+    std::vector<uint8_t> msgCryptoContent(msgContentStartIt, data.end());
+    if(msgInfo->mCryptoAlgorithm.empty() == true
+    || msgInfo->mCryptoAlgorithm == "plain") {
+        msgInfo->mPlainContent = msgCryptoContent;
+    } else {
+        auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+        int ret = sectyMgr->decryptData(msgCryptoContent, msgInfo->mPlainContent);
+        CHECK_ERROR(ret)
     }
 
     return 0;

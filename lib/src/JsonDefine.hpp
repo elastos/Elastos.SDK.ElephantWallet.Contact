@@ -126,7 +126,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
 inline void to_json(Json& j, const std::shared_ptr<MessageManager::MessageInfo>& info) {
     j = Json {
         {JsonKey::Type, info->mType},
-        {JsonKey::PlainContent, info->mPlainContent},
+//        {JsonKey::PlainContent, info->mPlainContent},
         {JsonKey::CryptoAlgorithm, info->mCryptoAlgorithm},
         {JsonKey::NanoTime, info->mNanoTime},
         {JsonKey::ReplyToNanoTime, info->mReplyToNanoTime},
@@ -136,7 +136,7 @@ inline void to_json(Json& j, const std::shared_ptr<MessageManager::MessageInfo>&
 inline void from_json(const Json& j, std::shared_ptr<MessageManager::MessageInfo>& info) {
     info = MessageManager::MakeEmptyMessage();
     info->mType = j[JsonKey::Type];
-    info->mPlainContent = j[JsonKey::PlainContent].get<std::vector<uint8_t>>();
+//    info->mPlainContent = j[JsonKey::PlainContent].get<std::vector<uint8_t>>();
     info->mCryptoAlgorithm = j[JsonKey::CryptoAlgorithm];
     info->mNanoTime = j[JsonKey::NanoTime];
     info->mReplyToNanoTime = j[JsonKey::ReplyToNanoTime];

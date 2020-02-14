@@ -264,7 +264,7 @@ int ChannelImplCarrier::sendMessage(const std::string& friendCode,
         return 0;
     }
 
-    uint64_t pkgCount = msgContent.size() / MaxPkgSize + 1;
+    uint64_t pkgCount = msgContent.size() / PkgMaxContentSize + 1;
     Log::D(Log::TAG, "ChannelImplCarrier::sendMessage() size=%d count=%lld", msgContent.size(), pkgCount);
     if(pkgCount > MaxPkgCount) {
         return ErrCode::ChannelDataTooLarge;
@@ -285,9 +285,9 @@ int ChannelImplCarrier::sendMessage(const std::string& friendCode,
             timestamp = (timestamp >> 8);
         }
 
-        auto dataBegin = msgContent.begin() + pkgIdx * MaxPkgSize;
+        auto dataBegin = msgContent.begin() + pkgIdx * PkgMaxContentSize;
         auto dataRemains = msgContent.end() - dataBegin;
-        auto dataEnd = (MaxPkgSize < dataRemains ? dataBegin + MaxPkgSize : dataBegin + dataRemains);
+        auto dataEnd = (PkgMaxContentSize < dataRemains ? dataBegin + PkgMaxContentSize : dataBegin + dataRemains);
         data.insert(data.end(), dataBegin, dataEnd);
 
         bool offlineMsg;
@@ -522,6 +522,7 @@ void ChannelImplCarrier::OnCarrierFriendMessage(ElaCarrier *carrier, const char 
 
         if(dataCache.dataMap.size() == pkgCount) {
             std::vector<uint8_t> dataPkg;
+            dataPkg.reserve(pkgCount * (PkgMagicSize + PkgMaxContentSize));
             for(int idx = 0; idx < dataCache.dataMap.size(); idx++) {
                 dataPkg.insert(dataPkg.end(), dataCache.dataMap[idx].begin(), dataCache.dataMap[idx].end());
             }

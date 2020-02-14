@@ -86,7 +86,7 @@ protected:
                                           void *context);
 
 
-    static constexpr int32_t MaxPkgSize = 896;
+    static constexpr int32_t PkgMaxContentSize = 896;
     static constexpr uint8_t PkgMagic[] = { 0xA5, 0xA5, 0x5A, 0x5A,
                                             0x00/*index*/, 0x00/*index*/,
                                             0x00/*count*/, 0x00/*count*/,
