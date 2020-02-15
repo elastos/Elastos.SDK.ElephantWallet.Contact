@@ -592,8 +592,15 @@ void ContactTest::processEvent(elastos::sdk::Contact::Listener::EventArgs& event
     case elastos::sdk::Contact::Listener::EventType::FriendRequest:
     {
         auto requestEvent = dynamic_cast<elastos::sdk::Contact::Listener::RequestEvent*>(&event);
-        Log::V(Log::TAG, "Friend request from: %s, summary: %s",
-                         requestEvent->humanCode.c_str(), requestEvent->summary.c_str());
+        std::string nickname;
+        std::shared_ptr<elastos::sdk::Contact::HumanInfo> friendInfo;
+        int ret = mContact->getHumanInfo(requestEvent->humanCode, friendInfo);
+        if(ret >= 0) {
+            int ret = friendInfo->getHumanInfo(elastos::sdk::Contact::HumanInfo::Item::Nickname, nickname);
+        }
+
+        Log::V(Log::TAG, "New friend request\n from:     %s\n nickname: %s\n summary:  %s",
+                         requestEvent->humanCode.c_str(), nickname.c_str(), requestEvent->summary.c_str());
         break;
     }
     case elastos::sdk::Contact::Listener::EventType::HumanInfoChanged:

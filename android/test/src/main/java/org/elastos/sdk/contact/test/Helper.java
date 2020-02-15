@@ -167,12 +167,15 @@ public class Helper {
         showDialog(builder);
     }
 
-    public static void showFriendRequest(Context context, String humanCode, String summary, OnListener listener) {
+    public static void showFriendRequest(Context context,
+                                         String humanCode, String nickname, String summary,
+                                         OnListener listener) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Friend Request");
         String msg = new String();
-        msg += "FriendCode:\n  " + humanCode + "\n\n";
-        msg += "Summary:\n  " + summary;
+        msg += "FriendCode:\n--" + humanCode + "\n\n";
+        msg += "Nickname:\n--" + nickname + "\n\n";
+        msg += "Summary:\n--" + summary;
         builder.setMessage(msg);
         builder.setPositiveButton("Accept", (dialog, which) -> {
             listener.onResult(null);

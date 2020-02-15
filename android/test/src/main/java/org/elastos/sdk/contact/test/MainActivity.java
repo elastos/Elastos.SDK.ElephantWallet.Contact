@@ -1059,7 +1059,11 @@ public class MainActivity extends Activity {
             case FriendRequest:
                 Log.v(TAG, "FriendRequest event: " + event);
                 Contact.Listener.RequestEvent requestEvent = (Contact.Listener.RequestEvent) event;
-                Helper.showFriendRequest(this, requestEvent.humanCode, requestEvent.summary, v -> {
+                Contact.FriendInfo friendInfo = new Contact.FriendInfo();
+                int ret = mContact.getHumanInfo(requestEvent.humanCode, friendInfo);
+                Helper.showFriendRequest(this,
+                                         requestEvent.humanCode, friendInfo.nickname, requestEvent.summary,
+                                         v -> {
                     mContact.acceptFriend(requestEvent.humanCode);
                 });
                 break;
