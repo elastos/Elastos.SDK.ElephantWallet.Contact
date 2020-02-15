@@ -28,6 +28,35 @@ namespace sdk {
 /***********************************************/
 /***** static function implement ***************/
 /***********************************************/
+std::shared_ptr<Contact> Contact::Factory::Create()
+{
+    struct Impl : Contact {
+    };
+
+    return std::make_shared<Impl>();
+}
+
+
+std::shared_ptr<Contact::Message> Contact::MakeTextMessage(const std::string& text, const std::string& cryptoAlgorithm)
+{
+    auto data = std::make_shared<Message::TextData>(text);
+    auto msg = std::make_shared<Message>(Message::Type::MsgText, data, cryptoAlgorithm);
+    return msg;
+}
+
+std::shared_ptr<Contact::Message> Contact::MakeBinaryMessage(const std::vector<uint8_t>& binary, const std::string& cryptoAlgorithm)
+{
+    auto data = std::make_shared<Message::BinaryData>(binary);
+    auto msg = std::make_shared<Message>(Message::Type::MsgBinary, data, cryptoAlgorithm);
+    return msg;
+}
+
+std::shared_ptr<Contact::Message> Contact::MakeFileMessage(const std::string& filepath, const std::string& cryptoAlgorithm)
+{
+    auto data = std::make_shared<Message::FileData>(filepath);
+    auto msg = std::make_shared<Message>(Message::Type::MsgFile, data, cryptoAlgorithm);
+    return msg;
+}
 
 
 /***********************************************/
@@ -135,6 +164,11 @@ void Contact::Message::replyTo(int64_t toNanoTime)
     this->replyToNanoTime = toNanoTime;
 }
 
+Contact::Message::TextData::TextData(const std::string& text)
+    : text(text)
+{
+}
+
 std::string Contact::Message::TextData::toString()
 {
     return this->text;
@@ -147,6 +181,11 @@ std::vector<uint8_t> Contact::Message::TextData::toData()
 void Contact::Message::TextData::fromData(const std::vector<uint8_t>& data)
 {
     this->text = std::string(data.begin(), data.end());
+}
+
+Contact::Message::BinaryData::BinaryData(const std::vector<uint8_t>& binary)
+    : binary(std::move(binary))
+{
 }
 
 std::string Contact::Message::BinaryData::toString()
@@ -197,6 +236,10 @@ void Contact::Message::FileData::fromData(const std::vector<uint8_t>& data)
     this-> md5 = jsonInfo[elastos::JsonKey::Md5];
 }
 
+Contact::ChannelStrategy::ChannelStrategy(int channelId, const std::string& name)
+    : crosspl::native::ContactChannelStrategy(channelId, name)
+{
+}
 
 /***********************************************/
 /***** class protected function implement  *****/
@@ -206,6 +249,13 @@ void Contact::Message::FileData::fromData(const std::vector<uint8_t>& data)
 /***********************************************/
 /***** class private function implement  *******/
 /***********************************************/
+void Contact::Listener::onReceivedMessage(const std::string& humanCode, Channel channelType,
+                                          std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo)
+{
+    auto message = std::make_shared<Message>(msgInfo->mType, msgInfo->mPlainContent, msgInfo->mCryptoAlgorithm,
+                                             msgInfo->mNanoTime, msgInfo->mReplyToNanoTime);
+    onReceivedMessage(humanCode, channelType, message);
+}
 
 
 } // namespace sdk

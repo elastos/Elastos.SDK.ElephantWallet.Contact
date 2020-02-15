@@ -647,7 +647,11 @@ public class MainActivity extends Activity {
             showMessage(result);
 
             Helper.showAddFriend(this, result, (summary) -> {
-                int ret = mContact.addFriend(result, summary);
+                String friendCode = result;
+                if(result.contains(" ") == true) { // Compatible for AnyPeer App
+                    friendCode = result.substring(0, result.indexOf(" "));
+                }
+                int ret = mContact.addFriend(friendCode, summary);
                 if(ret < 0) {
                     showMessage(ErrorPrefix + "Failed to add friend. ret=" + ret);
                 }

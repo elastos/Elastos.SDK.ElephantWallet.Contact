@@ -31,17 +31,8 @@ public:
     /*** type define ***/
     class Factory final: public crosspl::native::ContactFactory {
     public:
-        static std::shared_ptr<Contact> Create() {
-            struct Impl : Contact {
-            };
-
-            return std::make_shared<Impl>();
-        }
-
+        static std::shared_ptr<Contact> Create();
         // void SetDeviceId(const std::string& devId) {
-        //     ContactFactory.SetDeviceId(devId);
-        //     // UserInfo.SetCurrDevId(devId);
-        // }
 
     private:
         explicit Factory() = delete;
@@ -65,9 +56,7 @@ public:
 
         class TextData: public  MsgData {
         public:
-            explicit TextData(const std::string& text)
-                    : text(text) {
-            }
+            explicit TextData(const std::string& text);
             explicit TextData() = default;
             virtual ~TextData() = default;
             virtual std::string toString() override;
@@ -79,9 +68,7 @@ public:
 
         class BinaryData: public MsgData {
         public:
-            explicit BinaryData(const std::vector<uint8_t>& binary)
-                    : binary(std::move(binary)) {
-            }
+            explicit BinaryData(const std::vector<uint8_t>& binary);
             explicit BinaryData() = default;
             virtual ~BinaryData() = default;
             virtual std::string toString() override;
@@ -95,14 +82,7 @@ public:
         public:
 //            // fix json decode and encode different issue
 //            static std::string ConvertId(const std::string& id) {
-////                FileData fileData = new Gson().fromJson(id, FileData.class);
-////                if (fileData == null) {
-////                    Log.w(Contact.TAG, "FileData.ConvertId() 0 Failed to convert " + id);
-////                }
-//
-//                return fileData.toString();
-//            }
-//
+
             explicit FileData(const std::string& filepath);
             explicit FileData() = default;
             virtual ~FileData() = default;
@@ -133,9 +113,8 @@ public:
 
     class ChannelStrategy: public crosspl::native::ContactChannelStrategy {
     public:
-        explicit ChannelStrategy(int channelId, const std::string& name)
-            : crosspl::native::ContactChannelStrategy(channelId, name) {
-        };
+        explicit ChannelStrategy(int channelId, const std::string& name);
+        virtual ~ChannelStrategy() = default;
     };
 
     class Listener: public crosspl::native::ContactListener {
@@ -144,12 +123,8 @@ public:
                                        std::shared_ptr<Message> msgInfo) = 0;
 
     private:
-        virtual void onReceivedMessage(const std::string& humanCode, Channel channelType,
-                                       std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo) override {
-            auto message = std::make_shared<Message>(msgInfo->mType, msgInfo->mPlainContent, msgInfo->mCryptoAlgorithm,
-                                                     msgInfo->mNanoTime, msgInfo->mReplyToNanoTime);
-            onReceivedMessage(humanCode, channelType, message);
-        };
+        void onReceivedMessage(const std::string& humanCode, Channel channelType,
+                                       std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo) override;
     }; // class Listener
 
     class DataListener: public crosspl::native::ContactDataListener {
@@ -159,23 +134,9 @@ public:
     }; // class ContactDebug
 
     /*** static function and variable ***/
-    static std::shared_ptr<Message> MakeTextMessage(const std::string& text, const std::string& cryptoAlgorithm = "") {
-        auto data = std::make_shared<Message::TextData>(text);
-        auto msg = std::make_shared<Message>(Message::Type::MsgText, data, cryptoAlgorithm);
-        return msg;
-    }
-
-    static std::shared_ptr<Message> MakeBinaryMessage(const std::vector<uint8_t>& binary, const std::string& cryptoAlgorithm = "") {
-        auto data = std::make_shared<Message::BinaryData>(binary);
-        auto msg = std::make_shared<Message>(Message::Type::MsgBinary, data, cryptoAlgorithm);
-        return msg;
-    }
-
-    static std::shared_ptr<Message> MakeFileMessage(const std::string& filepath, const std::string& cryptoAlgorithm = "") {
-        auto data = std::make_shared<Message::FileData>(filepath);
-        auto msg = std::make_shared<Message>(Message::Type::MsgFile, data, cryptoAlgorithm);
-        return msg;
-    }
+    static std::shared_ptr<Message> MakeTextMessage(const std::string& text, const std::string& cryptoAlgorithm = "");
+    static std::shared_ptr<Message> MakeBinaryMessage(const std::vector<uint8_t>& binary, const std::string& cryptoAlgorithm = "");
+    static std::shared_ptr<Message> MakeFileMessage(const std::string& filepath, const std::string& cryptoAlgorithm = "");
 
     /*** class function and variable ***/
     std::shared_ptr<Contact::UserInfo> getUserInfo();
