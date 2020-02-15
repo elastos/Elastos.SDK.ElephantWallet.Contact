@@ -13,6 +13,8 @@
 #include <CompatibleFileSystem.hpp>
 #include <Platform.hpp>
 #include <MD5.hpp>
+#include <DateTime.hpp>
+#include <Random.hpp>
 
 #ifndef WITH_CROSSPL
 
@@ -80,6 +82,20 @@ int Contact::sendMessage(const std::string& friendCode, Channel chType, std::sha
     return 0;
 }
 
+Contact::Message::Message(Type type, std::shared_ptr<MsgData> data, const std::string& cryptoAlgorithm)
+    : crosspl::native::ContactMessage(),
+      type(type),
+      data(data),
+      cryptoAlgorithm(cryptoAlgorithm),
+      nanoTime(0),
+      replyToNanoTime(0)
+{
+    int64_t* nanoTimePtr = const_cast<int64_t*>(&nanoTime);
+    *nanoTimePtr = elastos::DateTime::CurrentMS();
+    *nanoTimePtr = (*nanoTimePtr) * elastos::MessageManager::MessageInfo::TimeOffset + elastos::Random::Gen(100000);
+}
+
+
 Contact::Message::Message(Type type, const std::vector<uint8_t>& data, std::string cryptoAlgorithm,
                           int64_t nanoTime, int64_t replyToNanoTime)
         : type(type)
@@ -88,6 +104,8 @@ Contact::Message::Message(Type type, const std::vector<uint8_t>& data, std::stri
         , nanoTime(nanoTime)
         , replyToNanoTime(replyToNanoTime)
 {
+            Log::W(Log::TAG, "======================== %lld", nanoTime);
+//        throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
     switch (type) {
         case Type::MsgText:
             this->data = std::make_shared<TextData>();
@@ -105,6 +123,16 @@ Contact::Message::Message(Type type, const std::vector<uint8_t>& data, std::stri
     if(this->data != nullptr) {
         this->data->fromData(data);
     }
+}
+
+Contact::Message::~Message()
+{
+
+}
+
+void Contact::Message::replyTo(int64_t toNanoTime)
+{
+    this->replyToNanoTime = toNanoTime;
 }
 
 std::string Contact::Message::TextData::toString()

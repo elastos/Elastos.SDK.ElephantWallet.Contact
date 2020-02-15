@@ -50,14 +50,14 @@ public:
 
     struct MessageInfo {
     public:
+        static constexpr int64_t TimeOffset = 1000000;
+
         MessageType mType;
         std::vector<uint8_t> mPlainContent;
         std::string mCryptoAlgorithm;
         int64_t mNanoTime;
         int64_t mReplyToNanoTime;
     private:
-        static constexpr int64_t TimeOffset = 1000000;
-
         explicit MessageInfo(MessageType type,
                              const std::vector<uint8_t>& plainContent,
                              const std::string& cryptoAlgorithm);
@@ -250,7 +250,7 @@ private:
                            const std::string& friendCode,
                            const std::shared_ptr<MessageInfo> msgInfo);
     int sendDescMessage(const std::vector<std::shared_ptr<HumanInfo>>& humanList, ChannelType chType);
-    int packMessageInfo(const std::string& publicKey,
+    int packMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
                         const std::shared_ptr<MessageInfo> msgInfo,
                         std::vector<uint8_t>& data);
     int unpackMessageInfo(const std::vector<uint8_t>& data,

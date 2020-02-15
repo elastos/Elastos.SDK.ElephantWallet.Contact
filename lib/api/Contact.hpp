@@ -116,24 +116,12 @@ public:
             std::string md5;
         };
 
-        explicit Message(Type type, std::shared_ptr<MsgData> data, const std::string& cryptoAlgorithm)
-                : type(type)
-                , data(data)
-                , cryptoAlgorithm(cryptoAlgorithm)
-                , nanoTime(std::chrono::duration_cast<std::chrono::milliseconds>(
-                                    std::chrono::system_clock::now().time_since_epoch()
-                            ).count())
-                , replyToNanoTime(0) {
-        }
-
+        explicit Message(Type type, std::shared_ptr<MsgData> data, const std::string& cryptoAlgorithm);
         explicit Message(Type type, const std::vector<uint8_t>& data, std::string cryptoAlgorithm,
                          int64_t nanoTime, int64_t replyToNanoTime);
+        virtual ~Message();
 
-        virtual ~Message() = default;
-
-        void replyTo(int64_t toNanoTime) {
-            this->replyToNanoTime = toNanoTime;
-        }
+        void replyTo(int64_t toNanoTime);
 
         const Type type;
         std::shared_ptr<MsgData> data;
@@ -145,13 +133,9 @@ public:
 
     class ChannelStrategy: public crosspl::native::ContactChannelStrategy {
     public:
-#ifdef WITH_CROSSPL
-        explicit ChannelStrategy() = default;
-#else
         explicit ChannelStrategy(int channelId, const std::string& name)
             : crosspl::native::ContactChannelStrategy(channelId, name) {
         };
-#endif // WITH_CROSSPL
     };
 
     class Listener: public crosspl::native::ContactListener {

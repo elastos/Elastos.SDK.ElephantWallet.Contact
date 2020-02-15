@@ -293,6 +293,7 @@ int ContactTest::doLoopMessage()
     CHECK_ERROR(ret);
 
     auto msgInfo = elastos::sdk::Contact::MakeTextMessage("test loop message");
+    Log::V(Log::TAG, "===========================: %lld", msgInfo->nanoTime);
     ret = mContact->sendMessage(humanCode,
                                 mCustomChannelStrategy->getChannelId(),
                                 msgInfo);

@@ -401,7 +401,7 @@ int HumanInfo::mergeHumanInfo(const HumanInfo& value, const Status status)
         this->mCommonInfoMap[Item::ElaAddress] = it->second;
     }
 
-    Log::D(Log::TAG, " ============ 0   %s mBoundCarrierArray:%d", __PRETTY_FUNCTION__, value.mBoundCarrierArray.size());
+//    Log::D(Log::TAG, " ============ 0   %s mBoundCarrierArray:%d", __PRETTY_FUNCTION__, value.mBoundCarrierArray.size());
     for(const auto& it: value.mBoundCarrierArray) {
         int ret = addCarrierInfo(it, status);
         if(ret == ErrCode::IgnoreMergeOldInfo) {
