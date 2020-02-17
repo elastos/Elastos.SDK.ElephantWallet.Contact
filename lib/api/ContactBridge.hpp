@@ -13,6 +13,7 @@
 
 #include <sstream>
 
+#include "ContactChannelStrategy.hpp"
 #include "ContactDataListener.hpp"
 #include "ContactListener.hpp"
 #include "ContactTypes.hpp"
