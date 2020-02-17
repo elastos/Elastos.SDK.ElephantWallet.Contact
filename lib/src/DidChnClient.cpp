@@ -587,12 +587,12 @@ int DidChnClient::downloadDidPropsByAgent(std::shared_ptr<HttpClient>& httpClien
     CHECK_ERROR(ret);
 
     try {
-//        if(propCacheArrayStr.empty() == false) {
-//            Json jsonPropArray = Json::parse(propCacheArrayStr);
-//            for (const auto &it: jsonPropArray) {
-//                values.push_back(it["value"]);
-//            }
-//        }
+        if(propCacheArrayStr.empty() == false) {
+            Json jsonPropArray = Json::parse(propCacheArrayStr);
+            for (const auto &it: jsonPropArray) {
+                values.push_back(it["value"]);
+            }
+        }
         if(propArrayStr.empty() == false) {
             Json jsonPropArray = Json::parse(propArrayStr);
             for (const auto &it: jsonPropArray) {
