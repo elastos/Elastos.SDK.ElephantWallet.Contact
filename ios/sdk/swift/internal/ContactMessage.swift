@@ -185,6 +185,12 @@ open class ContactMessage: CrossBase {
               cryptoAlgorithm: cryptoAlgorithm);
   }
 
+  public convenience init(binary: Data, cryptoAlgorithm: String?) {
+    self.init(type: Kind.MsgBinary,
+              data: BinaryData(data: binary),
+              cryptoAlgorithm: cryptoAlgorithm);
+  }
+  
   public convenience init(file: URL, cryptoAlgorithm: String?) {
     self.init(type: Kind.MsgFile,
               data: FileData(file: file),

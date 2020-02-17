@@ -154,6 +154,11 @@ open class ContactBridge: CrossBase {
     return msg
   }
 
+  public static func MakeBinaryMessage(data: Data, cryptoAlgorithm: String?) -> Contact.Message {
+    let msg = Contact.Message(binary: data, cryptoAlgorithm: cryptoAlgorithm)
+    return msg
+  }
+  
   public static func MakeFileMessage(file: URL, cryptoAlgorithm: String?) -> Contact.Message {
     let msg = Contact.Message(file: file,
                               cryptoAlgorithm: cryptoAlgorithm)
