@@ -43,6 +43,8 @@ public:
     /*** static function and variable ***/
     static int GetElaAddress(const std::string& pubKey, std::string& elaAddr);
     static int GetDid(const std::string& pubKey, std::string& did);
+
+    static bool IsValidPublicKey(const std::string& code);
     static bool IsValidElaAddress(const std::string& code);
     static bool IsValidDid(const std::string& code);
 

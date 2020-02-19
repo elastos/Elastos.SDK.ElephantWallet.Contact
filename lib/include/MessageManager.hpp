@@ -26,9 +26,9 @@ class MessageManager : public std::enable_shared_from_this<MessageManager> {
 public:
     /*** type define ***/
     enum ChannelType {
-        Carrier = 1,
-        Email = 2,
-        CustomId = 10
+        Carrier = HumanInfo::HumanKind::Carrier,
+        Email = HumanInfo::HumanKind::Email,
+        CustomId = HumanInfo::HumanKind::Custom
     };
 
     enum class MessageType: uint32_t {
@@ -205,6 +205,7 @@ public:
     virtual int presetChannels(std::weak_ptr<Config> config);
     virtual int openChannels();
     virtual int closeChannels();
+    virtual std::vector<std::shared_ptr<MessageChannelStrategy>> getCustomChannels();
 
     virtual int requestFriend(const std::string& friendAddr,
                               ChannelType chType,

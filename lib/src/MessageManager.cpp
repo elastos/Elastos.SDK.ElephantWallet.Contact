@@ -183,6 +183,22 @@ int MessageManager::closeChannels()
     return 0;
 }
 
+std::vector<std::shared_ptr<MessageChannelStrategy>> MessageManager::getCustomChannels()
+{
+    std::vector<std::shared_ptr<MessageChannelStrategy>> customChannels;
+
+    for(const auto& channel: mMessageChannelMap) {
+        if(channel.first == ChannelType::Carrier
+        || channel.first == ChannelType::Email) {
+            continue;
+        }
+
+        customChannels.push_back(channel.second);
+    }
+
+    return customChannels;
+}
+
 int MessageManager::requestFriend(const std::string& friendAddr,
                                   ChannelType humanChType,
                                   const std::string& summary,

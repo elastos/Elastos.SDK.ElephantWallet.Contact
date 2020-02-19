@@ -20,6 +20,7 @@ struct JsonKey {
     static constexpr const char* BoundCarrierStatus = "BoundCarrierStatus";
     static constexpr const char* CommonInfoMap      = "CommonInfoMap";
     static constexpr const char* WalletAddressMap   = "WalletAddressMap";
+    static constexpr const char* AddressMap         = "AddressMap";
     static constexpr const char* StatusMap          = "StatusMap";
     static constexpr const char* Status             = "Status";
     static constexpr const char* HumanCode          = "HumanCode";

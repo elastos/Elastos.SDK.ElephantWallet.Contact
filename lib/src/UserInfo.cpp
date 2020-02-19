@@ -159,6 +159,21 @@ int UserInfo::mergeHumanInfo(const HumanInfo& value, const Status status)
     return 0;
 }
 
+int UserInfo::setHumanAddress(HumanKind kind, const std::string& value)
+{
+    int ret = HumanInfo::setHumanAddress(kind, value);
+    Log::D(Log::TAG, "%s ret=%d", __PRETTY_FUNCTION__, ret);
+    if(ret < 0) { // error or not changed
+        return ret;
+    }
+
+    auto userMgr = SAFE_GET_PTR(mUserManager);
+    ret = userMgr->saveLocalData();
+    CHECK_ERROR(ret)
+
+    return 0;
+}
+
 int UserInfo::setWalletAddress(const std::string& name, const std::string& value)
 {
     if(name.empty() == true) {

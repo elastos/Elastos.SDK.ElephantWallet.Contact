@@ -26,10 +26,11 @@ public:
         Addition,
     };
 
-    enum class HumanKind: int {
-        Did = 1,
-        Ela,
-        Carrier,
+    enum HumanKind {
+        Did = 0,
+        Carrier = 1,
+        Email = 2,
+        Custom = 10
     };
 
     enum class Status: uint8_t {
@@ -83,6 +84,9 @@ public:
     virtual int getHumanInfo(Item item, std::string& value) const;
     virtual int mergeHumanInfo(const HumanInfo& value, const Status status);
 
+    virtual int setHumanAddress(HumanKind kind, const std::string& value);
+    virtual int getHumanAddress(HumanKind kind, std::string& value) const;
+
     virtual int setHumanStatus(HumanKind kind, const Status status);
     virtual int getHumanStatus(HumanKind kind, Status& status);
     virtual int setHumanStatus(const Status from, const Status to);
@@ -104,6 +108,7 @@ protected:
     std::vector<Status> mBoundCarrierStatus;
     std::map<Item, std::string> mCommonInfoMap;
     std::map<std::string, std::string> mWalletAddressMap;
+    std::map<HumanKind, std::string> mAddressMap;
     std::map<HumanKind, Status> mStatusMap;
     int64_t mUpdateTime;
 

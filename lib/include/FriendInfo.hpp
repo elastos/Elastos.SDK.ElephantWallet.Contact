@@ -30,6 +30,8 @@ public:
     virtual int setHumanInfo(Item item, const std::string& value) override;
     virtual int mergeHumanInfo(const HumanInfo& value, const Status status) override;
 
+    virtual int setHumanAddress(HumanKind kind, const std::string& value) override;
+
 private:
     /*** type define ***/
 

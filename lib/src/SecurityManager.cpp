@@ -47,6 +47,18 @@ int SecurityManager::GetDid(const std::string& pubKey, std::string& did)
     return 0;
 }
 
+bool SecurityManager::IsValidPublicKey(const std::string& code)
+{
+    bool valid = false;
+    if(code.length() == 66 && code[0] == '0'
+    && (code[1] == '2' || code[1] == '3')) {
+        valid = true;
+    }
+    Log::V(Log::TAG, " %s %d", __PRETTY_FUNCTION__, valid);
+
+    return valid;
+}
+
 bool SecurityManager::IsValidElaAddress(const std::string& code)
 {
     bool valid = ::isAddressValid(code.c_str());
@@ -167,7 +179,10 @@ int SecurityManager::saveCryptoFile(const std::string& filePath, const std::vect
 
     cryptoFile.write(reinterpret_cast<char*>(encryptedData.data()), encryptedData.size ());
 
+    cryptoFile.flush();
     cryptoFile.close();
+
+    Log::I(Log::TAG, "Success to save crypto file to %s", filePath.c_str());
 
     return 0;
 }

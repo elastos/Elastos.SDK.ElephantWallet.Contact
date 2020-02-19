@@ -86,12 +86,15 @@ private:
     /*** class function and variable ***/
     virtual int addFriendByDid(const std::string& did, const std::string& summary, bool remoteRequest, bool forceRequest = false);
     virtual int addFriendByCarrier(const std::string& carrierAddress, const std::string& summary, bool remoteRequest, bool forceRequest = false);
+    virtual int addFriendByCustom(const std::string& customAddress, const std::string& summary, bool remoteRequest, bool forceRequest = false);
     virtual int addFriendByEla(const std::string& elaAddress, const std::string& summary, bool remoteRequest, bool forceRequest);
     virtual int removeFriendByDid(const std::string& did);
     virtual int removeFriendByCarrier(const std::string& carrierAddress);
+    virtual int removeFriendByCustom(const std::string& customAddress);
     virtual int removeFriendByEla(const std::string& elaAddress);
     virtual int getFriendInfoByDid(const std::string& did, std::shared_ptr<FriendInfo>& friendInfo);
     virtual int getFriendInfoByCarrier(const std::string& carrierUsrId, std::shared_ptr<FriendInfo>& friendInfo);
+    virtual int getFriendInfoByCustom(FriendInfo::HumanKind friendKind, const std::string& customAddress, std::shared_ptr<FriendInfo>& friendInfo);
     virtual int getFriendInfoByEla(const std::string& elaAddress, std::shared_ptr<FriendInfo>& friendInfo);
 
     virtual int mergeFriendInfoFromJsonArray(const std::string& jsonArray);

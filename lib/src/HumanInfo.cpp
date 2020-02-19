@@ -29,12 +29,14 @@ HumanInfo::HumanKind HumanInfo::AnalyzeHumanKind(const std::string& code)
 
     if(SecurityManager::IsValidDid(code) == true) {
         kind = HumanInfo::HumanKind::Did;
-    } else if(SecurityManager::IsValidElaAddress(code) == true) {
-        kind = HumanInfo::HumanKind::Ela;
+//    } else if(SecurityManager::IsValidElaAddress(code) == true) {
+//        kind = HumanInfo::HumanKind::Ela;
     } else if(ChannelImplCarrier::IsValidCarrierAddress(code) == true) {
         kind = HumanInfo::HumanKind::Carrier;
     } else if(ChannelImplCarrier::IsValidCarrierUsrId(code) == true) {
         kind = HumanInfo::HumanKind::Carrier;
+    } else {
+        kind = HumanInfo::HumanKind::Custom;
     }
 
     return kind;
@@ -48,6 +50,7 @@ HumanInfo::HumanInfo()
     , mBoundCarrierStatus()
     , mCommonInfoMap()
     , mWalletAddressMap()
+    , mAddressMap()
     , mStatusMap()
     , mUpdateTime(0)
 {
@@ -64,22 +67,18 @@ bool HumanInfo::contains(const std::string& humanCode)
     std::string info;
 
     int ret = ErrCode::UnknownError;
-    switch(kind) {
-    case HumanKind::Did:
+
+    if(kind == HumanKind::Did) {
         ret = getHumanInfo(Item::Did, info);
-        break;
-    case HumanKind::Ela:
-        ret = getHumanInfo(Item::ElaAddress, info);
-        break;
-    case HumanKind::Carrier:
+    } else if(kind == HumanKind::Carrier) {
         ret = hasCarrierInfo(humanCode);
         if(ret >= 0) {
             info = humanCode;
         }
-        break;
-    default:
-        break;
+    } else if(kind >= HumanKind::Custom) {
+        ret = getHumanAddress(kind, info);
     }
+
     if(ret >= 0
     && humanCode == info) {
         return true;
@@ -121,7 +120,13 @@ int HumanInfo::getHumanCode(std::string& humanCode) const
         return 0;
     }
 
-    // 2. carrier friend
+    // 2. custom friend
+    for (auto& [key, val]: mAddressMap) { // find first custom address and return
+        humanCode = val;
+        return key;
+    }
+
+    // 3. carrier friend
     auto carrierSize = mBoundCarrierArray.size();
     assert(carrierSize <= 1); // only did friend can own multi carrier info
     if (carrierSize > 0) {
@@ -136,11 +141,11 @@ int HumanInfo::getHumanCode(std::string& humanCode) const
         }
     }
 
-    // 3. ela friend
-    ret = getHumanInfo(Item::ElaAddress, humanCode);
-    if(ret == 0) {
-        return 0;
-    }
+//    // 4. ela friend
+//    ret = getHumanInfo(Item::ElaAddress, humanCode);
+//    if(ret == 0) {
+//        return 0;
+//    }
 
     assert(false); // never reached
     return ErrCode::NotFoundError;
@@ -148,7 +153,7 @@ int HumanInfo::getHumanCode(std::string& humanCode) const
 
 int HumanInfo::addCarrierInfo(const HumanInfo::CarrierInfo& info, const HumanInfo::Status status)
 {
-    Log::D(Log::TAG, " ============    %s", __PRETTY_FUNCTION__);
+//    Log::D(Log::TAG, " ============    %s", __PRETTY_FUNCTION__);
     if(info.mUsrAddr.empty() == true
     && info.mUsrId.empty() == true) {
         return ErrCode::InvalidArgument;
@@ -413,14 +418,49 @@ int HumanInfo::mergeHumanInfo(const HumanInfo& value, const Status status)
         changed = true;
     }
 
+    for(const auto& [key, value]: value.mAddressMap) {
+        if(this->mAddressMap[key].empty() == false
+        && this->mAddressMap[key] != value) {
+            return ErrCode::MergeInfoFailed;
+        }
+
+        this->mAddressMap[key] = value;
+    }
+
     if(this->mUpdateTime < value.mUpdateTime) {
         this->mCommonInfoMap = value.mCommonInfoMap;
+        this->mAddressMap = value.mAddressMap;
         this->mWalletAddressMap = value.mWalletAddressMap;
         this->mUpdateTime = value.mUpdateTime;
         changed = true;
     }
 
     return (changed == true ? 0 : ErrCode::IgnoreMergeOldInfo);
+}
+
+int HumanInfo::setHumanAddress(HumanInfo::HumanKind kind, const std::string& value)
+{
+    if(kind == HumanInfo::HumanKind::Carrier) {
+        return ErrCode::InvalidArgument;
+    }
+
+    mAddressMap[kind] = value;
+    return 0;
+}
+
+int HumanInfo::getHumanAddress(HumanInfo::HumanKind kind, std::string& value) const
+{
+    if(kind == HumanInfo::HumanKind::Carrier) {
+        return ErrCode::InvalidArgument;
+    }
+
+    auto it = mAddressMap.find(kind);
+    if(it == mAddressMap.end()) {
+        return ErrCode::NotFoundError;
+    }
+
+    value = it->second;
+    return 0;
 }
 
 int HumanInfo::setHumanStatus(HumanInfo::HumanKind kind, const HumanInfo::Status status)
@@ -514,6 +554,7 @@ int HumanInfo::serialize(std::string& value, bool summaryOnly) const
     jsonInfo[JsonKey::BoundCarrierStatus] = mBoundCarrierStatus;
     if(summaryOnly == false) {
         jsonInfo[JsonKey::StatusMap] = mStatusMap;
+        jsonInfo[JsonKey::AddressMap] = mAddressMap;
     }
 
     jsonInfo[JsonKey::UpdateTime] = mUpdateTime;
@@ -544,6 +585,7 @@ int HumanInfo::deserialize(const std::string& value, bool summaryOnly)
 
     if(summaryOnly == false) {
         mBoundCarrierStatus = jsonInfo[JsonKey::BoundCarrierStatus].get<std::vector<Status>>();
+        mAddressMap = jsonInfo[JsonKey::AddressMap].get<std::map<HumanKind, std::string>>();
         mStatusMap = jsonInfo[JsonKey::StatusMap].get<std::map<HumanKind, Status>>();
     }
 
@@ -612,6 +654,7 @@ int HumanInfo::toJson(std::shared_ptr<Json>& value) const
     jsonInfo[JsonKey::CommonInfoMap] = mCommonInfoMap;
     jsonInfo[JsonKey::WalletAddressMap] = mWalletAddressMap;
     jsonInfo[JsonKey::BoundCarrierArray] = mBoundCarrierArray;
+    jsonInfo[JsonKey::AddressMap] = mAddressMap;
     jsonInfo[JsonKey::Status] = getHumanStatus();
     jsonInfo[JsonKey::HumanCode] = humanCode;
     jsonInfo[JsonKey::UpdateTime] = mUpdateTime;

@@ -51,7 +51,7 @@ import CrossPL
           + "]"
     }
 
-    public let summary: String
+    public var summary: String
   }
 
   public class InfoEvent: EventArgs {

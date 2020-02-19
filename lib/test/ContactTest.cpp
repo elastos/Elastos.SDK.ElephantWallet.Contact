@@ -99,6 +99,11 @@ int ContactTest::testNewContact()
             auto ret = this->receivedMessage(humanCode, channelType, data);
             return ret;
         }
+
+        virtual int onRequestFriend(const std::string& humanCode, const std::string& summary) override {
+            Log::W(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            return 0;
+        }
     };
 
     mCustomChannelStrategy = std::make_shared<ChannelStrategy>();

@@ -33,6 +33,7 @@ public:
     virtual int onOpen();
     virtual int onClose();
     virtual int onSendMessage(const std::string& humanCode, ChannelType chType, ConstBytesPtr data) ABSTRACT;
+    virtual int onRequestFriend(const std::string& humanCode, const std::string& summary) ABSTRACT;
 
     virtual std::shared_ptr<elastos::MessageChannelStrategy> getChannel();
 

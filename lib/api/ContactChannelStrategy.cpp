@@ -137,7 +137,9 @@ std::shared_ptr<elastos::MessageChannelStrategy> ContactChannelStrategy::makeCha
                                   bool remoteRequest = true,
                                   bool forceRequest = false) override {
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
-            return elastos::ErrCode::UnimplementedError;
+            int ret = mHelperPtr->onRequestFriend(friendAddr, summary);
+            return ret;
+
         };
         virtual int removeFriend(const std::string& friendAddr) override {
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
