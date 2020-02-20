@@ -81,10 +81,10 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
 
             LOCK_PTR(mMutex, mHelperPtr, "");
 #ifdef WITH_CROSSPL
-            auto ret = mHelperPtr->onAcquire(AcquireType::PublicKey, nullptr, nullptr);
+            auto ret = mHelperPtr->onAcquire(AcquireType::PublicKey, nullptr, nullptr, nullptr);
 #else
             std::vector<uint8_t> vdata;
-            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::PublicKey, "", vdata});
+            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::PublicKey, "", vdata, ""});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return "";
@@ -94,14 +94,15 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             return mCachedPublicKey;
         }
 
-        std::vector<uint8_t> onEncryptData(const std::string& pubKey, const std::vector<uint8_t>& src) override {
+        std::vector<uint8_t> onEncryptData(const std::string& pubKey,
+                                           const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src) override {
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
             LOCK_PTR(mMutex, mHelperPtr, std::vector<uint8_t>());
 #ifdef WITH_CROSSPL
             const std::span<uint8_t> data(const_cast<uint8_t*>(src.data()), src.size());
-            auto ret = mHelperPtr->onAcquire(AcquireType::EncryptData, pubKey.c_str(), &data);
+            auto ret = mHelperPtr->onAcquire(AcquireType::EncryptData, pubKey.c_str(), &data, cryptoAlgorithm.c_str());
 #else
-            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::EncryptData, pubKey, src});
+            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::EncryptData, pubKey, src, cryptoAlgorithm});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return std::vector<uint8_t>();
@@ -110,14 +111,14 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             std::vector<uint8_t> cryptoData(ret->data(), ret->data() + ret->size());
             return cryptoData;
         }
-        std::vector<uint8_t> onDecryptData(const std::vector<uint8_t>& src) override {
+        std::vector<uint8_t> onDecryptData(const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src) override {
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
             LOCK_PTR(mMutex, mHelperPtr, std::vector<uint8_t>());
 #ifdef WITH_CROSSPL
             const std::span<uint8_t> data(const_cast<uint8_t*>(src.data()), src.size());
-            auto ret = mHelperPtr->onAcquire(AcquireType::DecryptData, nullptr, &data);
+            auto ret = mHelperPtr->onAcquire(AcquireType::DecryptData, nullptr, &data, cryptoAlgorithm.c_str());
 #else
-            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::DecryptData, "", src});
+            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::DecryptData, "", src, cryptoAlgorithm});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return std::vector<uint8_t>();
@@ -136,10 +137,10 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
 
             LOCK_PTR(mMutex, mHelperPtr, "");
 #ifdef WITH_CROSSPL
-            auto ret = mHelperPtr->onAcquire(AcquireType::DidPropAppId, nullptr, nullptr);
+            auto ret = mHelperPtr->onAcquire(AcquireType::DidPropAppId, nullptr, nullptr, nullptr);
 #else
             std::vector<uint8_t> vdata;
-            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::DidPropAppId, "", vdata});
+            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::DidPropAppId, "", vdata, ""});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return "";
@@ -154,10 +155,10 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
             LOCK_PTR(mMutex, mHelperPtr, "");
 #ifdef WITH_CROSSPL
-            auto ret = mHelperPtr->onAcquire(AcquireType::DidAgentAuthHeader, nullptr, nullptr);
+            auto ret = mHelperPtr->onAcquire(AcquireType::DidAgentAuthHeader, nullptr, nullptr, nullptr);
 #else
             std::vector<uint8_t> vdata;
-            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::DidAgentAuthHeader, "", vdata});
+            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::DidAgentAuthHeader, "", vdata, ""});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return "";
@@ -173,9 +174,9 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             LOCK_PTR(mMutex, mHelperPtr, std::vector<uint8_t>());
 #ifdef WITH_CROSSPL
             const std::span<uint8_t> data(const_cast<uint8_t*>(originData.data()), originData.size());
-            auto ret = mHelperPtr->onAcquire(AcquireType::SignData, nullptr, &data);
+            auto ret = mHelperPtr->onAcquire(AcquireType::SignData, nullptr, &data, nullptr);
 #else
-            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::SignData, "", originData});
+            auto ret = mHelperPtr->onAcquire(AcquireArgs{AcquireType::SignData, "", originData, ""});
 #endif // WITH_CROSSPL
             if(ret.get() == nullptr) {
                 return std::vector<uint8_t>();
@@ -321,11 +322,12 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
 #ifdef WITH_CROSSPL
 std::shared_ptr<std::span<uint8_t>> ContactListener::onAcquire(AcquireType type,
                                                               const char* pubKey,
-                                                              const std::span<uint8_t>* data)
+                                                              const std::span<uint8_t>* data,
+                                                              const char* extra)
 {
     int64_t platformHandle = getPlatformHandle();
     auto ret = crosspl_Proxy_ContactListener_onAcquire(platformHandle,
-                                                       static_cast<int>(type), pubKey, data);
+                                                       static_cast<int>(type), pubKey, data, extra);
 
     return ret;
 }

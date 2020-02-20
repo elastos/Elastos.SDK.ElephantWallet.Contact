@@ -30,7 +30,7 @@ const struct {
 //         ignore to sync for this revision
 //        { DidChnClient::NameDetailKey, false },
 //        { DidChnClient::NameIdentifyKey, true },
-//        { DidChnClient::NameFriendKey, true },
+        { DidChnClient::NameFriendKey, true },
 };
 
 
@@ -368,14 +368,27 @@ int DidChnClient::serializeDidProps(const std::vector<std::pair<std::string, std
     Json jsonPropProt = Json::object();
     Json jsonPropArray = Json::array();
     for(const auto& prop: didProps) {
-        std::string keyPath;
-        int ret = getPropKeyPath(prop.first, keyPath);
+        std::string key = prop.first;
+        std::string value = prop.second;
+
+        std::string propKey;
+        std::string propValue = value;
+        int ret = getPropKeyPath(key, propKey);
         if (ret < 0) {
             return ret;
         }
 
-        std::string propKey = keyPath;
-        std::string propValue = prop.second;
+        if(key == NameFriendKey) {
+            auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+            std::string pubKey;
+            int ret = sectyMgr->getPublicKey(pubKey);
+            CHECK_ERROR(ret)
+            std::vector<uint8_t> cryptoData;
+            ret = sectyMgr->encryptData(pubKey, SecurityManager::DefaultCryptoAlgorithm, std::vector<uint8_t>{std::begin(value), std::end(value)} , cryptoData);
+            CHECK_ERROR(ret);
+            propValue = std::string{cryptoData.begin(), cryptoData.end()};
+        }
+
         Json jsonProp = Json::object();
         jsonProp[DidProtocol::Name::Key] = propKey;
         jsonProp[DidProtocol::Name::Value] = propValue;
@@ -556,47 +569,67 @@ int64_t DidChnClient::checkDidProps(const std::string& did, const std::string& k
 
 int DidChnClient::downloadDidPropsByAgent(std::shared_ptr<HttpClient>& httpClient,
                                           const std::string& did, const std::string& key, bool withHistory,
-                                          std::vector<std::string>& values)
-{
-    std::string dataCachePath;
-    int ret = getDidPropPath(did, key, withHistory, dataCachePath, true);
-    CHECK_ERROR(ret)
+                                          std::vector<std::string>& values) {
+    std::string propArrayStr;
     std::string propCacheArrayStr;
-    ret = downloadDidChnData(httpClient, dataCachePath, propCacheArrayStr);
-    if(ret == ErrCode::BlkChnEmptyPropError) {
-        Log::W(Log::TAG, "Get property from DidChain Cache return empty. urlpath=%s", dataCachePath.c_str());
-        ret = 0;
-    }
-    CHECK_ERROR(ret);
 
     std::string dataPath;
-    ret = getDidPropPath(did, key, withHistory, dataPath, false);
+    int ret = getDidPropPath(did, key, withHistory, dataPath, false);
     CHECK_ERROR(ret)
-    std::string propArrayStr;
     ret = downloadDidChnData(httpClient, dataPath, propArrayStr);
     if(ret == ErrCode::BlkChnEmptyPropError) {
         Log::W(Log::TAG, "Get property from DidChain return empty. urlpath=%s", dataPath.c_str());
         ret = 0;
     }
+    if (propArrayStr.empty() == true
+    || withHistory == true) { // if history == true or cache is empty
+        std::string dataCachePath;
+        ret = getDidPropPath(did, key, withHistory, dataCachePath, true);
+        CHECK_ERROR(ret)
+        ret = downloadDidChnData(httpClient, dataCachePath, propCacheArrayStr);
+        if (ret == ErrCode::BlkChnEmptyPropError) {
+            Log::W(Log::TAG, "Get property from DidChain Cache return empty. urlpath=%s", dataCachePath.c_str());
+            ret = 0;
+        }
+    }
     CHECK_ERROR(ret);
 
     if(propCacheArrayStr.empty() == true
     && propArrayStr.empty() == true) {
-        ret = ErrCode::BlkChnEmptyPropError;
+        CHECK_ERROR(ErrCode::BlkChnEmptyPropError);
     }
-    CHECK_ERROR(ret);
 
     try {
-        if(propCacheArrayStr.empty() == false) {
+        if (propCacheArrayStr.empty() == false) {
             Json jsonPropArray = Json::parse(propCacheArrayStr);
             for (const auto &it: jsonPropArray) {
-                values.push_back(it["value"]);
+                std::string value = it["value"];
+                if (key == NameFriendKey) {
+                    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+                    std::vector<uint8_t> originData;
+                    ret = sectyMgr->decryptData(SecurityManager::DefaultCryptoAlgorithm,
+                                                std::vector<uint8_t>{std::begin(value), std::end(value)},
+                                                originData);
+                    CHECK_ERROR(ret);
+                    value = std::string{originData.begin(), originData.end()};
+                }
+                values.push_back(value);
             }
         }
         if(propArrayStr.empty() == false) {
             Json jsonPropArray = Json::parse(propArrayStr);
             for (const auto &it: jsonPropArray) {
-                values.push_back(it["value"]);
+                std::string value = it["value"];
+                if (key == NameFriendKey) {
+                    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+                    std::vector<uint8_t> originData;
+                    ret = sectyMgr->decryptData(SecurityManager::DefaultCryptoAlgorithm,
+                                                std::vector<uint8_t>{std::begin(value), std::end(value)},
+                                                originData);
+                    CHECK_ERROR(ret);
+                    value = std::string{originData.begin(), originData.end()};
+                }
+                values.push_back(value);
             }
         }
     } catch(const std::exception& ex) {
@@ -618,6 +651,7 @@ int DidChnClient::downloadDidChnData(std::shared_ptr<HttpClient>& httpClient,
 
     httpClient = std::make_shared<HttpClient>();
     httpClient->url(agentUrl);
+    httpClient->setHeader("Content-Type", "application/json");
     int ret = httpClient->syncGet();
     if(ret < 0) {
         return ErrCode::HttpClientError + ret;

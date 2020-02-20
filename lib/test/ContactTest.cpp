@@ -548,16 +548,38 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const elastos:
         break;
     }
     case elastos::sdk::Contact::Listener::AcquireType::EncryptData:
-        response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore encrypt
+        if(request.extra == "DefaultAlgorithm") {
+            const std::vector<uint8_t> cryptoStart {'c', 'r', 'y', 'p', 't', 'o', '<', '<', '<'};
+            const std::vector<uint8_t> cryptoEnd { '>', '>', '>', 'c', 'r', 'y', 'p', 't', 'o'};
+            response = std::make_shared<std::vector<uint8_t>>();
+            response->insert(response->end(), cryptoStart.begin(), cryptoStart.end());
+            response->insert(response->end(), request.data.begin(), request.data.end());
+            response->insert(response->end(), cryptoEnd.begin(), cryptoEnd.end());
+        } else {
+            response = std::make_shared < std::vector < uint8_t >> (request.data); // ignore encrypt
+        }
         break;
     case elastos::sdk::Contact::Listener::AcquireType::DecryptData:
-        response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore decrypt
+        if(request.extra == "DefaultAlgorithm") {
+            const std::vector<uint8_t> cryptoStart {'c', 'r', 'y', 'p', 't', 'o', '<', '<', '<'};
+            const std::vector<uint8_t> cryptoEnd { '>', '>', '>', 'c', 'r', 'y', 'p', 't', 'o'};
+            auto startIt = std::search(request.data.begin(), request.data.end(), cryptoStart.begin(), cryptoStart.end());
+            if(startIt == request.data.end()) { //compatible old version
+                startIt = request.data.begin();
+            } else {
+                startIt += cryptoStart.size();
+            }
+            auto endIt = std::search(request.data.begin(), request.data.end(), cryptoEnd.begin(), cryptoEnd.end());
+            response = std::make_shared<std::vector<uint8_t>>(startIt, endIt);
+        } else {
+            response = std::make_shared < std::vector < uint8_t >> (request.data); // ignore encrypt
+        }
         break;
     case elastos::sdk::Contact::Listener::AcquireType::DidPropAppId:
     {
-//        std::string appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AA"
-//                            "A65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
-//        response = std::make_shared<std::vector<uint8_t>>(appId.begin(), appId.end());
+        std::string appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AA"
+                            "A65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
+        response = std::make_shared<std::vector<uint8_t>>(appId.begin(), appId.end());
         response.reset(); // return null will use `DidFriend`
         break;
     }

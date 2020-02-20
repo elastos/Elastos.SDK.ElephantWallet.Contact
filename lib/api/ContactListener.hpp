@@ -53,10 +53,12 @@ public:
     public:
         using Type = AcquireType;
 
-        explicit AcquireArgs(Type type, const std::string& pubKey, const std::vector<uint8_t>& data) {
+        explicit AcquireArgs(Type type, const std::string& pubKey,
+                             const std::vector<uint8_t>& data, const std::string& extra) {
             this->type = type;
             this->publicKey = pubKey;
             this->data = std::move(data);
+            this->extra = extra;
         }
         virtual ~AcquireArgs() = default;
 
@@ -65,12 +67,14 @@ public:
                    + "[type=" + std::to_string(static_cast<int>(type))
                    + ",publicKey=" + publicKey
                    + ",data={unprintable}"
+                   + ",extra=" + extra
                    +"]";
         }
 
         Type type;
         std::string publicKey;
         std::vector<uint8_t> data;
+        std::string extra;
     };
 
     class EventArgs {
@@ -182,7 +186,7 @@ public:
     /*** class function and variable ***/
 
 #ifdef WITH_CROSSPL
-    std::shared_ptr<std::span<uint8_t>> onAcquire(AcquireType type, const char* pubKey, const std::span<uint8_t>* data);
+    std::shared_ptr<std::span<uint8_t>> onAcquire(AcquireType type, const char* pubKey, const std::span<uint8_t>* data, const char* extra);
     void onEvent(EventType type, const std::string& humanCode, ChannelType channelType, const std::span<uint8_t>* data);
     void onReceivedMessage(const std::string& humanCode, ChannelType channelType,
                            std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo);

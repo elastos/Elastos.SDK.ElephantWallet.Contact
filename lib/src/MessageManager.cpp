@@ -939,12 +939,6 @@ void MessageManager::MessageListener::onFriendStatusChanged(const std::string& f
             onFriendStatusChanged(friendInfo, humanChType, newStatus);
         }
         if(oldStatus == FriendInfo::Status::WaitForAccept) {
-            ret = friendMgr->cacheFriendToDidChain(friendInfo);
-            if(ret < 0) {
-                Log::W(Log::TAG, "Failed to cache friend %s to did chain.", friendCode.c_str());
-            }
-            CHECK_AND_NOTIFY_RETVAL(ret);
-
             ret = friendMgr->saveLocalData();
             CHECK_AND_NOTIFY_RETVAL(ret);
         }
@@ -1063,6 +1057,12 @@ int MessageManager::processCtrlMessage(std::shared_ptr<HumanInfo> humanInfo,
 
         auto friendMgr = SAFE_GET_PTR(mFriendManager);
         if(friendMgr->contains(humanInfo)) {
+            ret = friendMgr->cacheFriendToDidChain(std::dynamic_pointer_cast<FriendInfo>(humanInfo));
+            if(ret < 0) {
+                Log::W(Log::TAG, "Failed to cache friend %s to did chain.", friendCode.c_str());
+            }
+            CHECK_ERROR(ret);
+
             std::vector<HumanInfo::CarrierInfo> infoArray;
             int ret = humanInfo->getAllCarrierInfo(infoArray);
             if(ret > 0) {
@@ -1197,7 +1197,7 @@ int MessageManager::packMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
     // it's contact sdk
     std::vector<uint8_t> msgCryptoContent;
     if(msgInfo->mCryptoAlgorithm.empty() == true
-       || msgInfo->mCryptoAlgorithm == "plain") {
+    || msgInfo->mCryptoAlgorithm == "plain") {
         msgCryptoContent = msgInfo->mPlainContent;
     } else {
         std::string pubKey;
@@ -1205,7 +1205,7 @@ int MessageManager::packMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
         CHECK_ERROR(ret);
 
         auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
-        ret = sectyMgr->encryptData(pubKey, msgInfo->mPlainContent, msgCryptoContent);
+        ret = sectyMgr->encryptData(pubKey, msgInfo->mCryptoAlgorithm, msgInfo->mPlainContent, msgCryptoContent);
         CHECK_ERROR(ret)
     }
 
@@ -1259,7 +1259,7 @@ int MessageManager::unpackMessageInfo(const std::vector<uint8_t>& data,
         msgInfo->mPlainContent = msgCryptoContent;
     } else {
         auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
-        int ret = sectyMgr->decryptData(msgCryptoContent, msgInfo->mPlainContent);
+        int ret = sectyMgr->decryptData(msgInfo->mCryptoAlgorithm, msgCryptoContent, msgInfo->mPlainContent);
         CHECK_ERROR(ret)
     }
 

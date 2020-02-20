@@ -18,8 +18,8 @@ abstract class ContactListener extends CrossBase {
     public abstract void onReceivedMessage(String humanCode, Contact.Channel channelType, Contact.Message message);
 
     public class AcquireArgs extends org.elastos.sdk.elephantwallet.contact.internal.AcquireArgs {
-        private AcquireArgs(int type, String pubKey, byte[] data) {
-            super(type, pubKey, data);
+        private AcquireArgs(int type, String pubKey, byte[] data, String extra) {
+            super(type, pubKey, data, extra);
         }
     }
 
@@ -91,10 +91,10 @@ abstract class ContactListener extends CrossBase {
     }
 
     @CrossInterface
-    private byte[] onAcquire(int reqType, String pubKey, byte[] data) {
+    private byte[] onAcquire(int reqType, String pubKey, byte[] data, String extra) {
         Log.i(Utils.TAG, "ContactListener.onAcquire()");
 
-        AcquireArgs args = new AcquireArgs(reqType, pubKey, data);
+        AcquireArgs args = new AcquireArgs(reqType, pubKey, data, extra);
         byte[] ret = onAcquire(args);
 
         return ret;

@@ -15,6 +15,8 @@ import android.os.Looper;
 import android.os.Process;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.content.res.TypedArrayUtils;
+import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -1027,15 +1029,42 @@ public class MainActivity extends Activity {
                 response = getPublicKey().getBytes();
                 break;
             case EncryptData:
-                response = request.data; // plaintext
+                if(TextUtils.equals(request.extra, "DefaultAlgorithm")) {
+                    String cryptoStart = "crypto<<<";
+                    String cryptoEnd = ">>>crypto";
+                    ByteBuffer bb = ByteBuffer.allocate(cryptoStart.length() + request.data.length + cryptoEnd.length());
+                    bb.put(cryptoStart.getBytes());
+                    bb.put(request.data);
+                    bb.put(cryptoEnd.getBytes());
+                    response = bb.array();
+                } else {
+                    response = request.data; // plaintext
+                }
                 break;
             case DecryptData:
-                response = request.data; // plaintext
+                if(TextUtils.equals(request.extra, "DefaultAlgorithm")) {
+                    String cryptoStart = "crypto<<<";
+                    String cryptoEnd = ">>>crypto";
+                    int startIdx = ByteUtils.IndexOf(request.data, cryptoStart.getBytes());
+                    int endIdx = ByteUtils.IndexOf(request.data, cryptoEnd.getBytes());
+                    if(startIdx < 0) {
+                        startIdx = 0;
+                    } else {
+                        startIdx += cryptoStart.length();
+                    }
+                    if(endIdx < 0) {
+                        endIdx = request.data.length;
+                    }
+                    response = new byte[endIdx - startIdx];
+                    System.arraycopy(request.data, startIdx, response, 0, response.length);
+                } else {
+                    response = request.data; // plaintext
+                }
                 break;
             case DidPropAppId:
-//                String appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AAA65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
-//                response = appId.getBytes();
-                response = null;
+                String appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AA"
+                             + "A65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
+                response = appId.getBytes();
                 break;
             case DidAgentAuthHeader:
                 response = getAgentAuthHeader();

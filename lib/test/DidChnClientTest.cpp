@@ -1,3 +1,4 @@
+#if 0
 #include <iostream>
 #include <signal.h>
 
@@ -199,3 +200,9 @@ int testMonitor(std::shared_ptr<elastos::DidChnClient> bcClient)
 
     return 0;
 }
+#else // 0
+int main(int argc, char **argv)
+{
+}
+
+#endif // 0

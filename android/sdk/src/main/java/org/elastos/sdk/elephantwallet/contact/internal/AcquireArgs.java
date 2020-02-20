@@ -25,10 +25,11 @@ class AcquireArgs {
         private int id;
     }
 
-    public AcquireArgs(int type, String pubKey, byte[] data) {
+    public AcquireArgs(int type, String pubKey, byte[] data, String extra) {
         this.type = Type.valueOf(type);
         this.publicKey = pubKey;
         this.data = data;
+        this.extra = extra;
     }
 
     @Override
@@ -37,10 +38,12 @@ class AcquireArgs {
              + "[type=" + type
              + ",publicKey=" + publicKey
              + ",data=" + data
+             + ",extra=" + extra
              +"]";
     }
 
     public Type type;
     public String publicKey;
     public byte[] data;
+    public String extra;
 }

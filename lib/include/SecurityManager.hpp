@@ -26,8 +26,8 @@ public:
     public:
         virtual std::string onAcquirePublicKey() = 0;
 
-        virtual std::vector<uint8_t> onEncryptData(const std::string& pubKey, const std::vector<uint8_t>& src) = 0;
-        virtual std::vector<uint8_t> onDecryptData(const std::vector<uint8_t>& src) = 0;
+        virtual std::vector<uint8_t> onEncryptData(const std::string& pubKey, const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src) = 0;
+        virtual std::vector<uint8_t> onDecryptData(const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src) = 0;
 
         virtual std::string onAcquireDidPropAppId() = 0;
         virtual std::string onAcquireDidAgentAuthHeader() = 0;
@@ -41,6 +41,8 @@ public:
     };
 
     /*** static function and variable ***/
+    static constexpr const char* DefaultCryptoAlgorithm = "DefaultAlgorithm";
+
     static int GetElaAddress(const std::string& pubKey, std::string& elaAddr);
     static int GetDid(const std::string& pubKey, std::string& did);
     static bool IsValidElaAddress(const std::string& code);
@@ -56,8 +58,8 @@ public:
     int getElaAddress(std::string& elaAddr);
     int getDid(std::string& did);
 
-    int encryptData(const std::string& key, const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
-    int decryptData(const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
+    int encryptData(const std::string& pubKey, const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
+    int decryptData(const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
 
     int saveCryptoFile(const std::string& filePath, const std::vector<uint8_t>& originData);
     int loadCryptoFile(const std::string& filePath, std::vector<uint8_t>& originData);

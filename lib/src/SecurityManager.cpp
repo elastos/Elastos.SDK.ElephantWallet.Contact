@@ -118,13 +118,13 @@ int SecurityManager::getDid(std::string& value)
 }
 
 
-int SecurityManager::encryptData(const std::string& key, const std::vector<uint8_t>& src, std::vector<uint8_t>& dest)
+int SecurityManager::encryptData(const std::string& pubKey, const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src, std::vector<uint8_t>& dest)
 {
     if(mSecurityListener == nullptr) {
         return ErrCode::NoSecurityListener;
     }
 
-    dest = mSecurityListener->onEncryptData(key, src);
+    dest = mSecurityListener->onEncryptData(pubKey, cryptoAlgorithm, src);
     if(dest.empty() == true) {
         return ErrCode::BadSecurityValue;
     }
@@ -132,7 +132,7 @@ int SecurityManager::encryptData(const std::string& key, const std::vector<uint8
     return 0;
 }
 
-int SecurityManager::decryptData(const std::vector<uint8_t>& src, std::vector<uint8_t>& dest)
+int SecurityManager::decryptData(const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src, std::vector<uint8_t>& dest)
 {
     if(mSecurityListener == nullptr) {
         return ErrCode::NoSecurityListener;
@@ -143,7 +143,7 @@ int SecurityManager::decryptData(const std::vector<uint8_t>& src, std::vector<ui
         return 0;
     }
 
-    dest = mSecurityListener->onDecryptData(src);
+    dest = mSecurityListener->onDecryptData(cryptoAlgorithm, src);
     if(dest.empty() == true) {
         return ErrCode::BadSecurityValue;
     }
@@ -158,7 +158,7 @@ int SecurityManager::saveCryptoFile(const std::string& filePath, const std::vect
     CHECK_ERROR(ret)
 
     std::vector<uint8_t> encryptedData;
-    ret = encryptData(pubKey, originData, encryptedData);
+    ret = encryptData(pubKey, DefaultCryptoAlgorithm, originData, encryptedData);
     CHECK_ERROR(ret)
 
     std::ofstream cryptoFile;
@@ -193,7 +193,7 @@ int SecurityManager::loadCryptoFile(const std::string& filePath, std::vector<uin
 
     cryptoFile.close();
 
-    int ret = decryptData(encryptedData, originData);
+    int ret = decryptData(DefaultCryptoAlgorithm, encryptedData, originData);
     CHECK_ERROR(ret)
 
     return 0;
