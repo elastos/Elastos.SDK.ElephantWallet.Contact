@@ -11,6 +11,8 @@
 #ifndef _ELASTOS_SDK_JNI_CONTACT_CHANNEL_STRATEGY_HPP_
 #define _ELASTOS_SDK_JNI_CONTACT_CHANNEL_STRATEGY_HPP_
 
+#include <mutex>
+
 #include "ContactTypes.hpp"
 #include <Contact.V1.hpp>
 #include <MessageChannelStrategy.hpp>
