@@ -12,7 +12,24 @@ android {
 
                 // TODO: not perfect
                 arguments "-DCROSSPL_LIB_HEADERDIR=" + project(':crosspl:lib').projectDir + "/src/main/cpp"
-                arguments "-DCROSSPL_LIB_LIBPATHS=" + project(':crosspl:lib').buildDir + "/intermediates/intermediate-jars/debug/jni/"
+//                arguments "-DCROSSPL_LIB_LIBPATHS=" + project(':crosspl:lib').buildDir + "/intermediates/intermediate-jars/debug/jni/"
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            externalNativeBuild {
+                cmake {
+                    arguments "-DCROSSPL_LIB_LIBPATHS=" + project(':crosspl:lib').buildDir + "/intermediates/intermediate-jars/release/jni/"
+                }
+            }
+        }
+        debug {
+            externalNativeBuild {
+                cmake {
+                    arguments "-DCROSSPL_LIB_LIBPATHS=" + project(':crosspl:lib').buildDir + "/intermediates/intermediate-jars/debug/jni/"
+                }
             }
         }
     }

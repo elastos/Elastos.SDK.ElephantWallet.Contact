@@ -23,10 +23,10 @@ TARGET_PATH="$PACKAGE_DIR/${PROJECT_NAME}-${PROJECT_VERSION}.aar";
 
 ANDROID_DIR="$PROJECT_DIR/android";
 cd "$ANDROID_DIR";
-./gradlew :crosspl:lib:assembleDebug :sdk:assembleDebug -P versionCode=${PROJECT_REVISION} -P versionName=${PROJECT_VERSION/v/}
+./gradlew :crosspl:lib:assembleRelease :sdk:assembleRelease -P versionCode=${PROJECT_REVISION} -P versionName=${PROJECT_VERSION/v/}
 rm -rf "$TARGET_PATH";
-cp "$ANDROID_DIR/crosspl/lib/build/outputs/aar/lib-debug.aar" "$CROSSPL_PATH";
-cp "$ANDROID_DIR/sdk/build/outputs/aar/sdk-debug.aar" "$TARGET_PATH";
+cp "$ANDROID_DIR/crosspl/lib/build/outputs/aar/lib-release.aar" "$CROSSPL_PATH";
+cp "$ANDROID_DIR/sdk/build/outputs/aar/sdk-release.aar" "$TARGET_PATH";
 git tag --force ${PROJECT_VERSION}
 
 
