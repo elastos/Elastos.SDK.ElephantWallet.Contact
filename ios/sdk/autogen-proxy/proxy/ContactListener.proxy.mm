@@ -11,14 +11,15 @@
 #import "ContactListener.hpp"
 
 
-std::shared_ptr<std::span<uint8_t>> crosspl_Proxy_ContactListener_onAcquire(int64_t platformHandle, int var0, const char* var1, const std::span<uint8_t>* var2)
+std::shared_ptr<std::span<uint8_t>> crosspl_Proxy_ContactListener_onAcquire(int64_t platformHandle, int var0, const char* var1, const std::span<uint8_t>* var2, const char* var3)
 {
   auto ocobj = crosspl::CrossPLUtils::SafeCastCrossObjectToSwift<ContactListener>(platformHandle);
   int ocvar0 = var0;
   auto ocvar1 = crosspl::CrossPLUtils::SafeCastString(var1);
   auto ocvar2 = crosspl::CrossPLUtils::SafeCastByteArray(var2);
+  auto ocvar3 = crosspl::CrossPLUtils::SafeCastString(var3);
 
-  NSData* ocret = [ocobj onAcquire :ocvar0 :ocvar1.get() :ocvar2.get()];
+  NSData* ocret = [ocobj onAcquire :ocvar0 :ocvar1.get() :ocvar2.get() :ocvar3.get()];
 
 
   auto ret = crosspl::CrossPLUtils::SafeCastByteArray(ocret);

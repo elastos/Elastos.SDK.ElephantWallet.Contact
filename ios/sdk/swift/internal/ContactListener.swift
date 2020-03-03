@@ -90,10 +90,10 @@ import CrossPL
   }
 
   /* @CrossPlatformInterface */
-  @objc internal func onAcquire(_ reqType: Int, _ pubKey: String?, _ data: Data?) -> Data? {
+  @objc internal func onAcquire(_ reqType: Int, _ pubKey: String?, _ data: Data?, _ extra: String?) -> Data? {
     ContactInternal.Log.i(tag: Contact.TAG, msg: "ContactListener.onAcquire()")
 //
-    let args = AcquireArgs(type: reqType, pubKey: pubKey, data: data)
+    let args = AcquireArgs(type: reqType, pubKey: pubKey, data: data, extra: extra)
     let ret = onAcquire(request: args);
 
     return ret;

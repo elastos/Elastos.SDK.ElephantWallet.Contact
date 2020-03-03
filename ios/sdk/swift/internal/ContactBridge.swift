@@ -91,6 +91,21 @@ open class ContactBridge: CrossBase {
     return userInfo;
   }
 
+  public func getUserBrief(brief: inout String) -> Int {
+      if(mListener == nil) {
+        return -1
+      }
+      
+    let ret = getHumanBrief(humanCode: "-user-info-", devId: UserInfo.GetCurrDevId()!, brief: &brief)
+      if(ret < 0) {
+        Log.w(tag: ContactBridge.TAG, msg: "Failed to get user brief. ret=\(ret)")
+        return ret
+      }
+
+      return 0;
+  }
+
+  
   public func listFriendInfo() -> [Contact.FriendInfo]? {
     assert(mListener != nil)
 
@@ -303,6 +318,19 @@ open class ContactBridge: CrossBase {
       return Int(ret)
     }
     info = nsinfo! as String
+    
+    return 0
+  }
+  
+  /* @CrossNativeInterface */
+  public func getHumanBrief(humanCode: String, devId: String, brief: inout String) -> Int {
+    var nsbrief = brief as NSString?
+    
+    let ret = crosspl_Proxy_ContactBridge_getHumanBrief(nativeHandle, humanCode, devId, &nsbrief)
+    if ret < 0 {
+      return Int(ret)
+    }
+    brief = nsbrief! as String
     
     return 0
   }

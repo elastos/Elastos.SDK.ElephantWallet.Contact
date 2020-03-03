@@ -77,7 +77,7 @@ public class Helper {
       showDialog(view, dialog);
     }
 
-  public static func showDetails(view: UIViewController, msg: String) {
+  public static func showDetails(view: UIViewController, msg: String, listener: OnListener?) {
     let dialog = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
 
     dialog.title = "Details"
@@ -86,10 +86,51 @@ public class Helper {
     rootView.isEditable = false
     setDialogContent(dialog, -1, rootView)
     dialog.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+    if(listener != nil) {
+      dialog.addAction(UIAlertAction(title: "ShowAvatar", style: .default, handler: { _ in
+        listener!(nil)
+      }))
+    }
       
     showDialog(view, dialog);
   }
 
+  public static func showImage(view: UIViewController, title: String, filepath: URL) {
+    fatalError("Helper.showImage a image file. Unimplement!!");
+  }
+  
+  public static func showImage(view: UIViewController, title: String, content: String) {
+    let image = makeQRCodeImage(value: content)
+    showImage(view: view, title: title, msg: content, bitmap: image!)
+  }
+  
+  public static func showImage(view: UIViewController, title: String, msg: String, bitmap: UIImage) {
+    let msgView = UITextView()
+    let imgQRCode = UIImageView()
+    
+    msgView.text = msg
+    msgView.isEditable = false
+    imgQRCode.image = bitmap
+    imgQRCode.contentMode = UIView.ContentMode.scaleAspectFit
+    
+    let rootView = UIStackView()
+    rootView.axis = .vertical
+    rootView.addArrangedSubview(msgView)
+    rootView.addArrangedSubview(imgQRCode)
+    msgView.translatesAutoresizingMaskIntoConstraints = false
+    msgView.heightAnchor.constraint(equalToConstant: 50).isActive = true
+    imgQRCode.translatesAutoresizingMaskIntoConstraints = false
+    imgQRCode.widthAnchor.constraint(equalToConstant: 150).isActive = true
+    imgQRCode.heightAnchor.constraint(equalToConstant: 250).isActive = true
+
+    let dialog = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
+    dialog.title = title
+    dialog.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+    setDialogContent(dialog, -1, rootView)
+
+    showDialog(view, dialog);
+  }
+  
   public static func showFriendList(view: UIViewController, friendList: [String],
                                     listener: @escaping OnListener) {
     let dialog = UIAlertController(title: nil, message: nil, preferredStyle: .alert)

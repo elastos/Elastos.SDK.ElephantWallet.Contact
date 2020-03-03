@@ -24,6 +24,7 @@ void crosspl_Proxy_ContactBridge_setDataListener(int64_t nativeHandle, NSObject*
 int crosspl_Proxy_ContactBridge_setHumanInfo(int64_t nativeHandle, NSString* ocvar0, int ocvar1, NSString* ocvar2);
 int crosspl_Proxy_ContactBridge_setIdentifyCode(int64_t nativeHandle, int ocvar0, NSString* ocvar1);
 int crosspl_Proxy_ContactBridge_getHumanInfo(int64_t nativeHandle, NSString* ocvar0, NSString** ocvar1);
+int crosspl_Proxy_ContactBridge_getHumanBrief(int64_t nativeHandle, NSString* ocvar0, NSString* ocvar1, NSString** ocvar2);
 int crosspl_Proxy_ContactBridge_getFriendList(int64_t nativeHandle, NSString** ocvar0);
 int crosspl_Proxy_ContactBridge_getHumanStatus(int64_t nativeHandle, NSString* ocvar0);
 int crosspl_Proxy_ContactBridge_sendMessage(int64_t nativeHandle, NSString* ocvar0, int ocvar1, NSObject* ocvar2);

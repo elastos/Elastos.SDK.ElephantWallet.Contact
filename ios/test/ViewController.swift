@@ -444,11 +444,31 @@ class ViewController: UIViewController {
     let ext = info!.getCurrDevCarrierId()
     Helper.showAddress(view: self,
                        listener: { _ in
-                         Helper.showDetails(view: self, msg: info!.toJson()!)
+                         Helper.showDetails(view: self, msg: info!.toJson()!,
+                                            listener: { _ in
+//                                              let filepath = mContact!.find
+//                                              Helper.showImage(view: self, title:"Avatar", )
+                                            })
                        },
                        humanCode: humanCode, presentDevId: getDeviceId(), ext: ext)
 
     return info!.toString()
+  }
+  
+  private func showGetUserBrief() -> String {
+    if mContact == nil {
+      return ViewController.ErrorPrefix + "Contact is null."
+    }
+    
+    var brief = String()
+    let ret = mContact!.getUserBrief(brief: &brief)
+    if ret < 0 {
+      return ViewController.ErrorPrefix + "Failed to get user brief. ret=\(ret)"
+    }
+    
+    Helper.showImage(view: self, title: "Brief", content: brief)
+    
+    return brief;
   }
   
   private func showSetUserIdentifyCode() -> String {
@@ -661,7 +681,11 @@ class ViewController: UIViewController {
             break
         }
       }
-      Helper.showDetails(view: self, msg: friendInfo!.toJson()!)
+      Helper.showDetails(view: self, msg: friendInfo!.toJson()!,
+                         listener: { _ in
+                         //                                              let filepath = mContact!.find
+                         //                                              Helper.showImage(view: self, title:"Avatar", )
+                         })
     })
     return "Success to list friend info."
   }
@@ -906,7 +930,7 @@ class ViewController: UIViewController {
     var cachedDidProp = String()
     Contact.Debug.GetCachedDidProp(value: &cachedDidProp)
     
-    Helper.showDetails(view: self, msg:  cachedDidProp)
+    Helper.showDetails(view: self, msg:  cachedDidProp, listener: nil)
     
     return "Success to get cached didprop.";
   }
@@ -1117,6 +1141,7 @@ class ViewController: UIViewController {
     "   `- Restart Contact": restartContact,
     "User": nil,
     "   |- Get User Info": showGetUserInfo,
+    "   |- Get User Brief": showGetUserBrief,
     "   |- Set User IdentifyCode": showSetUserIdentifyCode,
     "   |- Set User Details": showSetUserDetails,
     "   |- Set Wallet Address": showSetWalletAddress,

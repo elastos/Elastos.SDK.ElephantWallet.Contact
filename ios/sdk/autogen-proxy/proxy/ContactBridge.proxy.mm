@@ -201,6 +201,20 @@ int crosspl_Proxy_ContactBridge_getHumanInfo(int64_t nativeHandle, NSString* ocv
   int ocret = ret;
   return ocret;
 }
+int crosspl_Proxy_ContactBridge_getHumanBrief(int64_t nativeHandle, NSString* ocvar0, NSString* ocvar1, NSString** ocvar2)
+{
+  auto var0 = crosspl::CrossPLUtils::SafeCastString(ocvar0);
+  auto var1 = crosspl::CrossPLUtils::SafeCastString(ocvar1);
+  auto var2 = crosspl::CrossPLUtils::SafeCastStringBuffer(ocvar2);
+
+  auto obj = crosspl::CrossPLUtils::SafeCastCrossObjectToCpp<crosspl::native::ContactBridge>(nativeHandle);
+  int ret = obj->getHumanBrief(var0.get(), var1.get(), var2.get());
+
+  crosspl::CrossPLUtils::SafeCopyStringBufferToSwift(ocvar2, var2.get());
+
+  int ocret = ret;
+  return ocret;
+}
 int crosspl_Proxy_ContactBridge_getFriendList(int64_t nativeHandle, NSString** ocvar0)
 {
   auto var0 = crosspl::CrossPLUtils::SafeCastStringBuffer(ocvar0);

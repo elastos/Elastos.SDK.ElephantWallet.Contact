@@ -11,10 +11,11 @@ public class AcquireArgs {
     case SignData = 206
   }
   
-  public init(type: Int, pubKey: String?, data: Data?) {
+  public init(type: Int, pubKey: String?, data: Data?, extra: String?) {
     self.type = Kind(rawValue: type)!
     self.publicKey = pubKey
     self.data = data
+    self.extra = extra
   }
 
   public func toString() -> String {
@@ -22,12 +23,14 @@ public class AcquireArgs {
           + "[type=\(type)"
           + ",publicKey=\(String(describing: publicKey))"
           + ",data=\(String(describing: data))"
+          + ",extra=\(String(describing: extra))"
           + "]"
   }
 
   public let type: Kind
   public let publicKey: String?
   public let data: Data?
+  public let extra: String?
 }
   
 }
