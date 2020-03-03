@@ -30,6 +30,7 @@ public:
         Did = 1,
         Ela,
         Carrier,
+        Brief
     };
 
     enum class Status: uint8_t {
@@ -78,6 +79,9 @@ public:
     virtual int getCarrierStatus(const std::string& usrId, Status& status) const;
 
     virtual int64_t getHumanUpdateTime();
+
+    virtual int setHumanBrief(const std::string& brief);
+    virtual int getHumanBrief(const std::string& devId, std::string& brief);
 
     virtual int setHumanInfo(Item item, const std::string& value);
     virtual int getHumanInfo(Item item, std::string& value) const;

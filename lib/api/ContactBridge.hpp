@@ -45,6 +45,7 @@ public:
 
     int setHumanInfo(ConstStringPtr humanCode, InfoItemType item, ConstStringPtr value);
     int getHumanInfo(ConstStringPtr humanCode, HumanInfoPtr info);
+    int getHumanBrief(ConstStringPtr humanCode, ConstStringPtr devId, OutStringPtr brief);
     int findAvatarFile(ConstStringPtr avatar, OutStringPtr filepath);
     StatusType getHumanStatus(ConstStringPtr humanCode);
 

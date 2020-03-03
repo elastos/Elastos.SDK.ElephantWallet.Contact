@@ -28,7 +28,7 @@ const struct {
         { DidChnClient::NamePublicKey, false },
         { DidChnClient::NameCarrierKey, true },
 //         ignore to sync for this revision
-//        { DidChnClient::NameDetailKey, false },
+        { DidChnClient::NameDetailKey, false },
 //        { DidChnClient::NameIdentifyKey, true },
         { DidChnClient::NameFriendKey, true },
 };

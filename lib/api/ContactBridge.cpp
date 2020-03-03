@@ -242,6 +242,45 @@ int ContactBridge::getHumanInfo(ConstStringPtr humanCode, HumanInfoPtr info)
     return 0;
 }
 
+int ContactBridge::getHumanBrief(ConstStringPtr humanCode, ConstStringPtr devId, OutStringPtr brief)
+{
+    if(mContactImpl->isStarted() == false) {
+        return elastos::ErrCode::NotReadyError;
+    }
+
+    auto weakUserMgr = mContactImpl->getUserManager();
+    auto userMgr =  SAFE_GET_PTR(weakUserMgr);                                                                      \
+    auto weakFriendMgr = mContactImpl->getFriendManager();
+    auto friendMgr =  SAFE_GET_PTR(weakFriendMgr);                                                                      \
+
+    int ret = elastos::ErrCode::UnknownError;
+    std::shared_ptr<elastos::HumanInfo> humanInfo;
+    if(std::string("-user-info-") == humanCode
+       || userMgr->contains(humanCode) == true) {
+        std::shared_ptr<elastos::UserInfo> userInfo;
+        ret = userMgr->getUserInfo(userInfo);
+        CHECK_ERROR(ret);
+        humanInfo = userInfo;
+    } else if (friendMgr->contains(humanCode) == true) {
+        std::shared_ptr<elastos::FriendInfo> friendInfo;
+        ret = friendMgr->tryGetFriendInfo(humanCode, friendInfo);
+        CHECK_ERROR(ret);
+        humanInfo = friendInfo;
+    } else {
+        return elastos::ErrCode::NotFoundError;
+    }
+
+    std::string value;
+    ret = humanInfo->getHumanBrief(devId, value);
+    CHECK_ERROR(ret);
+
+#ifdef WITH_CROSSPL
+    brief->str(value);
+#else
+    brief = value;
+#endif // WITH_CROSSPL
+    return 0;
+}
 
 int ContactBridge::findAvatarFile(ConstStringPtr avatar, OutStringPtr filepath)
 {
@@ -259,6 +298,7 @@ int ContactBridge::findAvatarFile(ConstStringPtr avatar, OutStringPtr filepath)
 
     std::string avatarPath;
     int ret = userMgr->getAvatarFile(avatar, avatarPath);
+    CHECK_ERROR(ret);
 
 #ifdef WITH_CROSSPL
     filepath->str(avatarPath);

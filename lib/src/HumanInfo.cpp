@@ -13,6 +13,7 @@
 #include <DateTime.hpp>
 #include <Log.hpp>
 #include <SecurityManager.hpp>
+#include <Platform.hpp>
 
 namespace elastos {
 
@@ -27,7 +28,10 @@ HumanInfo::HumanKind HumanInfo::AnalyzeHumanKind(const std::string& code)
 {
     auto kind = static_cast<HumanInfo::HumanKind>(ErrCode::InvalidArgument);
 
-    if(SecurityManager::IsValidDid(code) == true) {
+    if(code.find("{") == 0
+    && (code.rfind("}") == code.size() - 1)) {
+        kind = HumanInfo::HumanKind::Brief;
+    } else if(SecurityManager::IsValidDid(code) == true) {
         kind = HumanInfo::HumanKind::Did;
     } else if(SecurityManager::IsValidElaAddress(code) == true) {
         kind = HumanInfo::HumanKind::Ela;
@@ -317,6 +321,54 @@ int64_t HumanInfo::getHumanUpdateTime()
 {
     return mUpdateTime;
 }
+
+int HumanInfo::setHumanBrief(const std::string& brief)
+{
+    Json jsonInfo;
+    try {
+        jsonInfo = Json::parse(brief);
+    } catch(const std::exception& ex) {
+        Log::E(Log::TAG, "Failed to set human brier from: %s.\nex=%s", brief.c_str(), ex.what());
+        return ErrCode::JsonParseException;
+    }
+
+    std::string value;
+    value = jsonInfo[JsonKey::Did];
+    int ret = setHumanInfo(Item::Did, value);
+    CHECK_ERROR(ret);
+    value = jsonInfo[JsonKey::Nickname];
+    ret = setHumanInfo(Item::Nickname, value);
+    CHECK_ERROR(ret);
+    CarrierInfo carrierInfo;
+    value = jsonInfo[JsonKey::DeviceId];
+    carrierInfo.mDevInfo.mDevId = value;
+    value = jsonInfo[JsonKey::CarrierAddr];
+    carrierInfo.mUsrAddr = value;
+    ret = HumanInfo::addCarrierInfo(carrierInfo);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int HumanInfo::getHumanBrief(const std::string& devId, std::string& brief)
+{
+    std::string value;
+
+    Json jsonInfo = Json::object();
+    std::ignore = getHumanInfo(Item::Did, value);
+    jsonInfo[JsonKey::Did] = value;
+    std::ignore = getHumanInfo(Item::Nickname, value);
+    jsonInfo[JsonKey::Nickname] = value;
+    jsonInfo[JsonKey::DeviceId] = devId;
+    CarrierInfo carrierInfo;
+    int ret = getCarrierInfoByDevId(devId, carrierInfo);
+    CHECK_ERROR(ret);
+    jsonInfo[JsonKey::CarrierAddr] = carrierInfo.mUsrAddr;
+
+    brief = jsonInfo.dump();
+    return 0;
+}
+
 
 int HumanInfo::setHumanInfo(Item item, const std::string& value)
 {

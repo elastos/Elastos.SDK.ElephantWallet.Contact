@@ -84,6 +84,7 @@ private:
     static constexpr int ADDFRIEND_SUMMARY_MAXSIZE = 100;
 
     /*** class function and variable ***/
+    virtual int addFriendByBrief(const std::string& brief, const std::string& summary, bool remoteRequest, bool forceRequest = false);
     virtual int addFriendByDid(const std::string& did, const std::string& summary, bool remoteRequest, bool forceRequest = false);
     virtual int addFriendByCarrier(const std::string& carrierAddress, const std::string& summary, bool remoteRequest, bool forceRequest = false);
     virtual int addFriendByEla(const std::string& elaAddress, const std::string& summary, bool remoteRequest, bool forceRequest);
@@ -99,6 +100,7 @@ private:
     std::weak_ptr<SecurityManager> mSecurityManager;
     std::weak_ptr<MessageManager> mMessageManager;
     std::weak_ptr<Config> mConfig;
+    std::recursive_mutex mMutex;
     std::shared_ptr<FriendListener> mFriendListener;
     std::vector<std::shared_ptr<FriendInfo>> mFriendList;
 

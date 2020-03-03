@@ -36,8 +36,9 @@ namespace elastos {
 /***********************************************/
 FriendManager::FriendManager(std::weak_ptr<SecurityManager> sectyMgr)
     : mSecurityManager(sectyMgr)
-    , mConfig()
     , mMessageManager()
+    , mConfig()
+    , mMutex()
     , mFriendListener()
     , mFriendList()
 {
@@ -276,7 +277,9 @@ int FriendManager::addFriend(FriendInfo::HumanKind friendKind, const std::string
     }
 
     int ret = ErrCode::InvalidArgument;
-    if(friendKind == FriendInfo::HumanKind::Did) {
+    if(friendKind == FriendInfo::HumanKind::Brief) {
+        ret = addFriendByBrief(friendCode, summary, remoteRequest, forceRequest);
+    } else if(friendKind == FriendInfo::HumanKind::Did) {
         ret = addFriendByDid(friendCode, summary, remoteRequest, forceRequest);
     } else if(friendKind == FriendInfo::HumanKind::Ela) {
         ret = addFriendByEla(friendCode, summary, remoteRequest, forceRequest);
@@ -304,6 +307,7 @@ int FriendManager::removeFriend(FriendInfo::HumanKind friendKind, const std::str
 
 int FriendManager::addFriendInfo(std::shared_ptr<FriendInfo> friendInfo)
 {
+    std::lock_guard<std::recursive_mutex> lock(mMutex);                              \
     mFriendList.push_back(friendInfo);
     return 0;
 }
@@ -573,6 +577,39 @@ int FriendManager::cacheFriendToDidChain(std::shared_ptr<FriendInfo> friendInfo)
 /***********************************************/
 /***** class private function implement  *******/
 /***********************************************/
+
+int FriendManager::addFriendByBrief(const std::string& brief, const std::string& summary, bool remoteRequest, bool forceRequest)
+{
+    auto newFriendInfo = std::make_shared<FriendInfo>(weak_from_this());
+    int ret = newFriendInfo->setHumanBrief(brief);
+    CHECK_ERROR(ret);
+    std::string did;
+    ret = newFriendInfo->getHumanInfo(FriendInfo::Item::Did, did);
+    CHECK_ERROR(ret);
+
+    std::shared_ptr<FriendInfo> friendInfo;
+    ret = tryGetFriendInfo(did, friendInfo);
+    if(ret < 0) {
+        friendInfo = newFriendInfo;
+        ret = friendInfo->setHumanStatus(FriendInfo::Status::Invalid, FriendInfo::Status::WaitForAccept);
+        CHECK_ERROR(ret);
+
+        addFriendInfo(friendInfo);
+    } else {
+        ret = friendInfo->mergeHumanInfo(*newFriendInfo, FriendInfo::Status::WaitForAccept);
+        CHECK_ERROR(ret);
+    }
+
+    std::vector<FriendInfo::CarrierInfo> carrierInfoList;
+    ret = friendInfo->getAllCarrierInfo(carrierInfoList);
+    CHECK_ERROR(ret);
+    for(const auto& carrierInfo: carrierInfoList) {
+        ret = addFriendByCarrier(carrierInfo.mUsrAddr, summary, true, true);
+        CHECK_ERROR(ret);
+    }
+    return 0;
+}
+
 int FriendManager::addFriendByDid(const std::string& did, const std::string& summary, bool remoteRequest, bool forceRequest)
 {
     auto dcClient = DidChnClient::GetInstance();
@@ -588,7 +625,7 @@ int FriendManager::addFriendByDid(const std::string& did, const std::string& sum
     ret = tryGetFriendInfo(did, friendInfo);
     if(ret < 0) {
         friendInfo = std::make_shared<FriendInfo>(weak_from_this());
-        mFriendList.push_back(friendInfo);
+        addFriendInfo(friendInfo);
     }
 
     auto dcDataListener = DidChnDataListener::GetInstance();
