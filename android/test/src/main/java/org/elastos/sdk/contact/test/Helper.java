@@ -39,6 +39,7 @@ import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.elastos.sdk.elephantwallet.contact.Contact;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.List;
@@ -255,25 +256,34 @@ public class Helper {
         }
     }
 
-    public static void ShowImage(Context context, String filepath) {
-        LinearLayout root = new LinearLayout(context);
-        root.setOrientation(LinearLayout.VERTICAL);
-        TextView txtPath = new TextView(context);
-        txtPath.setText(filepath);
-        root.addView(txtPath);
-
-        ImageView image = new ImageView(context);
-        root.addView(image);
+    public static void ShowImage(Context context, String title, File filepath) {
         try {
             FileInputStream fis = new FileInputStream(filepath);
             Bitmap bitmap = BitmapFactory.decodeStream(fis);
-            image.setImageBitmap(bitmap);
+            ShowImage(context, title, filepath.getAbsolutePath(), bitmap);
         } catch (Exception e) {
             Log.e(TAG, "Failed to open image file: " + filepath, e);
         }
+    }
+
+    public static void ShowImage(Context context, String title, String content) {
+        Bitmap bitmap = makeQRCode(content);
+        ShowImage(context, title, content, bitmap);
+    }
+
+    private static void ShowImage(Context context, String title, String msg, Bitmap bitmap) {
+        LinearLayout root = new LinearLayout(context);
+        root.setOrientation(LinearLayout.VERTICAL);
+        TextView txtPath = new TextView(context);
+        txtPath.setText(msg);
+        root.addView(txtPath);
+
+        ImageView image = new ImageView(context);
+        image.setImageBitmap(bitmap);
+        root.addView(image);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Avatar");
+        builder.setTitle(title);
         builder.setView(root);
         builder.setNegativeButton("Cancel", (dialog, which) -> {
             dialog.dismiss();
@@ -282,7 +292,6 @@ public class Helper {
             builder.create().show();
         });
     }
-
 
     public static void onRequestPermissionsResult(MainActivity activity, int requestCode, String[] permissions, int[] grantResults) {
         if (requestCode != 1) {

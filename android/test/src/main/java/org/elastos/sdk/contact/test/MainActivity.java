@@ -149,6 +149,9 @@ public class MainActivity extends Activity {
             case R.id.get_user_info:
                 message = showGetUserInfo();
                 break;
+            case R.id.get_user_brief:
+                message = showGetUserBrief();
+                break;
             case R.id.set_user_identifycode:
                 message = showSetUserIdentifyCode();
                 break;
@@ -509,11 +512,27 @@ public class MainActivity extends Activity {
         Helper.showAddress(this, humanCode, getDeviceId(), ext, (result) -> {
             Helper.showDetails(MainActivity.this, info.toJson(), (dump) -> {
                 String filepath = mContact.findAvatarFile(info.avatar);
-                Helper.ShowImage(MainActivity.this, filepath);
+                Helper.ShowImage(MainActivity.this, "Avatar", new File(filepath));
             });
         });
 
         return info.toString();
+    }
+
+    private String showGetUserBrief() {
+        if (mContact == null) {
+            return ErrorPrefix + "Contact is null.";
+        }
+
+        StringBuffer brief = new StringBuffer();
+        int ret = mContact.getUserBrief(brief);
+        if(ret < 0) {
+            return ErrorPrefix + "Failed to get user brief ret=" + ret;
+        }
+
+        Helper.ShowImage(MainActivity.this, "Brief", brief.toString());
+
+        return brief.toString();
     }
 
     private String showSetUserIdentifyCode() {
@@ -650,7 +669,7 @@ public class MainActivity extends Activity {
 
             Helper.showAddFriend(this, result, (summary) -> {
                 String friendCode = result;
-                if(result.contains(" ") == true) { // Compatible for AnyPeer App
+                if(result.startsWith("{") == false && result.contains(" ") == true) { // Compatible for AnyPeer App
                     friendCode = result.substring(0, result.indexOf(" "));
                 }
                 int ret = mContact.addFriend(friendCode, summary);
@@ -685,7 +704,7 @@ public class MainActivity extends Activity {
             String avatar = friendInfo.avatar;
             Helper.showDetails(MainActivity.this, friendInfo.toJson(), (dump) -> {
                 String filepath = mContact.findAvatarFile(avatar);
-                Helper.ShowImage(MainActivity.this, filepath);
+                Helper.ShowImage(MainActivity.this, "Avatar", new File(filepath));
             });
         });
         return "Success to list friend info.";
@@ -1108,16 +1127,14 @@ public class MainActivity extends Activity {
 
     private String getPublicKey() {
         ElastosKeypair.Data seedData = new ElastosKeypair.Data();
-        int seedSize = ElastosKeypair.getSeedFromMnemonic(seedData, mSavedMnemonic,
-                                                          KeypairLanguage, KeypairWords, "");
+        int seedSize = ElastosKeypair.getSeedFromMnemonic(seedData, mSavedMnemonic, KeypairWords);
         String pubKey = ElastosKeypair.getSinglePublicKey(seedData, seedSize);
         return pubKey;
     }
 
     private String getPrivateKey() {
         ElastosKeypair.Data seedData = new ElastosKeypair.Data();
-        int seedSize = ElastosKeypair.getSeedFromMnemonic(seedData, mSavedMnemonic,
-                KeypairLanguage, KeypairWords, "");
+        int seedSize = ElastosKeypair.getSeedFromMnemonic(seedData, mSavedMnemonic, KeypairWords);
         String privKey = ElastosKeypair.getSinglePrivateKey(seedData, seedSize);
         return privKey;
     }

@@ -27,12 +27,3 @@ dependencies {
     //implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'org.kie.modules:com-google-code-gson:6.5.0.Final'
 }
-
-//project.ext {
-//    extractNativeRunBefore = [ 'externalNativeBuild${buildType}' ]
-//    extractNativeRunAfter = [ ':crosspl:lib:bundle${buildType}' ]
-//    extractNativeMap = [
-//            'crosspl-lib': project(':crosspl:lib').buildDir.absolutePath + '/outputs/aar/v8-engine-${buildTypeLowerCase}.aar',
-//    ]
-//}
-//apply from: "$rootProject.ext.gradleStoreDir/task-extract-native.gradle"

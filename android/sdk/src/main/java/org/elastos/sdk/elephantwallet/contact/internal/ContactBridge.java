@@ -26,15 +26,15 @@ class ContactBridge extends CrossBase {
     }
 
     public void finalize() {
-        for(Contact.ChannelStrategy channel: mCustomChannelMap.values()) {
+        for (Contact.ChannelStrategy channel : mCustomChannelMap.values()) {
             channel.unbind();
         }
         mCustomChannelMap.clear();
 
-        if(mListener != null) {
+        if (mListener != null) {
             mListener.unbind();
         }
-        if(mDataListener != null) {
+        if (mDataListener != null) {
             mDataListener.unbind();
         }
 
@@ -43,13 +43,13 @@ class ContactBridge extends CrossBase {
 
     public synchronized int appendChannelStrategy(Contact.ChannelStrategy channelStrategy) {
         Contact.ChannelStrategy oldChannelStrategy = mCustomChannelMap.get(channelStrategy.getChannelId());
-        if(oldChannelStrategy != null) {
+        if (oldChannelStrategy != null) {
             oldChannelStrategy.unbind();
         }
 
         channelStrategy.bind();
-        int ret = appendChannelStrategy((CrossBase)channelStrategy);
-        if(ret < 0) {
+        int ret = appendChannelStrategy((CrossBase) channelStrategy);
+        if (ret < 0) {
             channelStrategy.unbind();
             return ret;
         }
@@ -59,23 +59,23 @@ class ContactBridge extends CrossBase {
     }
 
     public synchronized void setListener(Contact.Listener listener) {
-        if(mListener != null) {
+        if (mListener != null) {
             mListener.unbind();
         }
         mListener = listener;
 
         mListener.bind();
-        setListener((CrossBase)mListener);
+        setListener((CrossBase) mListener);
     }
 
     public synchronized void setDataListener(Contact.DataListener listener) {
-        if(mDataListener != null) {
+        if (mDataListener != null) {
             mDataListener.unbind();
         }
         mDataListener = listener;
 
         mDataListener.bind();
-        setDataListener((CrossBase)mDataListener);
+        setDataListener((CrossBase) mDataListener);
     }
 
     public int setIdentifyCode(IdentifyCode.Type type, String value) {
@@ -89,16 +89,28 @@ class ContactBridge extends CrossBase {
     }
 
     public Contact.UserInfo getUserInfo() {
-        assert(mListener != null);
+        assert (mListener != null);
 
         Contact.UserInfo userInfo = new Contact.UserInfo();
         int ret = getHumanInfo("-user-info-", userInfo);
-        if(ret < 0) {
+        if (ret < 0) {
             Log.w(TAG, "Failed to get user info. ret=" + ret);
             return null;
         }
 
         return userInfo;
+    }
+
+    public int getUserBrief(StringBuffer brief) {
+        assert (mListener != null);
+
+        int ret = getHumanBrief("-user-info-", UserInfo.GetCurrDevId(), brief);
+        if (ret < 0) {
+            Log.w(TAG, "Failed to get user info. ret=" + ret);
+            return ret;
+        }
+
+        return 0;
     }
 
     public List<Contact.FriendInfo> listFriendInfo() {
@@ -298,6 +310,9 @@ class ContactBridge extends CrossBase {
 
     @CrossInterface
     private native int getHumanInfo(String humanCode, StringBuffer info);
+
+    @CrossInterface
+    private native int getHumanBrief(String friendCode, String devId, StringBuffer brief);
 
     @CrossInterface
     public native int findAvatarFile(String avatar, StringBuffer filepath);

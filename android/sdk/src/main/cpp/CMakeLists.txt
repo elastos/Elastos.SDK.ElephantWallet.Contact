@@ -28,6 +28,6 @@ target_link_libraries( Elastos.SDK.Contact.Jni Elastos.SDK.Contact )
 target_link_libraries( Elastos.SDK.Contact.Jni json )
 target_link_libraries( Elastos.SDK.Contact.Jni log )
 
-file( GLOB CROSSPL_LIB_LIBS "${CROSSPL_LIB_LIBPATHS}/${ANDROID_ABI}/*.so")
-target_include_directories( Elastos.SDK.Contact.Jni PRIVATE "${CROSSPL_LIB_HEADERDIR}" )
+list(APPEND CROSSPL_LIB_LIBS "${CROSSPL_LIB_LIBPATHS}/${ANDROID_ABI}/libcrosspl.so")
+target_include_directories( Elastos.SDK.Contact.Jni PRIVATE ${CROSSPL_LIB_HEADERDIR} )
 target_link_libraries( Elastos.SDK.Contact.Jni ${CROSSPL_LIB_LIBS} )
