@@ -140,6 +140,7 @@ public:
 
     /*** class function and variable ***/
     std::shared_ptr<Contact::UserInfo> getUserInfo();
+    int getUserBrief(std::string& brief);
     std::vector<std::shared_ptr<Contact::FriendInfo>> listFriendInfo();
 
     int sendMessage(const std::string& friendCode, Channel chType, std::shared_ptr<Message> message);

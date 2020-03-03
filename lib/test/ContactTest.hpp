@@ -32,6 +32,7 @@ public:
     int doSetHumanDetails(const std::string& friendCode, int key, const std::string& value);
 
     int showGetUserInfo();
+    int showGetUserBrief();
     int doSyncUpload();
     int doLoopMessage();
 

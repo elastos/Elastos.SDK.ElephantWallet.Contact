@@ -51,6 +51,7 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
 
     { '-', "",                nullptr,                             "\n User" },
     { 'g', "get-uinfo",       ContactTestCmd::GetUserInfo,         "\tGet User Info [g]" },
+    { 'r', "get-ubrief",      ContactTestCmd::GetUserBrief,         "\tGet User Brief [r]" },
     { ' ', "set-uid",         ContactTestCmd::Unimplemention,      "\t\tSet User Identifycode" },
     { 's', "set-udetails",    ContactTestCmd::SetUserDetails,      "\tSet User Details [s [4:Nickname|7:Description|8:Addition] ${text}]" },
     { ' ', "set-uwaddr",      ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
@@ -269,6 +270,14 @@ int ContactTestCmd::GetUserInfo(const std::vector<std::string>& args,
                                 std::string& errMsg)
 {
     auto ret = ContactTest::GetInstance()->showGetUserInfo();
+
+    return ret;
+}
+
+int ContactTestCmd::GetUserBrief(const std::vector<std::string>& args,
+                                 std::string& errMsg)
+{
+    auto ret = ContactTest::GetInstance()->showGetUserBrief();
 
     return ret;
 }

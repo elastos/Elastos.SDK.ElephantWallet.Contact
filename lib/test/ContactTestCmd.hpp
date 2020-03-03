@@ -53,6 +53,8 @@ private:
 
     static int GetUserInfo(const std::vector<std::string>& args,
                            std::string& errMsg);
+    static int GetUserBrief(const std::vector<std::string>& args,
+                            std::string& errMsg);
     static int SetUserDetails(const std::vector<std::string>& args,
                               std::string& errMsg);
     static int SyncUpload(const std::vector<std::string>& args,

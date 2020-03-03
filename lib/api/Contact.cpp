@@ -78,6 +78,22 @@ std::shared_ptr<Contact::UserInfo> Contact::getUserInfo()
     return userInfo;
 }
 
+int Contact::getUserBrief(std::string& brief)
+{
+    if(mContactImpl->isStarted() == false) {
+        return elastos::ErrCode::NotReadyError;
+    }
+
+    std::string currDevId;
+    int ret = elastos::Platform::GetCurrentDevId(currDevId);
+    CHECK_ERROR(ret);
+
+    ret = ContactBridge::getHumanBrief("-user-info-", currDevId, brief);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
 std::vector<std::shared_ptr<Contact::FriendInfo>> Contact::listFriendInfo()
 {
     std::vector<std::shared_ptr<elastos::FriendInfo>> friendList;
@@ -215,10 +231,10 @@ Contact::Message::FileData::FileData(const std::string& filepath)
 std::string Contact::Message::FileData::toString()
 {
     auto jsonInfo = elastos::Json::object();
-    jsonInfo[elastos::JsonKey::DeviceId] = this-> devId;
-    jsonInfo[elastos::JsonKey::Name] = this-> name;
-    jsonInfo[elastos::JsonKey::Size] = this-> size;
-    jsonInfo[elastos::JsonKey::Md5] = this-> md5;
+    jsonInfo[elastos::JsonKey::DeviceId] = this->devId;
+    jsonInfo[elastos::JsonKey::Name] = this->name;
+    jsonInfo[elastos::JsonKey::Size] = this->size;
+    jsonInfo[elastos::JsonKey::Md5] = this->md5;
     return jsonInfo.dump();
 }
 

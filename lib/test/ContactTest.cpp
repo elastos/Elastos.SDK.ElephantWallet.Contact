@@ -262,6 +262,25 @@ int ContactTest::showGetUserInfo()
     return 0;
 }
 
+int ContactTest::showGetUserBrief()
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    std::string brief;
+    int ret = mContact->getUserBrief(brief);
+    if (ret < 0) {
+        ShowError("Failed to get user brief.");
+        return ret;
+    }
+
+    Log::V(Log::TAG, "UserBrief: %s", brief.c_str());
+
+    return 0;
+}
+
 int ContactTest::doSyncUpload()
 {
     if (mContact == nullptr) {
