@@ -3,12 +3,12 @@ package org.elastos.tools.crosspl
 import android.util.Log
 import org.elastos.tools.crosspl.annotation.CrossClass
 import org.elastos.tools.crosspl.annotation.CrossInterface
+import org.elastos.tools.crosspl.utils.Utils
 import kotlin.reflect.KClass
 import kotlin.reflect.full.primaryConstructor
 
 @CrossClass
-open class CrossBase
-    protected constructor(
+open class CrossBase protected constructor(
             val className: String,
             var nativeHandle: Long = 0)
 {

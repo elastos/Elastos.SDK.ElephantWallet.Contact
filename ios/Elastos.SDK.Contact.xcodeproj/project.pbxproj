@@ -105,6 +105,8 @@
 		DE3C53CA233B1A220053196E /* HumanInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE3C53C9233B1A220053196E /* HumanInfo.swift */; };
 		DE4EDE562355C4B900FF2CEB /* CrossPL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DED5255D218DF4C800619F59 /* CrossPL.framework */; };
 		DE4EDE572355C4B900FF2CEB /* CrossPL.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = DED5255D218DF4C800619F59 /* CrossPL.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		DE56248B240FF7F3004B6E1B /* KeypairWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE562489240FF7F3004B6E1B /* KeypairWrapper.cpp */; };
+		DE56248C240FF7F4004B6E1B /* KeypairWrapper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE56248A240FF7F3004B6E1B /* KeypairWrapper.hpp */; };
 		DE5961A7232F231200BDB4EE /* CrossBase.proxy.mm in Sources */ = {isa = PBXBuildFile; fileRef = DE5961A6232F231200BDB4EE /* CrossBase.proxy.mm */; };
 		DE598EDA2350106800ECA160 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE598ED92350106800ECA160 /* ImagePicker.swift */; };
 		DE5EA248234EF7B10055F587 /* ContactDebug.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE5EA247234EF7B10055F587 /* ContactDebug.swift */; };
@@ -128,8 +130,6 @@
 		DE60EC20237F7F07001E4493 /* experimental-span.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE60EC0D237F7F07001E4493 /* experimental-span.hpp */; };
 		DE60EC21237F7F07001E4493 /* CrossPLFactory.ContactSDK.mm in Sources */ = {isa = PBXBuildFile; fileRef = DE60EC0E237F7F07001E4493 /* CrossPLFactory.ContactSDK.mm */; };
 		DE762D1E2355723800211E69 /* KeypairWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE762D1D2355723800211E69 /* KeypairWrapper.swift */; };
-		DE762D2523557B7200211E69 /* KeypairWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DE762D2323557B7200211E69 /* KeypairWrapper.cpp */; };
-		DE762D2623557B7200211E69 /* KeypairWrapper.hpp in Headers */ = {isa = PBXBuildFile; fileRef = DE762D2423557B7200211E69 /* KeypairWrapper.hpp */; };
 		DE76DD5623262AF70041A703 /* CrossTmplUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE76DD5523262AF70041A703 /* CrossTmplUtils.swift */; };
 		DE76DD5823287EF40041A703 /* CrossPLFactoryGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE76DD5723287EF40041A703 /* CrossPLFactoryGenerator.swift */; };
 		DE76DD6A23289D640041A703 /* CrossPLUtilsGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE76DD6923289D640041A703 /* CrossPLUtilsGenerator.swift */; };
@@ -314,6 +314,8 @@
 		DE3C53C5233B18DF0053196E /* FoundationExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FoundationExtensions.swift; sourceTree = "<group>"; };
 		DE3C53C7233B19AF0053196E /* JsonKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonKey.swift; sourceTree = "<group>"; };
 		DE3C53C9233B1A220053196E /* HumanInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HumanInfo.swift; sourceTree = "<group>"; };
+		DE562489240FF7F3004B6E1B /* KeypairWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeypairWrapper.cpp; sourceTree = "<group>"; };
+		DE56248A240FF7F3004B6E1B /* KeypairWrapper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = KeypairWrapper.hpp; sourceTree = "<group>"; };
 		DE5961A6232F231200BDB4EE /* CrossBase.proxy.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CrossBase.proxy.mm; sourceTree = "<group>"; };
 		DE598ED92350106800ECA160 /* ImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		DE5EA247234EF7B10055F587 /* ContactDebug.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactDebug.swift; sourceTree = "<group>"; };
@@ -337,8 +339,6 @@
 		DE60EC0D237F7F07001E4493 /* experimental-span.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = "experimental-span.hpp"; sourceTree = "<group>"; };
 		DE60EC0E237F7F07001E4493 /* CrossPLFactory.ContactSDK.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CrossPLFactory.ContactSDK.mm; sourceTree = "<group>"; };
 		DE762D1D2355723800211E69 /* KeypairWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeypairWrapper.swift; sourceTree = "<group>"; };
-		DE762D2323557B7200211E69 /* KeypairWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KeypairWrapper.cpp; sourceTree = "<group>"; };
-		DE762D2423557B7200211E69 /* KeypairWrapper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = KeypairWrapper.hpp; sourceTree = "<group>"; };
 		DE76DD5523262AF70041A703 /* CrossTmplUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossTmplUtils.swift; sourceTree = "<group>"; };
 		DE76DD5723287EF40041A703 /* CrossPLFactoryGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossPLFactoryGenerator.swift; sourceTree = "<group>"; };
 		DE76DD6923289D640041A703 /* CrossPLUtilsGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossPLUtilsGenerator.swift; sourceTree = "<group>"; };
@@ -441,8 +441,6 @@
 			isa = PBXGroup;
 			children = (
 				DE2757722333486B001B635B /* base */,
-				DE762D2323557B7200211E69 /* KeypairWrapper.cpp */,
-				DE762D2423557B7200211E69 /* KeypairWrapper.hpp */,
 			);
 			path = cpp;
 			sourceTree = "<group>";
@@ -758,6 +756,8 @@
 				DE8FFCB62378476000096E73 /* ContactMessage.cpp */,
 				DE8FFCB22378476000096E73 /* ContactMessage.hpp */,
 				DE33D7A423C1BECB002C9C35 /* ContactTypes.hpp */,
+				DE562489240FF7F3004B6E1B /* KeypairWrapper.cpp */,
+				DE56248A240FF7F3004B6E1B /* KeypairWrapper.hpp */,
 			);
 			name = api;
 			path = ../../../../lib/api;
@@ -816,7 +816,6 @@
 				DE2757E72333486B001B635B /* MessageManager.hpp in Headers */,
 				DE2757E12333486B001B635B /* UserManager.hpp in Headers */,
 				DE2758182333486C001B635B /* ChannelImplElaChain.hpp in Headers */,
-				DE762D2623557B7200211E69 /* KeypairWrapper.hpp in Headers */,
 				DE8FFCC32378476000096E73 /* ContactDebug.hpp in Headers */,
 				DE2758022333486B001B635B /* MD5.hpp in Headers */,
 				DE2757E62333486B001B635B /* Config.hpp in Headers */,
@@ -858,6 +857,7 @@
 				DE2757DC2333486B001B635B /* HttpClient.hpp in Headers */,
 				DE60EC1C237F7F07001E4493 /* ContactDebug.proxy.h in Headers */,
 				DE2757F62333486B001B635B /* PlatformIos.hpp in Headers */,
+				DE56248C240FF7F4004B6E1B /* KeypairWrapper.hpp in Headers */,
 				DE60EC1F237F7F07001E4493 /* CrossPLUtils.h in Headers */,
 				DE78BAD223F26C54004F5A8B /* ContactChannelStrategy.proxy.h in Headers */,
 				DE2758032333486B001B635B /* Log.hpp in Headers */,
@@ -1094,6 +1094,7 @@
 				DE27581B2333486C001B635B /* MessageChannelStrategy.cpp in Sources */,
 				DECBB57D2397F2D90068BB01 /* ElaChnClient.cpp in Sources */,
 				DE8A33F223712C77008F5FA5 /* ContactDataListener.swift in Sources */,
+				DE56248B240FF7F3004B6E1B /* KeypairWrapper.cpp in Sources */,
 				DEEFCF1E233B68A3008E240B /* UserInfo.swift in Sources */,
 				DE5EA248234EF7B10055F587 /* ContactDebug.swift in Sources */,
 				DE27581F2333486C001B635B /* Contact.V1.cpp in Sources */,
@@ -1118,7 +1119,6 @@
 				DE2757FB2333486B001B635B /* Log.cpp in Sources */,
 				DE2757E02333486B001B635B /* Json.cpp in Sources */,
 				DE8FFCBC2378476000096E73 /* ContactListener.cpp in Sources */,
-				DE762D2523557B7200211E69 /* KeypairWrapper.cpp in Sources */,
 				DE2757DD2333486B001B635B /* HttpClient.cpp in Sources */,
 				DE78BAD123F26C54004F5A8B /* ContactChannelStrategy.proxy.mm in Sources */,
 				DE3C53BA233AFCB50053196E /* EventArgs.swift in Sources */,

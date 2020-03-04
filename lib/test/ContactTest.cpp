@@ -568,30 +568,32 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const elastos:
     }
     case elastos::sdk::Contact::Listener::AcquireType::EncryptData:
         if(request.extra == "DefaultAlgorithm") {
-            const std::vector<uint8_t> cryptoStart {'c', 'r', 'y', 'p', 't', 'o', '<', '<', '<'};
-            const std::vector<uint8_t> cryptoEnd { '>', '>', '>', 'c', 'r', 'y', 'p', 't', 'o'};
-            response = std::make_shared<std::vector<uint8_t>>();
-            response->insert(response->end(), cryptoStart.begin(), cryptoStart.end());
-            response->insert(response->end(), request.data.begin(), request.data.end());
-            response->insert(response->end(), cryptoEnd.begin(), cryptoEnd.end());
+            const char* cryptoBuf = ::eciesEncrypt(request.publicKey.c_str(), request.data.data(), request.data.size());
+            if(cryptoBuf != nullptr) {
+                std::string cryptoData {cryptoBuf};
+                ::freeBuf((void*)cryptoBuf);
+                response = std::make_shared<std::vector<uint8_t>>(cryptoData.begin(), cryptoData.end()); // ignore encrypt
+            } else {
+                response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore encrypt
+            }
         } else {
-            response = std::make_shared < std::vector < uint8_t >> (request.data); // ignore encrypt
+            response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore encrypt
         }
         break;
     case elastos::sdk::Contact::Listener::AcquireType::DecryptData:
         if(request.extra == "DefaultAlgorithm") {
-            const std::vector<uint8_t> cryptoStart {'c', 'r', 'y', 'p', 't', 'o', '<', '<', '<'};
-            const std::vector<uint8_t> cryptoEnd { '>', '>', '>', 'c', 'r', 'y', 'p', 't', 'o'};
-            auto startIt = std::search(request.data.begin(), request.data.end(), cryptoStart.begin(), cryptoStart.end());
-            if(startIt == request.data.end()) { //compatible old version
-                startIt = request.data.begin();
+            std::string privKey = getPrivateKey();
+            int plainLen = 0;
+            unsigned char* plainBuf = ::eciesDecrypt(privKey.c_str(), (char*)request.data.data(), &plainLen);
+            if(plainBuf != nullptr) {
+                std::vector <uint8_t> plainData {plainBuf, plainBuf + plainLen};
+                ::freeBuf((void*)plainBuf);
+                response = std::make_shared<std::vector<uint8_t>>(plainData); // ignore encrypt
             } else {
-                startIt += cryptoStart.size();
+                response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore encrypt
             }
-            auto endIt = std::search(request.data.begin(), request.data.end(), cryptoEnd.begin(), cryptoEnd.end());
-            response = std::make_shared<std::vector<uint8_t>>(startIt, endIt);
         } else {
-            response = std::make_shared < std::vector < uint8_t >> (request.data); // ignore encrypt
+            response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore encrypt
         }
         break;
     case elastos::sdk::Contact::Listener::AcquireType::DidPropAppId:

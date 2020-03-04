@@ -77,4 +77,30 @@ int crosspl_Proxy_KeypairWrapper_Sign(NSString* ocvar0, NSData* ocvar1, NSData**
   int ocret = ret;
   return ocret;
 }
+int crosspl_Proxy_KeypairWrapper_EciesEncrypt(NSString* ocvar0, NSData* ocvar1, NSData** ocvar2)
+{
+  auto var0 = crosspl::CrossPLUtils::SafeCastString(ocvar0);
+  auto var1 = crosspl::CrossPLUtils::SafeCastByteArray(ocvar1);
+  auto var2 = crosspl::CrossPLUtils::SafeCastByteBuffer(ocvar2);
+
+  int ret = crosspl::native::KeypairWrapper::EciesEncrypt(var0.get(), var1.get(), var2.get());
+
+  crosspl::CrossPLUtils::SafeCopyByteBufferToSwift(ocvar2, var2.get());
+
+  int ocret = ret;
+  return ocret;
+}
+int crosspl_Proxy_KeypairWrapper_EciesDecrypt(NSString* ocvar0, NSData* ocvar1, NSData** ocvar2)
+{
+  auto var0 = crosspl::CrossPLUtils::SafeCastString(ocvar0);
+  auto var1 = crosspl::CrossPLUtils::SafeCastByteArray(ocvar1);
+  auto var2 = crosspl::CrossPLUtils::SafeCastByteBuffer(ocvar2);
+
+  int ret = crosspl::native::KeypairWrapper::EciesDecrypt(var0.get(), var1.get(), var2.get());
+
+  crosspl::CrossPLUtils::SafeCopyByteBufferToSwift(ocvar2, var2.get());
+
+  int ocret = ret;
+  return ocret;
+}
 

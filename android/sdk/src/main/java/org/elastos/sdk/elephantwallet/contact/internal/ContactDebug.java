@@ -13,6 +13,10 @@ import org.elastos.sdk.elephantwallet.contact.Utils;
 
 @CrossClass
 class ContactDebug extends CrossBase {
+    public static final class Keypair extends KeypairWrapper {
+        private Keypair() {}
+    } // class Listener
+
     protected ContactDebug() {
         super(ContactDebug.class.getName(), 0);
     }

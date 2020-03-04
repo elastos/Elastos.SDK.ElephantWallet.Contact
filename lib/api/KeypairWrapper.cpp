@@ -8,6 +8,7 @@
 #include <KeypairWrapper.hpp>
 
 #include "Log.hpp"
+#include <ErrCode.hpp>
 #include <Elastos.SDK.Keypair.C/Elastos.Wallet.Utility.h>
 
 namespace crosspl {
@@ -53,8 +54,14 @@ int KeypairWrapper::GetSinglePrivateKey(const std::span<uint8_t>* seed, std::str
 
 int KeypairWrapper::GenerateMnemonic(const char* language, const char* words, std::stringstream* mnem)
 {
-  mnem->str("");
+  if(language == nullptr || mnem == nullptr) {
+    return elastos::ErrCode::InvalidArgument;
+  }
+  if(words == nullptr) {
+    words = "";
+  }
 
+  mnem->str("");
   auto ret = ::generateMnemonic(language, words);
   if(ret == nullptr) {
     return -1;
@@ -68,8 +75,15 @@ int KeypairWrapper::GenerateMnemonic(const char* language, const char* words, st
 
 int KeypairWrapper::GetSeedFromMnemonic(const char* mnemonic, const char* mnemonicPassword, std::vector<uint8_t>* seed)
 {
-  seed->clear();
+  if(mnemonic == nullptr || seed == nullptr) {
+    return elastos::ErrCode::InvalidArgument;
+  }
 
+  if(mnemonicPassword == nullptr) {
+    mnemonicPassword = "";
+  }
+
+  seed->clear();
   void* seedData = nullptr;
   int seedSize = ::getSeedFromMnemonic(&seedData, mnemonic, mnemonicPassword);
   if(seedData == nullptr || seedSize <= 0) {
@@ -85,8 +99,11 @@ int KeypairWrapper::GetSeedFromMnemonic(const char* mnemonic, const char* mnemon
 
 int KeypairWrapper::Sign(const char* privateKey, const std::span<uint8_t>* data, std::vector<uint8_t>* signedData)
 {
-  signedData->clear();
+  if(privateKey == nullptr || data == nullptr || signedData == nullptr) {
+    return elastos::ErrCode::InvalidArgument;
+  }
 
+  signedData->clear();
   void* keypairSignedData = nullptr;
   int keypairSignedSize = ::sign(privateKey, data->data(), (int)data->size(), &keypairSignedData);
   if(keypairSignedData == nullptr || keypairSignedSize <= 0) {
@@ -97,9 +114,44 @@ int KeypairWrapper::Sign(const char* privateKey, const std::span<uint8_t>* data,
 
   freeBuf(keypairSignedData);
 
-  return 0;
+  return keypairSignedSize;
 }
 
+int KeypairWrapper::EciesEncrypt(const char* publicKey, const std::span<uint8_t>* plainData,
+                                 std::vector<uint8_t>* cipherData)
+{
+  cipherData->clear();
+
+  char* keypairCipherData = ::eciesEncrypt(publicKey, plainData->data(), (int)plainData->size());
+  if(keypairCipherData == nullptr) {
+    return -1;
+  }
+
+  auto keypairCipherLen = strlen(keypairCipherData) + 1;
+  *cipherData = std::vector<uint8_t>((uint8_t*)keypairCipherData, (uint8_t*)keypairCipherData + keypairCipherLen);
+
+  freeBuf(keypairCipherData);
+
+  return (int)keypairCipherLen;
+}
+
+int KeypairWrapper::EciesDecrypt(const char* privateKey, const std::span<uint8_t>* cipherData,
+                                 std::vector<uint8_t>* plainData)
+{
+  plainData->clear();
+
+  int keypairPlainLen = -1;
+  unsigned char* keypairPlainData = ::eciesDecrypt(privateKey, (char*)cipherData->data(), &keypairPlainLen);
+  if(keypairPlainData == nullptr) {
+    return -1;
+  }
+
+  *plainData = std::vector<uint8_t>((uint8_t*)keypairPlainData, (uint8_t*)keypairPlainData + keypairPlainLen);
+  
+  freeBuf(keypairPlainData);
+
+  return keypairPlainLen;
+}
 
 /***********************************************/
 /***** class public function implement  ********/

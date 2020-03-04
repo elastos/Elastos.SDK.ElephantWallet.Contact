@@ -66,9 +66,33 @@ public class KeypairWrapper: CrossBase {
     return Int(ret)
   }
   
+  /* @CrossNativeInterface */
+  public static func EciesEncrypt(publicKey: String?, plainData: Data?, cipherData: inout Data) -> Int {
+    var nsCipherData = cipherData as NSData?
+    let ret = crosspl_Proxy_KeypairWrapper_EciesEncrypt(publicKey, plainData, &nsCipherData)
+    if ret < 0 {
+      return Int(ret)
+    }
+    cipherData = nsCipherData! as Data
+    
+    return Int(ret)
+  }
+  
+  /* @CrossNativeInterface */
+  public static func EciesDecrypt(privateKey: String?, cipherData: Data?, plainData: inout Data) -> Int {
+    var nsPlainData = plainData as NSData?
+    let ret = crosspl_Proxy_KeypairWrapper_EciesDecrypt(privateKey, cipherData, &nsPlainData)
+    if ret < 0 {
+      return Int(ret)
+    }
+    plainData = nsPlainData! as Data
+    
+    return Int(ret)
+  }
+  
   init() {
     super.init(className: String(describing: ContactDebug.self))
   }
-} // class Factory
+} // class KeypairWrapper
 
 }

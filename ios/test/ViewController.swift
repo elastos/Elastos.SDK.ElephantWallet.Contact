@@ -944,13 +944,36 @@ class ViewController: UIViewController {
         response = getPublicKey().data(using: .utf8)
         break
       case .EncryptData:
-        response = request.data // plaintext
+        if(request.extra == "DefaultAlgorithm") {
+          var cipherData = Data()
+          let ret = Contact.Debug.Keypair.EciesEncrypt(publicKey: request.publicKey, plainData: request.data,
+                                                       cipherData: &cipherData)
+          if(ret >= 0) {
+            response = cipherData
+          } else {
+            response = request.data // plaintext
+          }
+        } else {
+          response = request.data // plaintext
+        }
         break
       case .DecryptData:
-        response = request.data // plaintext
+        if(request.extra == "DefaultAlgorithm") {
+          var plainData = Data()
+          let ret = Contact.Debug.Keypair.EciesDecrypt(privateKey: getPrivateKey(), cipherData: request.data,
+                                                       plainData: &plainData)
+          if(ret >= 0) {
+            response = plainData
+          } else {
+            response = request.data // plaintext
+          }
+        } else {
+          response = request.data // plaintext
+        }
         break
       case .DidPropAppId:
-        let appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AAA65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405"
+        let appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AA"
+                  + "A65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405"
         response = appId.data(using: .utf8)
         break
       case .DidAgentAuthHeader:

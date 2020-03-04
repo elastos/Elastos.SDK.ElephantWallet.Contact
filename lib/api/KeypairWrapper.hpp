@@ -28,6 +28,10 @@ public:
     static int GenerateMnemonic(const char* language, const char* words, std::stringstream* mnem);
     static int GetSeedFromMnemonic(const char* mnemonic, const char* mnemonicPassword, std::vector<uint8_t>* seed);
     static int Sign(const char* privateKey, const std::span<uint8_t>* data, std::vector<uint8_t>* signedData);
+    static int EciesEncrypt(const char* publicKey, const std::span<uint8_t>* plainData,
+                            std::vector<uint8_t>* cipherData);
+    static int EciesDecrypt(const char* privateKey, const std::span<uint8_t>* cipherData,
+                            std::vector<uint8_t>* plainData);
 
     /*** class function and variable ***/
     explicit KeypairWrapper() = default;

@@ -336,7 +336,5 @@ class ContactBridge extends CrossBase {
     private Contact.Listener mListener;
     private Contact.DataListener mDataListener;
 
-    static {
-        System.loadLibrary("Elastos.SDK.Contact.Jni");
-    }
+    static { Utils.EnsureNativeLibrary(); }
 }

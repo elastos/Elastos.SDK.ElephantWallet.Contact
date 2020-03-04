@@ -46,12 +46,12 @@ enum class CrossVariableType {
             TypeKind.VOID              to VOID
         )
         private val supportedTypeDeclared = mapOf(
-            "java.lang.String"                    to STRING,
-            "byte[]"                              to BYTEARRAY,
-            "java.lang.Runnable"                  to FUNCTION,
-            "java.lang.StringBuffer"              to STRINGBUFFER,
-            "java.io.ByteArrayOutputStream"       to BYTEBUFFER,
-            "org.elastos.tools.crosspl.CrossBase" to CROSSBASE
+            "java.lang.String"                              to STRING,
+            "byte[]"                                        to BYTEARRAY,
+            "java.lang.Runnable"                            to FUNCTION,
+            "java.lang.StringBuffer"                        to STRINGBUFFER,
+            "org.elastos.tools.crosspl.utils.DataBuffer"    to BYTEBUFFER,
+            "org.elastos.tools.crosspl.CrossBase"           to CROSSBASE
         )
     }
 
@@ -124,7 +124,7 @@ enum class CrossVariableType {
             BYTEARRAY    to "[B",
             FUNCTION     to "Ljava/lang/Runnable;",
             STRINGBUFFER to "Ljava/lang/StringBuffer;",
-            BYTEBUFFER   to "Ljava/io/ByteArrayOutputStream;",
+            BYTEBUFFER   to "Lorg/elastos/tools/crosspl/utils/DataBuffer;",
             CROSSBASE    to "Lorg/elastos/tools/crosspl/CrossBase;"
         )
 

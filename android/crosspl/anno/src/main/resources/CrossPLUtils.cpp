@@ -17,7 +17,7 @@ const char* CrossPLUtils::JavaClassNameString                  = "java/lang/Stri
 const char* CrossPLUtils::JavaClassNameByteArray               = "[B";
 const char* CrossPLUtils::JavaClassNameRunnable                = "java/lang/Runnable";
 const char* CrossPLUtils::JavaClassNameStringBuffer            = "java/lang/StringBuffer";
-const char* CrossPLUtils::JavaClassNameByteArrayOutputStream   = "java/io/ByteArrayOutputStream";
+const char* CrossPLUtils::JavaClassNameByteBuffer              = "org/elastos/tools/crosspl/utils/DataBuffer";
 
 std::map<const char*, jclass> CrossPLUtils::sJavaClassCache {};
 JavaVM* CrossPLUtils::sJVM = nullptr;
@@ -247,7 +247,7 @@ std::shared_ptr<std::vector<uint8_t>> CrossPLUtils::SafeCastByteBuffer(JNIEnv* j
         EnsureRunOnThread(threadId);
 
         jclass jclazz = jenv->GetObjectClass(jdata);
-        jmethodID jmethod = jenv->GetMethodID(jclazz, "toByteArray", "()[B");
+        jmethodID jmethod = jenv->GetMethodID(jclazz, "toBytes", "()[B");
         jbyteArray jbytes = static_cast<jbyteArray>(jenv->CallObjectMethod(jdata, jmethod));
         auto bytes = SafeCastByteArray(jenv, jbytes);
         if(bytes == nullptr) {
@@ -406,7 +406,7 @@ std::shared_ptr<_jobject> CrossPLUtils::SafeCastByteBuffer(JNIEnv* jenv, const s
     auto creater = [=]() -> jobject {
         EnsureRunOnThread(threadId);
 
-        jclass jclazz = FindJavaClass(jenv, JavaClassNameByteArrayOutputStream);
+        jclass jclazz = FindJavaClass(jenv, JavaClassNameByteBuffer);
 
         jmethodID jconstructor  = jenv->GetMethodID(jclazz, "<init>", "()V");
         jobject jobj = jenv->NewObject(jclazz, jconstructor);
@@ -485,8 +485,8 @@ int CrossPLUtils::SafeCopyByteBufferToJava(JNIEnv* jenv, jobject jcopyTo, const 
     }
 
     // clear exists content
-    jclass jclazz = FindJavaClass(jenv, JavaClassNameByteArrayOutputStream);
-    jmethodID jmethodReset  = jenv->GetMethodID(jclazz, "reset", "()V");
+    jclass jclazz = FindJavaClass(jenv, JavaClassNameByteBuffer);
+    jmethodID jmethodReset  = jenv->GetMethodID(jclazz, "clear", "()V");
     jenv->CallVoidMethod(jcopyTo, jmethodReset);
 
     if(data == nullptr) {
@@ -495,7 +495,7 @@ int CrossPLUtils::SafeCopyByteBufferToJava(JNIEnv* jenv, jobject jcopyTo, const 
 
     auto spanData = std::span<uint8_t>(const_cast<uint8_t*>(data->data()), data->size());
     auto jbytesPtr = SafeCastByteArray(jenv, &spanData);
-    jmethodID jmethodWrite  = jenv->GetMethodID(jclazz, "write", "([B)V");
+    jmethodID jmethodWrite  = jenv->GetMethodID(jclazz, "append", "([B)V");
     jenv->CallVoidMethod(jcopyTo, jmethodWrite, jbytesPtr.get());
 
     return 0;

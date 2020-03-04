@@ -15,7 +15,6 @@ import android.os.Looper;
 import android.os.Process;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.support.v4.content.res.TypedArrayUtils;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -26,8 +25,7 @@ import android.widget.Toast;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
 import org.elastos.sdk.elephantwallet.contact.Utils;
-import org.elastos.sdk.elephantwallet.contact.internal.ContactInterface;
-import org.elastos.sdk.keypair.ElastosKeypair;
+import org.elastos.tools.crosspl.utils.DataBuffer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -43,8 +41,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
-
-import com.google.gson.Gson;
 
 public class MainActivity extends Activity {
     public static final String TAG = "ContactTest";
@@ -71,7 +67,6 @@ public class MainActivity extends Activity {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         mSavedMnemonic = pref.getString(SavedMnemonicKey, null);
         if(mSavedMnemonic == null) {
-            mSavedMnemonic = ElastosKeypair.generateMnemonic(KeypairLanguage, KeypairWords);
 //            if (devId.startsWith("7134d")) {
 //                mSavedMnemonic = UploadedMnemonic1;
 //            }
@@ -80,7 +75,7 @@ public class MainActivity extends Activity {
 //            }
 //            mSavedMnemonic = UploadedMnemonic1;
 
-            newAndSaveMnemonic(mSavedMnemonic);
+            newAndSaveMnemonic(null);
         }
 
         showMessage("Mnemonic:\n" + mSavedMnemonic);
@@ -234,7 +229,7 @@ public class MainActivity extends Activity {
 
     private String importMnemonic() {
         Helper.showImportMnemonic(this, (result) -> {
-            if(isEnglishWords(result) == false) {
+            if(!isEnglishWords(result)) {
                 showMessage(ErrorPrefix + "Only english mnemonic is supported.");
                 return;
             }
@@ -1049,33 +1044,26 @@ public class MainActivity extends Activity {
                 break;
             case EncryptData:
                 if(TextUtils.equals(request.extra, "DefaultAlgorithm")) {
-                    String cryptoStart = "crypto<<<";
-                    String cryptoEnd = ">>>crypto";
-                    ByteBuffer bb = ByteBuffer.allocate(cryptoStart.length() + request.data.length + cryptoEnd.length());
-                    bb.put(cryptoStart.getBytes());
-                    bb.put(request.data);
-                    bb.put(cryptoEnd.getBytes());
-                    response = bb.array();
+                    DataBuffer cryptoData = new DataBuffer();
+                    int ret = Contact.Debug.Keypair.EciesEncrypt(request.publicKey, request.data, cryptoData);
+                    if(ret >= 0) {
+                        response = cryptoData.toBytes();
+                    } else {
+                        response = request.data; // plaintext
+                    }
                 } else {
                     response = request.data; // plaintext
                 }
                 break;
             case DecryptData:
                 if(TextUtils.equals(request.extra, "DefaultAlgorithm")) {
-                    String cryptoStart = "crypto<<<";
-                    String cryptoEnd = ">>>crypto";
-                    int startIdx = ByteUtils.IndexOf(request.data, cryptoStart.getBytes());
-                    int endIdx = ByteUtils.IndexOf(request.data, cryptoEnd.getBytes());
-                    if(startIdx < 0) {
-                        startIdx = 0;
+                    DataBuffer plainData = new DataBuffer();
+                    int ret = Contact.Debug.Keypair.EciesDecrypt(getPrivateKey(), request.data, plainData);
+                    if(ret >= 0) {
+                        response = plainData.toBytes();
                     } else {
-                        startIdx += cryptoStart.length();
+                        response = request.data; // plaintext
                     }
-                    if(endIdx < 0) {
-                        endIdx = request.data.length;
-                    }
-                    response = new byte[endIdx - startIdx];
-                    System.arraycopy(request.data, startIdx, response, 0, response.length);
                 } else {
                     response = request.data; // plaintext
                 }
@@ -1126,17 +1114,19 @@ public class MainActivity extends Activity {
     }
 
     private String getPublicKey() {
-        ElastosKeypair.Data seedData = new ElastosKeypair.Data();
-        int seedSize = ElastosKeypair.getSeedFromMnemonic(seedData, mSavedMnemonic, KeypairWords);
-        String pubKey = ElastosKeypair.getSinglePublicKey(seedData, seedSize);
-        return pubKey;
+        DataBuffer seedData = new DataBuffer();
+        int seedSize = Contact.Debug.Keypair.GetSeedFromMnemonic(mSavedMnemonic, null, seedData);
+        StringBuffer pubKey = new StringBuffer();
+        int ret = Contact.Debug.Keypair.GetSinglePublicKey(seedData.toBytes(), pubKey);
+        return pubKey.toString();
     }
 
     private String getPrivateKey() {
-        ElastosKeypair.Data seedData = new ElastosKeypair.Data();
-        int seedSize = ElastosKeypair.getSeedFromMnemonic(seedData, mSavedMnemonic, KeypairWords);
-        String privKey = ElastosKeypair.getSinglePrivateKey(seedData, seedSize);
-        return privKey;
+        DataBuffer seedData = new DataBuffer();
+        int seedSize = Contact.Debug.Keypair.GetSeedFromMnemonic(mSavedMnemonic, null, seedData);
+        StringBuffer privKey = new StringBuffer();
+        int ret = Contact.Debug.Keypair.GetSinglePrivateKey(seedData.toBytes(), privKey);
+        return privKey.toString();
     }
 
     private byte[] getAgentAuthHeader() {
@@ -1153,17 +1143,13 @@ public class MainActivity extends Activity {
     private byte[] signData(byte[] data) {
         String privKey = getPrivateKey();
 
-        ElastosKeypair.Data originData = new ElastosKeypair.Data();
-        originData.buf = data;
-
-        ElastosKeypair.Data signedData = new ElastosKeypair.Data();
-
-        int signedSize = ElastosKeypair.sign(privKey, originData, originData.buf.length, signedData);
-        if(signedSize <= 0) {
+        DataBuffer signedData = new DataBuffer();
+        int signedSize = Contact.Debug.Keypair.Sign(privKey, data, signedData);
+        if(signedSize < 0) {
             return null;
         }
 
-        return signedData.buf;
+        return signedData.toBytes();
     }
 
     private String getDeviceId() {
@@ -1228,7 +1214,12 @@ public class MainActivity extends Activity {
     private String newAndSaveMnemonic(final String newMnemonic) {
         mSavedMnemonic = newMnemonic;
         if(mSavedMnemonic == null) {
-            mSavedMnemonic = ElastosKeypair.generateMnemonic(KeypairLanguage, KeypairWords);
+            StringBuffer mnem = new StringBuffer();
+            int ret = Contact.Debug.Keypair.GenerateMnemonic(KeypairLanguage, null, mnem);
+            if(ret < 0) {
+                Log.e(TAG, "Failed to generate mnemonic. ret=" + ret);
+            }
+            mSavedMnemonic = mnem.toString();
         }
 
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
@@ -1292,7 +1283,6 @@ public class MainActivity extends Activity {
     private static final String ErrorPrefix = "Error: ";
 
     private static final String KeypairLanguage = "english";
-    private static final String KeypairWords = "";
 
     private static final String SavedMnemonicKey = "mnemonic";
 

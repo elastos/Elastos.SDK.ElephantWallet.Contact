@@ -77,7 +77,7 @@ private:
     static const char* JavaClassNameByteArray;
     static const char* JavaClassNameRunnable;
     static const char* JavaClassNameStringBuffer;
-    static const char* JavaClassNameByteArrayOutputStream;
+    static const char* JavaClassNameByteBuffer;
 
     static std::map<const char*, jclass> sJavaClassCache;
     static JavaVM* sJVM;
