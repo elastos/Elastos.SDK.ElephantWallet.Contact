@@ -56,7 +56,7 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { 's', "set-udetails",    ContactTestCmd::SetUserDetails,      "\tSet User Details [s [4:Nickname|7:Description|8:Addition] ${text}]" },
     { ' ', "set-uwaddr",      ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
     { 'u', "sync-upload",     ContactTestCmd::SyncUpload,          "\tSync Upload" },
-    { ' ', "sync-download",   ContactTestCmd::Unimplemention,      "\tSync Download" },
+    { ' ', "sync-download",   ContactTestCmd::SyncDownload,        "\tSync Download" },
     { 'w', "export-userdata", ContactTestCmd::ExportUserData,      "\tExport User Data [x ${toFilePath}]" },
     { 'x', "import-userdata", ContactTestCmd::ImportUserData,      "\tImport User Data [w ${fromFilePath}]" },
     { 'o', "loop-message",    ContactTestCmd::LoopMessage,         "\tTest Loop Message" },
@@ -301,6 +301,14 @@ int ContactTestCmd::SyncUpload(const std::vector<std::string>& args,
                                std::string& errMsg)
 {
     auto ret = ContactTest::GetInstance()->doSyncUpload();
+
+    return ret;
+}
+
+int ContactTestCmd::SyncDownload(const std::vector<std::string>& args,
+                                std::string& errMsg)
+{
+    auto ret = ContactTest::GetInstance()->doSyncDownload();
 
     return ret;
 }

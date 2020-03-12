@@ -60,6 +60,8 @@ public:
 
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
+    int syncInfoDownload(int fromLocation);
+    int syncInfoUpload(int toLocation);
     int exportUserData(ConstStringPtr toFile);
     int importUserData(ConstStringPtr fromFile);
 

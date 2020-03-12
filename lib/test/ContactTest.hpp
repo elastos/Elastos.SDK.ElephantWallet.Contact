@@ -34,6 +34,7 @@ public:
     int showGetUserInfo();
     int showGetUserBrief();
     int doSyncUpload();
+    int doSyncDownload();
     int doLoopMessage();
 
     int listFriendInfo();

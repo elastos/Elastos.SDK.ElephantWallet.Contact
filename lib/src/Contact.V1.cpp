@@ -181,6 +181,24 @@ int ContactV1::syncInfoUploadToDidChain()
     return 0;
 }
 
+int ContactV1::syncInfoDownload(int fromLocation)
+{
+    if((fromLocation & SyncInfoLocation::DidChain) != 0) {
+    } else if((fromLocation & SyncInfoLocation::Oss) != 0) {
+    }
+
+    return 0;
+}
+
+int ContactV1::syncInfoUpload(int toLocation)
+{
+    if((toLocation & SyncInfoLocation::DidChain) != 0) {
+    } else if((toLocation & SyncInfoLocation::Oss) != 0) {
+    }
+
+    return 0;
+}
+
 int ContactV1::exportUserData(const std::string& toFile)
 {
     if(mHasListener == false) {

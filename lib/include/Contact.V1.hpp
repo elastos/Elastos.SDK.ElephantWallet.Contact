@@ -43,6 +43,11 @@ public:
         virtual ~Listener() = default;
     }; // class ContactListener
 
+    struct SyncInfoLocation {
+        static constexpr const int DidChain = 1;
+        static constexpr const int Oss = 2;
+    };
+
     /*** static function and variable ***/
 
     /*** class function and variable ***/
@@ -62,6 +67,9 @@ public:
 
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
+
+    int syncInfoDownload(int fromLocation);
+    int syncInfoUpload(int toLocation);
 
     int exportUserData(const std::string& toFile);
     int importUserData(const std::string& fromFile);

@@ -28,6 +28,7 @@ Config::Config(const std::string& userDataDir)
     , mCarrierConfig()
     , mElaChainConfig()
     , mDidChainConfig()
+    , mProofConfig()
 {
 }
 
@@ -83,6 +84,11 @@ int Config::loadDefaultValues()
     mDidChainConfig->mAgentApi.mGetCacheDidProps = "/didexplorer/cache/did/"; //{did}
     mDidChainConfig->mAgentApi.mDidPropHistory = "/property_history?key="; //{key}
     mDidChainConfig->mAgentApi.mDidProp = "/property?key="; //{key}
+
+    mProofConfig = std::make_unique<ProofConfig>();
+    mProofConfig->mUrl = "https://api-proof.elaphant.net/api/1";
+    mProofConfig->mApi.mGetVerifyCode = "/microservices/ram/request";
+    mProofConfig->mApi.mOssInfo = "/microservices/ram/geneosssts";
 
     return 0;
 }

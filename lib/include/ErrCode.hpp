@@ -93,8 +93,11 @@ public:
     constexpr static const int BlkChnMonStoppedError = -306;
 	constexpr static const int BlkChnIgnoreCacheProp = -307;
 
+	constexpr static const int ProofApiSetPropError = -320;
+	constexpr static const int ProofApiGetPropError = -321;
+	constexpr static const int ProofApiEmptyPropError = -322;
 
-    constexpr static const int HttpClientError = -500;
+	constexpr static const int HttpClientError = -500;
 
     constexpr static const int StdSystemErrorIndex = -1000;
 

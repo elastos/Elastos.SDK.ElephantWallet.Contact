@@ -32,3 +32,15 @@ target_include_directories(DidChnClientTest PRIVATE
     "${CMAKE_INSTALL_PREFIX}/include")
 target_link_libraries(DidChnClientTest PUBLIC
     Elastos.SDK.Contact)
+
+add_executable(ProofApiClientTest)
+target_sources(ProofApiClientTest PRIVATE ProofApiClientTest.cpp)
+target_include_directories(ProofApiClientTest PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../common"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../platform"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../src"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../wrapper/json"
+    "${CMAKE_INSTALL_PREFIX}/include")
+target_link_libraries(ProofApiClientTest PUBLIC
+    Elastos.SDK.Contact)

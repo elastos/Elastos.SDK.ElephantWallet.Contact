@@ -95,7 +95,8 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
         }
 
         std::vector<uint8_t> onEncryptData(const std::string& pubKey,
-                                           const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src) override {
+                                           const std::string& cryptoAlgorithm,
+                                           const std::vector<uint8_t>& src) override {
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
             LOCK_PTR(mMutex, mHelperPtr, std::vector<uint8_t>());
 #ifdef WITH_CROSSPL
@@ -111,7 +112,8 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             std::vector<uint8_t> cryptoData(ret->data(), ret->data() + ret->size());
             return cryptoData;
         }
-        std::vector<uint8_t> onDecryptData(const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src) override {
+        std::vector<uint8_t> onDecryptData(const std::string& cryptoAlgorithm,
+                                           const std::vector<uint8_t>& src) override {
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
             LOCK_PTR(mMutex, mHelperPtr, std::vector<uint8_t>());
 #ifdef WITH_CROSSPL

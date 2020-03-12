@@ -344,8 +344,13 @@ int ChannelImplCarrier::initCarrier()
     carrierCallbacks.friend_connection = OnCarrierFriendConnection;
     carrierCallbacks.friend_message = OnCarrierFriendMessage;
 
+    std::string devId;
+    int ret = Platform::GetCurrentDevId(devId);
+    CHECK_ERROR(ret);
+    std::string userDataDir = config->mUserDataDir + "/" + devId;
+
     carrierOpts.udp_enabled = config->mCarrierConfig->mEnableUdp;
-    carrierOpts.persistent_location = config->mUserDataDir.c_str();
+    carrierOpts.persistent_location = userDataDir.c_str();
 //    Log::W(Log::TAG, "========= Recover carrier by secret key: %s", profile.c_str());
 //    if(profile.empty() == false) {
 //        carrierOpts.secret_key = profile.c_str();
@@ -395,7 +400,7 @@ int ChannelImplCarrier::initCarrier()
         return ErrCode::ChannelFailedCarrier;
     }
 
-    int ret = ela_filetransfer_init(mCarrier.get(), OnCarrierFileTransConnect, this);
+    ret = ela_filetransfer_init(mCarrier.get(), OnCarrierFileTransConnect, this);
     if (ret < 0) {
         Log::E(Log::TAG, "Failed to init filetransfer!");
         return ErrCode::ChannelFailedCarrier;

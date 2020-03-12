@@ -65,6 +65,7 @@ public:
     int loadCryptoFile(const std::string& filePath, std::vector<uint8_t>& originData);
 
     int signData(const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
+    int signDataSelfVerifiable(const std::vector<uint8_t>& src, std::string& dest);
 
     int getDidPropAppId(std::string& appId);
     int getDidAgentAuthHeader(std::string& authHeader);
