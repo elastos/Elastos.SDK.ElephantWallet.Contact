@@ -989,8 +989,6 @@ class ViewController: UIViewController {
 
   private func processEvent(event: Contact.Listener.EventArgs) {
     switch (event.type) {
-      case .StatusChanged:
-        break
       case .FriendRequest:
         let requestEvent = event as! Contact.Listener.RequestEvent
         Helper.showFriendRequest(view: self,
@@ -1007,6 +1005,8 @@ class ViewController: UIViewController {
       let msg = event.humanCode + " info changed: " + infoEvent.toString()
       showEvent(msg)
       break
+    default:
+      break;
     }
   }
   

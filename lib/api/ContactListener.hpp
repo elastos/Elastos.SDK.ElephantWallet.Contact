@@ -47,6 +47,7 @@ public:
         FriendRequest = 104,
 //        FriendStatusChanged = 105,
         HumanInfoChanged = 106,
+        MessageAck = 107,
     };
 
     class AcquireArgs {
@@ -160,6 +161,24 @@ public:
         }
 
         std::shared_ptr<elastos::HumanInfo> humanInfo;
+    };
+
+    class MsgAckEvent: public EventArgs {
+    public:
+        explicit MsgAckEvent(Type type, const std::string& humanCode, ChannelType channelType, int64_t msgNanoTime)
+                : EventArgs(type, humanCode, channelType)
+                , msgNanoTime(msgNanoTime) {
+        }
+        virtual ~MsgAckEvent() = default;
+
+        virtual std::string toString() const override  {
+            return std::string("MsgAckEvent")
+                   + "[msgNanoTime=" + std::to_string(msgNanoTime)
+                   + ", " + EventArgs::toString()
+                   +"]";
+        }
+
+        int64_t msgNanoTime;
     };
 
     template <class T>

@@ -8,6 +8,7 @@ public class EventArgs {
     case FriendRequest = 104
     //        FriendStatusChanged(105),
     case HumanInfoChanged = 106
+    case MessageAck = 107
   }
   
   public init(type: Int, humanCode: String, channelType: Int, data: Data?) {

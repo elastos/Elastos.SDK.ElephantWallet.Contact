@@ -7,7 +7,8 @@ class EventArgs {
 //        SentMessage(103),
         FriendRequest(104),
 //        FriendStatusChanged(105),
-        HumanInfoChanged(106);
+        HumanInfoChanged(106),
+        MessageAck(107);
 
         public static Type valueOf(int id) {
             Type[] values = Type.values();

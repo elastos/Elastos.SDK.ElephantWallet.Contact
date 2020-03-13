@@ -764,7 +764,7 @@ void MessageManager::MessageListener::onReceivedMessage(const std::string& frien
     } else {
         std::shared_ptr<FriendInfo> friendInfo;
         ret = friendMgr->tryGetFriendInfo(friendCode, friendInfo);
-        CHECK_AND_NOTIFY_RETVAL(ret)
+        CHECK_AND_NOTIFY_RETVAL(ret);
 
         humanInfo = friendInfo;
     }
@@ -778,13 +778,21 @@ void MessageManager::MessageListener::onReceivedMessage(const std::string& frien
         CHECK_AND_NOTIFY_RETVAL(ret);
     } else {
         onReceivedMessage(humanInfo, humanChType, msgInfo);
+
+        auto msgAckInfo = MakeMessage(MessageType::CtrlMsgAck, std::vector<uint8_t>());
+        msgAckInfo->mReplyToNanoTime = msgInfo->mNanoTime;
+        ret = msgMgr->sendMessage(humanInfo, humanChType, msgAckInfo, false);
+        CHECK_AND_NOTIFY_RETVAL(ret);
     }
 }
-
-void MessageManager::MessageListener::onSentMessage(int msgIndex, int errCode)
-{
-    Log::W(Log::TAG, "%s", __PRETTY_FUNCTION__);
-}
+//void MessageManager::MessageListener::onSentMessage(const std::string& friendCode,
+//                                                    uint32_t channelType,
+//                                                    uint64_t msgNanoTime)
+//{
+//    Log::W(Log::TAG, "%s", __PRETTY_FUNCTION__);
+//    auto ex = std::string("Never reached");
+//    throw std::runtime_error(ex);
+//}
 
 void MessageManager::MessageListener::onFriendRequest(const std::string& friendCode,
                                                       uint32_t channelType,
@@ -1127,6 +1135,8 @@ int MessageManager::processCtrlMessage(std::shared_ptr<HumanInfo> humanInfo,
         int ret = (int8_t)msgInfo->mPlainContent[0];
         auto status = (ret == 0 ? DataListener::Status::PeerInitialized : DataListener::Status::PeerFailed);
         mDataListener->onNotify(humanInfo, channelType, "", static_cast<int>(status));
+    } else if(msgInfo->mType == MessageType::CtrlMsgAck) {
+        mMessageListener->onSentMessage(humanInfo, channelType, msgInfo->mReplyToNanoTime);
     }
 
     return 0;

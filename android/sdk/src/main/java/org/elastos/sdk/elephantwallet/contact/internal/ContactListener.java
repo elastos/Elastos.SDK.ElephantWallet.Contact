@@ -8,6 +8,10 @@ import org.elastos.tools.crosspl.CrossBase;
 import org.elastos.tools.crosspl.annotation.CrossClass;
 import org.elastos.tools.crosspl.annotation.CrossInterface;
 
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+
 @CrossClass
 abstract class ContactListener extends CrossBase {
     @CrossInterface
@@ -37,8 +41,8 @@ abstract class ContactListener extends CrossBase {
         @Override
         public String toString() {
             return "StatusEvent" + "[type=" + type
-                    + ",humanCode=" + humanCode + ",channelType=" + channelType
-                    + ",status=" + status +"]";
+                 + ",humanCode=" + humanCode + ",channelType=" + channelType
+                 + ",status=" + status +"]";
         }
 
         public Contact.Status status;
@@ -52,8 +56,8 @@ abstract class ContactListener extends CrossBase {
         @Override
         public String toString() {
             return "RequestEvent" + "[type=" + type
-                    + ",humanCode=" + humanCode + ",channelType=" + channelType
-                    + ",summary=" + summary +"]";
+                 + ",humanCode=" + humanCode + ",channelType=" + channelType
+                 + ",summary=" + summary +"]";
         }
 
         public String summary;
@@ -79,11 +83,26 @@ abstract class ContactListener extends CrossBase {
         @Override
         public String toString() {
             return "InfoEvent" + "[type=" + type
-                    + ",humanCode=" + humanCode + ",channelType=" + channelType
-                    + ",humanInfo=" + humanInfo +"]";
+                 + ",humanCode=" + humanCode + ",channelType=" + channelType
+                 + ",humanInfo=" + humanInfo +"]";
         }
 
         public ContactInterface.HumanInfo humanInfo;
+    }
+
+    public class MsgAckEvent extends EventArgs {
+        public MsgAckEvent(int type, String humanCode, int channelType, byte[] data) {
+            super(type, humanCode, channelType, data);
+            nanoTime = Long.reverseBytes(new BigInteger(data).longValue());
+        }
+        @Override
+        public String toString() {
+            return "MsgAckEvent" + "[type=" + type
+                 + ",humanCode=" + humanCode + ",channelType=" + channelType
+                 + ",nanoTime=" + nanoTime +"]";
+        }
+
+        public long nanoTime;
     }
 
     protected ContactListener() {
@@ -115,6 +134,9 @@ abstract class ContactListener extends CrossBase {
                 break;
             case HumanInfoChanged:
                 args = new InfoEvent(eventType, humanCode, channelType, data);
+                break;
+            case MessageAck:
+                args = new MsgAckEvent(eventType, humanCode, channelType, data);
                 break;
             default:
                 throw new RuntimeException("Unimplemented type: " + type);

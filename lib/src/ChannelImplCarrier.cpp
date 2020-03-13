@@ -481,7 +481,7 @@ void ChannelImplCarrier::OnCarrierFriendMessage(ElaCarrier *carrier, const char 
     auto data = reinterpret_cast<const uint8_t*>(msg);
 
     int32_t dataOffset = 0;
-    bool dataComplete = true;
+//    bool dataComplete = true;
     bool isPkgData = true;
     for(auto idx = 0; idx < PkgMagicHeadSize; idx++) {
         if(data[idx] != PkgMagic[idx]) {

@@ -25,12 +25,9 @@ import CrossPL
     }
    
     public override func toString() -> String {
-      return  "StatusEvent"
-            + "[type=\(type)"
-            + ",humanCode=\(humanCode)"
-            + ",channelType=\(channelType)"
-            + ",status=\(status)"
-            + "]"
+      return  "StatusEvent" + "[type=\(type)"
+            + ",humanCode=\(humanCode)" + ",channelType=\(channelType)"
+            + ",status=\(status)" + "]"
     }
 
     public let status: Contact.Status
@@ -43,12 +40,9 @@ import CrossPL
     }
     
     public override func toString() -> String {
-    return  "StatusEvent"
-          + "[type=\(type)"
-          + ",humanCode=\(humanCode)"
-          + ",channelType=\(channelType)"
-          + ",summary=\(summary)"
-          + "]"
+    return  "RequestEvent" + "[type=\(type)"
+          + ",humanCode=\(humanCode)" + ",channelType=\(channelType)"
+          + ",summary=\(summary)" + "]"
     }
 
     public let summary: String
@@ -74,17 +68,29 @@ import CrossPL
     }
 
     public override func toString() -> String {
-      return  "StatusEvent"
-            + "[type=\(type)"
-            + ",humanCode=\(humanCode)"
-            + ",channelType=\(channelType)"
-            + ",humanInfo=\(humanInfo.toString())"
-            + "]"
+      return  "InfoEvent" + "[type=\(type)"
+            + ",humanCode=\(humanCode)" + ",channelType=\(channelType)"
+            + ",humanInfo=\(humanInfo.toString())" + "]"
     }
     
     public private(set) var humanInfo: Contact.HumanInfo
   }
+  
+  public class MsgAckEvent: EventArgs {
+    public override init(type: Int, humanCode: String, channelType: Int, data: Data?) {
+      nanoTime = data?.reversed().reduce(0) { $0 << 8 + Int64($1) } ?? -1
+      super.init(type: type, humanCode: humanCode, channelType: channelType, data: data)
+    }
+    
+    public override func toString() -> String {
+    return  "MsgAckEvent" + "[type=\(type)"
+          + ",humanCode=\(humanCode)" + ",channelType=\(channelType)"
+          + ",nanoTime=\(nanoTime)" + "]"
+    }
 
+    public let nanoTime: Int64
+  }
+  
   public init() {
     super.init(className: String(describing: ContactListener.self))
   }
@@ -114,6 +120,9 @@ import CrossPL
       break;
     case .HumanInfoChanged:
       args = InfoEvent(type: eventType, humanCode: humanCode, channelType: channelType, data: data)
+      break;
+    case .MessageAck:
+      args = MsgAckEvent(type: eventType, humanCode: humanCode, channelType: channelType, data: data)
       break;
     default:
       fatalError("Unimplemented type: \(String(describing: type))");

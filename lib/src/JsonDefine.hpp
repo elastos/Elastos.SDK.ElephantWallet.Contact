@@ -110,6 +110,8 @@ inline void from_json(const Json& j, HumanInfo::CarrierInfo& info) {
 NLOHMANN_JSON_SERIALIZE_ENUM(
     MessageManager::MessageType,
     {
+        {MessageManager::MessageType::Empty, "Empty"},
+
         {MessageManager::MessageType::MsgText, "MsgText"},
         {MessageManager::MessageType::MsgAudio, "MsgAudio"},
         {MessageManager::MessageType::MsgTransfer, "MsgTransfer"},
@@ -120,6 +122,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
         {MessageManager::MessageType::CtrlSyncDesc, "CtrlSyncDesc"},
         {MessageManager::MessageType::CtrlPullData, "CtrlPullData"},
         {MessageManager::MessageType::CtrlPullDataAck, "CtrlPullDataAck"},
+        {MessageManager::MessageType::CtrlMsgAck, "CtrlMsgAck"},
     }
 );
 

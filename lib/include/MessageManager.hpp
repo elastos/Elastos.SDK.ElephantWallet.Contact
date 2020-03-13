@@ -32,20 +32,21 @@ public:
     };
 
     enum class MessageType: uint32_t {
-        Empty = 0x00000000,
+        Empty    = 0x00000000,
 
-        Message = 0x000000FF,
-        MsgText = 0x00000001,
-        MsgAudio = 0x00000002,
-        MsgTransfer = 0x00000004,
-        MsgImage = 0x00000008,
-        MsgFile = 0x00000010,
-        MsgBinary = 0x00000020,
+        Message  = 0x000000FF,
+        MsgText         = 0x00000001,
+        MsgAudio        = 0x00000002,
+        MsgTransfer     = 0x00000004,
+        MsgImage        = 0x00000008,
+        MsgFile         = 0x00000010,
+        MsgBinary       = 0x00000020,
 
-        Control = 0x00FF0000,
+        Control  = 0x00FF0000,
         CtrlSyncDesc    = 0x00010000,
         CtrlPullData    = 0x00020000,
         CtrlPullDataAck = 0x00040000,
+        CtrlMsgAck      = 0x00080000,
     };
 
     struct MessageInfo {
@@ -99,7 +100,9 @@ public:
                                        ChannelType channelType,
                                        const std::shared_ptr<MessageInfo> msgInfo) = 0;
 
-        virtual void onSentMessage(int msgIndex, int errCode) override = 0;
+        virtual void onSentMessage(std::shared_ptr<HumanInfo> humanInfo,
+                                   ChannelType channelType,
+                                   int64_t msgNanoTime) = 0;
 
         virtual void onFriendRequest(std::shared_ptr<FriendInfo> friendInfo,
                                      ChannelType channelType,
@@ -121,7 +124,9 @@ public:
                                        uint32_t channelType,
                                        const std::vector<uint8_t>& msgContent) override;
 
-        //virtual void onSentMessage(int msgIndex, int errCode) override;
+//        virtual void onSentMessage(const std::string& friendCode,
+//                                   uint32_t channelType,
+//                                   uint64_t msgNanoTime) override;
 
         virtual void onFriendRequest(const std::string& friendCode,
                                      uint32_t channelType,
