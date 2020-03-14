@@ -754,10 +754,6 @@ void MessageManager::MessageListener::onReceivedMessage(const std::string& frien
     ret = userMgr->getUserInfo(userInfo);
     CHECK_AND_NOTIFY_RETVAL(ret)
 
-    std::shared_ptr<MessageInfo> msgInfo;
-    ret = msgMgr->unpackMessageInfo(msgContent, msgInfo);
-    CHECK_AND_NOTIFY_RETVAL(ret)
-
     std::shared_ptr<HumanInfo> humanInfo;
     if(userMgr->contains(friendCode)) {
         humanInfo = userInfo;
@@ -772,6 +768,9 @@ void MessageManager::MessageListener::onReceivedMessage(const std::string& frien
         Log::E(Log::TAG, "Failed to get friend info.");
         return;
     }
+    std::shared_ptr<MessageInfo> msgInfo;
+    ret = msgMgr->unpackMessageInfo(humanInfo, msgContent, msgInfo);
+    CHECK_AND_NOTIFY_RETVAL(ret)
 
     if((msgInfo->mType & MessageType::Control) == msgInfo->mType) { // ctrl msg
         ret = msgMgr->processCtrlMessage(humanInfo, humanChType, friendCode, msgInfo);
@@ -779,9 +778,7 @@ void MessageManager::MessageListener::onReceivedMessage(const std::string& frien
     } else {
         onReceivedMessage(humanInfo, humanChType, msgInfo);
 
-        auto msgAckInfo = MakeMessage(MessageType::CtrlMsgAck, std::vector<uint8_t>());
-        msgAckInfo->mReplyToNanoTime = msgInfo->mNanoTime;
-        ret = msgMgr->sendMessage(humanInfo, humanChType, msgAckInfo, false);
+        ret = msgMgr->sendMsgAckMessage(humanInfo, humanChType, msgInfo);
         CHECK_AND_NOTIFY_RETVAL(ret);
     }
 }
@@ -1187,7 +1184,26 @@ int MessageManager::sendDescMessage(const std::vector<std::shared_ptr<HumanInfo>
     return 0;
 }
 
-int MessageManager::packMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
+int MessageManager::sendMsgAckMessage(const std::shared_ptr<HumanInfo> humanInfo, ChannelType chType,
+                                      const std::shared_ptr<MessageInfo> msgInfo)
+{
+    std::string humanCode;
+    humanInfo->getHumanCode(humanCode);
+    auto kind = HumanInfo::AnalyzeHumanKind(humanCode);
+    if (static_cast<int>(kind) < 0) {
+        CHECK_ERROR(static_cast<int>(kind));
+    }
+    if (kind != HumanInfo::HumanKind::Carrier) {
+        auto msgAckInfo = MakeMessage(MessageType::CtrlMsgAck, std::vector<uint8_t>());
+        msgAckInfo->mReplyToNanoTime = msgInfo->mNanoTime;
+        int ret = sendMessage(humanInfo, chType, msgAckInfo, false);
+        CHECK_ERROR(ret);
+    }
+
+    return 0;
+}
+
+    int MessageManager::packMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
                                     const std::shared_ptr<MessageInfo> msgInfo,
                                     std::vector<uint8_t>& data)
 {
@@ -1236,9 +1252,21 @@ int MessageManager::packMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
     return 0;
 }
 
-int MessageManager::unpackMessageInfo(const std::vector<uint8_t>& data,
+int MessageManager::unpackMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
+                                      const std::vector<uint8_t>& data,
                                       std::shared_ptr<MessageInfo>& msgInfo)
 {
+    std::string humanCode;
+    humanInfo->getHumanCode(humanCode);
+    auto kind = HumanInfo::AnalyzeHumanKind(humanCode);
+    if (static_cast<int>(kind) < 0) {
+        CHECK_ERROR(static_cast<int>(kind));
+    }
+    if (kind == HumanInfo::HumanKind::Carrier) {
+        msgInfo = MessageManager::MakeMessage(MessageType::MsgText, data);
+        return 0;
+    }
+
     auto msgSepStartIt = std::find(data.begin(), data.end(), MsgSeparator[0]);
     for(auto idx = 0; idx < MsgSeparatorSize; idx++) {
         if(msgSepStartIt + idx == data.end()) {
@@ -1251,13 +1279,8 @@ int MessageManager::unpackMessageInfo(const std::vector<uint8_t>& data,
         }
     }
 
-    std::string jsonStr(data.begin(), msgSepStartIt);
-    if(msgSepStartIt == data.end()) { // it's from origin carrier app
-        msgInfo = MessageManager::MakeTextMessage(jsonStr);
-        return 0;
-    }
-
     // it's contact sdk
+    std::string jsonStr(data.begin(), msgSepStartIt);
     auto jsonData = Json::parse(jsonStr);
     //auto jsonData = Json::from_cbor(msgContent);
     msgInfo = jsonData[JsonKey::MessageData];

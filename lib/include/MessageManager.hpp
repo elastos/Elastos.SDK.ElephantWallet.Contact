@@ -255,10 +255,13 @@ private:
                            const std::string& friendCode,
                            const std::shared_ptr<MessageInfo> msgInfo);
     int sendDescMessage(const std::vector<std::shared_ptr<HumanInfo>>& humanList, ChannelType chType);
+    int sendMsgAckMessage(const std::shared_ptr<HumanInfo> humanInfo, ChannelType chType,
+                          const std::shared_ptr<MessageInfo> msgInfo);
     int packMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
                         const std::shared_ptr<MessageInfo> msgInfo,
                         std::vector<uint8_t>& data);
-    int unpackMessageInfo(const std::vector<uint8_t>& data,
+    int unpackMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
+                          const std::vector<uint8_t>& data,
                           std::shared_ptr<MessageInfo>& msgInfo);
 
 
