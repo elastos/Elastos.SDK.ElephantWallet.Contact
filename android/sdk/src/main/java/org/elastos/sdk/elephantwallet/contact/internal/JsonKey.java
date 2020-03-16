@@ -41,7 +41,10 @@ final class JsonKey {
     static final String Type            = "Type";
     static final String PlainContent    = "PlainContent";
     static final String CryptoAlgorithm = "CryptoAlgorithm";
-    static final String TimeStamp       = "TimeStamp";
+    static final String Memo            = "Memo";
+    static final String NanoTime        = "NanoTime";
+    static final String ReplyToNanoTime = "ReplyToNanoTime";
+    static final String AckToNanoTime   = "AckToNanoTime";
 
 //    static final String Text            = "Text";
 //    static final String Binary          = "Binary";

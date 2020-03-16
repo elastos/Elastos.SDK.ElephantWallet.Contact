@@ -128,6 +128,7 @@ int ContactTest::testNewContact()
             msg << "onRcvdMsg(): data=" << msgInfo->data->toString() << "\n";
             msg << "onRcvdMsg(): type=" << std::to_string(static_cast<int>(msgInfo->type)) << "\n";
             msg << "onRcvdMsg(): crypto=" << msgInfo->cryptoAlgorithm << "\n";
+            msg << "onRcvdMsg(): memo=" << msgInfo->memo << "\n";
             msg << "onRcvdMsg(): nanoTime=" << std::to_string(msgInfo->nanoTime) << "\n";
             msg << "onRcvdMsg(): replyTo=" << std::to_string(msgInfo->replyToNanoTime) << "\n";
             ShowEvent(msg.str());
@@ -387,14 +388,14 @@ int ContactTest::doDelFriend(const std::string& friendCode)
     return 0;
 }
 
-int ContactTest::doSendMessage(const std::string& friendCode, const std::string& text, int64_t replyTo)
+int ContactTest::doSendMessage(const std::string& friendCode, const std::string& text, const std::string& memo, int64_t replyTo)
 {
     if (mContact == nullptr) {
         ShowError("Contact is null.");
         return -1;
     }
 
-    auto msgInfo = elastos::sdk::Contact::MakeTextMessage(text);
+    auto msgInfo = elastos::sdk::Contact::MakeTextMessage(text, "", memo);
     if(msgInfo == nullptr) {
         ShowError("Failed to make text message.");
         return -1;

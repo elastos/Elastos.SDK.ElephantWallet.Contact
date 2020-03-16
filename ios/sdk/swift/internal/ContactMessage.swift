@@ -151,6 +151,7 @@ open class ContactMessage: CrossBase {
   public let type: Kind
   public private(set) var data: MsgData
   public let cryptoAlgorithm: String?
+  public var memo: String?
   public var nanoTime: Int64
   public var replyToNanoTime: Int64
   
@@ -162,16 +163,18 @@ open class ContactMessage: CrossBase {
     let ret = syncMessageToNative(type: type.rawValue,
                                   data: data.toData()!,
                                   cryptoAlgorithm: cryptoAlgorithm,
+                                  memo: memo,
                                   nanoTime: nanoTime,
                                   replyToNanoTime: replyToNanoTime)
     return ret;
   }
 
 
-  public init(type: Kind, data: MsgData, cryptoAlgorithm: String?) {
+  public init(type: Kind, data: MsgData, cryptoAlgorithm: String?, memo: String?) {
     self.type = type
     self.data = data
     self.cryptoAlgorithm = cryptoAlgorithm ?? ""
+    self.memo = memo ?? ""
     self.nanoTime = Int64(Date().timeIntervalSince1970 * 1000) * ContactInternal.ContactMessage.TimeOffset
                   + Int64.random(in: 0...100000)
     self.replyToNanoTime = 0
@@ -179,26 +182,29 @@ open class ContactMessage: CrossBase {
     super.init(className: String(describing: ContactMessage.self))
   }
 
-  public convenience init(text: String, cryptoAlgorithm: String?) {
+  public convenience init(text: String, cryptoAlgorithm: String?, memo: String?) {
     self.init(type: Kind.MsgText,
               data: TextData(text: text),
-              cryptoAlgorithm: cryptoAlgorithm);
+              cryptoAlgorithm: cryptoAlgorithm,
+              memo: memo);
   }
 
-  public convenience init(binary: Data, cryptoAlgorithm: String?) {
+  public convenience init(binary: Data, cryptoAlgorithm: String?, memo: String?) {
     self.init(type: Kind.MsgBinary,
               data: BinaryData(data: binary),
-              cryptoAlgorithm: cryptoAlgorithm);
+              cryptoAlgorithm: cryptoAlgorithm,
+              memo: memo);
   }
   
-  public convenience init(file: URL, cryptoAlgorithm: String?) {
+  public convenience init(file: URL, cryptoAlgorithm: String?, memo: String?) {
     self.init(type: Kind.MsgFile,
               data: FileData(file: file),
-              cryptoAlgorithm: cryptoAlgorithm);
+              cryptoAlgorithm: cryptoAlgorithm,
+              memo: memo);
   }
   
-  public convenience init(type: Kind, data: Data, cryptoAlgorithm: String?) {
-    self.init(type: type, data: MsgData(), cryptoAlgorithm: cryptoAlgorithm)
+  public convenience init(type: Kind, data: Data, cryptoAlgorithm: String?, memo: String?) {
+    self.init(type: type, data: MsgData(), cryptoAlgorithm: cryptoAlgorithm, memo: memo)
     switch (type) {
     case .MsgText:
       self.data = TextData(text: nil)
@@ -217,10 +223,12 @@ open class ContactMessage: CrossBase {
   }
   
   /* @CrossNativeInterface */
-  private func syncMessageToNative(type: Int,
-                                   data: Data, cryptoAlgorithm: String?,
+  private func syncMessageToNative(type: Int, data: Data,
+                                   cryptoAlgorithm: String?, memo: String?,
                                    nanoTime: Int64, replyToNanoTime: Int64) -> Int {
-    let ret = crosspl_Proxy_ContactMessage_syncMessageToNative(nativeHandle, Int32(type), data, cryptoAlgorithm, nanoTime, replyToNanoTime)
+    let ret = crosspl_Proxy_ContactMessage_syncMessageToNative(nativeHandle, Int32(type), data,
+                                                               cryptoAlgorithm, memo,
+                                                               nanoTime, replyToNanoTime)
     return Int(ret)
   }
 }

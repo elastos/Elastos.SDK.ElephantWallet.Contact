@@ -306,6 +306,7 @@ public class MainActivity extends Activity {
                 String msg = "onRcvdMsg(): data=" + message.data + "\n";
                 msg += "onRcvdMsg(): type=" + message.type + "\n";
                 msg += "onRcvdMsg(): crypto=" + message.cryptoAlgorithm + "\n";
+                msg += "onRcvdMsg(): memo=" + message.memo + "\n";
                 msg += "onRcvdMsg(): nanoTime=" + "[" + nanoTime + "] " + message.nanoTime + "\n";
                 msg += "onRcvdMsg(): replyTo=" + message.replyToNanoTime + "\n";
                 showEvent(msg);
@@ -791,7 +792,7 @@ public class MainActivity extends Activity {
                         return;
                     }
                 }
-                Contact.Message msgInfo = Contact.MakeTextMessage(message, null);
+                Contact.Message msgInfo = Contact.MakeTextMessage(message, null, "memo-android");
                 if(replyTo > 0) {
                     msgInfo.replyTo(replyTo);
                 }
@@ -800,7 +801,7 @@ public class MainActivity extends Activity {
 //                for(int idx = 0; idx < 1024 * 50; idx ++) {
 //                    str.append("1234567890");
 //                }
-//                Contact.Message msgInfo = Contact.MakeTextMessage(str.toString(), null);
+//                Contact.Message msgInfo = Contact.MakeTextMessage(str.toString(), null, null);
 
                 Contact.Status status = mContact.getStatus(friendCode);
                 if(status != Contact.Status.Online) {
@@ -839,7 +840,7 @@ public class MainActivity extends Activity {
                 return;
             }
 
-            Contact.Message msgInfo = Contact.MakeBinaryMessage(new byte[]{0, 1, 2, 3}, null);
+            Contact.Message msgInfo = Contact.MakeBinaryMessage(new byte[]{0, 1, 2, 3}, null, null);
             int ret = mContact.sendMessage(friendCode, Contact.Channel.Carrier, msgInfo);
             if(ret < 0) {
                 showMessage(ErrorPrefix + "Failed to send message to " + friendCode);
@@ -868,7 +869,7 @@ public class MainActivity extends Activity {
         List<String> friendCodeList = mContact.listFriendCode();
         Helper.showFriendList(this, friendCodeList, (friendCode) -> {
             Helper.showFileSendMessage(this, friendCode, (filepath) -> {
-                Contact.Message msgInfo = Contact.MakeFileMessage(new File(filepath), null);
+                Contact.Message msgInfo = Contact.MakeFileMessage(new File(filepath), null, null);
 
                 Contact.Status status = mContact.getStatus(friendCode);
                 if(status != Contact.Status.Online) {
@@ -1025,7 +1026,7 @@ public class MainActivity extends Activity {
         if(info == null) {
             return ErrorPrefix + "Failed to get user info.";
         }
-        Contact.Message msgInfo = Contact.MakeTextMessage("test loop message", null);
+        Contact.Message msgInfo = Contact.MakeTextMessage("test loop message", null, null);
 
         int ret = mContact.sendMessage(info.humanCode, mCustomChannelStrategy.getChannel(), msgInfo);
         if(ret < 0) {

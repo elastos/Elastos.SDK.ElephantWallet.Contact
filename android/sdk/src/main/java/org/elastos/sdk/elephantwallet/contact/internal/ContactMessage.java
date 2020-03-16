@@ -155,6 +155,7 @@ class ContactMessage extends CrossBase {
     public final Type type;
     public MsgData data;
     public final String cryptoAlgorithm;
+    public String memo;
     public long nanoTime;
     public long replyToNanoTime;
 
@@ -164,25 +165,25 @@ class ContactMessage extends CrossBase {
 
     int syncMessageToNative() {
         byte[] msgData = data.toData();
-        int ret = syncMessageToNative(type.id, msgData, cryptoAlgorithm, nanoTime, replyToNanoTime);
+        int ret = syncMessageToNative(type.id, msgData, cryptoAlgorithm, memo, nanoTime, replyToNanoTime);
         return ret;
     }
 
-    ContactMessage(String text, String cryptoAlgorithm) {
-        this(Type.MsgText, new TextData(text), cryptoAlgorithm);
+    ContactMessage(String text, String cryptoAlgorithm, String memo) {
+        this(Type.MsgText, new TextData(text), cryptoAlgorithm, memo);
     }
 
-    ContactMessage(byte[] binary, String cryptoAlgorithm) {
-        this(Type.MsgBinary, new BinaryData(binary), cryptoAlgorithm);
+    ContactMessage(byte[] binary, String cryptoAlgorithm, String memo) {
+        this(Type.MsgBinary, new BinaryData(binary), cryptoAlgorithm, memo);
     }
 
 
-    ContactMessage(File file, String cryptoAlgorithm) {
-        this(Type.MsgFile, new FileData(file), cryptoAlgorithm);
+    ContactMessage(File file, String cryptoAlgorithm, String memo) {
+        this(Type.MsgFile, new FileData(file), cryptoAlgorithm, memo);
     }
 
-    ContactMessage(Type type, byte[] data, String cryptoAlgorithm) {
-        this(type, (MsgData) null, cryptoAlgorithm);
+    ContactMessage(Type type, byte[] data, String cryptoAlgorithm, String memo) {
+        this(type, (MsgData) null, cryptoAlgorithm, memo);
         if(data != null) {
             switch (type) {
                 case MsgText:
@@ -204,17 +205,18 @@ class ContactMessage extends CrossBase {
         }
     }
 
-    private ContactMessage(Type type, MsgData data, String cryptoAlgorithm) {
+    private ContactMessage(Type type, MsgData data, String cryptoAlgorithm, String memo) {
         super(ContactMessage.class.getName(), 0);
 
         this.type = type;
         this.data = data;
         this.cryptoAlgorithm = cryptoAlgorithm;
+        this.memo = memo;
         this.nanoTime = System.currentTimeMillis() * TimeOffset + new Random().nextInt(100000);
         this.replyToNanoTime = 0;
     }
 
     @CrossInterface
-    private native int syncMessageToNative(int type, byte[] data, String cryptoAlgorithm,
+    private native int syncMessageToNative(int type, byte[] data, String cryptoAlgorithm, String memo,
                                            long nanoTime, long replyToNanoTime);
 } // class Factory

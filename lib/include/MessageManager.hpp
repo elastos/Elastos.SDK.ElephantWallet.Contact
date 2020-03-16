@@ -52,20 +52,35 @@ public:
     struct MessageInfo {
     public:
         static constexpr int64_t TimeOffset = 1000000;
+        static constexpr int MemoMaxSize = 64;
 
         MessageType mType;
         std::vector<uint8_t> mPlainContent;
         std::string mCryptoAlgorithm;
+        std::string mMemo;
         int64_t mNanoTime;
         int64_t mReplyToNanoTime;
     private:
         explicit MessageInfo(MessageType type,
                              const std::vector<uint8_t>& plainContent,
-                             const std::string& cryptoAlgorithm);
+                             const std::string& cryptoAlgorithm,
+                             const std::string& memo);
         explicit MessageInfo(const MessageInfo& info,
                              bool ignoreContent = true);
         explicit MessageInfo() = default;
         virtual ~MessageInfo() = default;
+
+        friend MessageManager;
+    };
+
+    struct MessageAckInfo {
+    public:
+        std::string mMemo;
+        int64_t mAckToNanoTime;
+    private:
+        explicit MessageAckInfo(std::shared_ptr<MessageInfo> msgInfo);
+        explicit MessageAckInfo() = default;
+        virtual ~MessageAckInfo() = default;
 
         friend MessageManager;
     };
@@ -102,7 +117,7 @@ public:
 
         virtual void onSentMessage(std::shared_ptr<HumanInfo> humanInfo,
                                    ChannelType channelType,
-                                   int64_t msgNanoTime) = 0;
+                                   const std::shared_ptr<MessageAckInfo> msgAckInfo) = 0;
 
         virtual void onFriendRequest(std::shared_ptr<FriendInfo> friendInfo,
                                      ChannelType channelType,
@@ -185,10 +200,12 @@ public:
 
     /*** static function and variable ***/
     static std::shared_ptr<MessageInfo> MakeEmptyMessage();
+    static std::shared_ptr<MessageAckInfo> MakeEmptyMessageAck();
 
     static std::shared_ptr<MessageInfo> MakeMessage(MessageType type,
                                                     const std::vector<uint8_t>& plainContent,
-                                                    const std::string& cryptoAlgorithm = "");
+                                                    const std::string& cryptoAlgorithm = "",
+                                                    const std::string& memo = "");
     static std::shared_ptr<MessageInfo> MakeTextMessage(const std::string& plainContent,
                                                         const std::string& cryptoAlgorithm = "");
 

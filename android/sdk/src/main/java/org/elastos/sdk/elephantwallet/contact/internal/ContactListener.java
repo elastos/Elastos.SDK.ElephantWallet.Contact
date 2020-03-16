@@ -2,6 +2,8 @@ package org.elastos.sdk.elephantwallet.contact.internal;
 
 import android.util.Log;
 
+import com.google.gson.JsonObject;
+
 import org.elastos.sdk.elephantwallet.contact.Contact;
 import org.elastos.sdk.elephantwallet.contact.Utils;
 import org.elastos.tools.crosspl.CrossBase;
@@ -93,16 +95,22 @@ abstract class ContactListener extends CrossBase {
     public class MsgAckEvent extends EventArgs {
         public MsgAckEvent(int type, String humanCode, int channelType, byte[] data) {
             super(type, humanCode, channelType, data);
-            nanoTime = Long.reverseBytes(new BigInteger(data).longValue());
+
+            JsonObject msgAckEvent = Utils.GetGsonBuilder().create().fromJson(new String(data), JsonObject.class);
+            this.memo = msgAckEvent.get(JsonKey.Memo).getAsString();
+            this.ackToNanoTime = msgAckEvent.get(JsonKey.AckToNanoTime).getAsLong();
+            //this.nanoTime = Long.reverseBytes(new BigInteger(data).longValue());
         }
         @Override
         public String toString() {
             return "MsgAckEvent" + "[type=" + type
                  + ",humanCode=" + humanCode + ",channelType=" + channelType
-                 + ",nanoTime=" + nanoTime +"]";
+                 + ",memo=" + memo
+                 + ",ackToNanoTime=" + ackToNanoTime +"]";
         }
 
-        public long nanoTime;
+        public String memo;
+        public long ackToNanoTime;
     }
 
     protected ContactListener() {
@@ -149,10 +157,10 @@ abstract class ContactListener extends CrossBase {
 
     @CrossInterface
     private void onReceivedMessage(String humanCode, int channelType,
-                                   int type, byte[] data, String cryptoAlgorithm,
+                                   int type, byte[] data, String cryptoAlgorithm, String memo,
                                    long nanoTime, long replyToNanoTime) {
         Contact.Message message = new Contact.Message(ContactMessage.Type.valueOf(type),
-                                                      data, cryptoAlgorithm);
+                                                      data, cryptoAlgorithm, memo);
         message.nanoTime = nanoTime;
         message.replyToNanoTime = replyToNanoTime;
 

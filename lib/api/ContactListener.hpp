@@ -165,20 +165,24 @@ public:
 
     class MsgAckEvent: public EventArgs {
     public:
-        explicit MsgAckEvent(Type type, const std::string& humanCode, ChannelType channelType, int64_t msgNanoTime)
+        explicit MsgAckEvent(Type type, const std::string& humanCode,
+                             ChannelType channelType, const std::string& memo, int64_t ackToNanoTime)
                 : EventArgs(type, humanCode, channelType)
-                , msgNanoTime(msgNanoTime) {
+                , memo(memo)
+                , ackToNanoTime(ackToNanoTime) {
         }
         virtual ~MsgAckEvent() = default;
 
         virtual std::string toString() const override  {
             return std::string("MsgAckEvent")
-                   + "[msgNanoTime=" + std::to_string(msgNanoTime)
+                   + "[memo=" + memo
+                   + ", ackToNanoTime=" + std::to_string(ackToNanoTime)
                    + ", " + EventArgs::toString()
                    +"]";
         }
 
-        int64_t msgNanoTime;
+        std::string memo;
+        int64_t ackToNanoTime;
     };
 
     template <class T>

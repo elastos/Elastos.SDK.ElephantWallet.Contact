@@ -78,17 +78,22 @@ import CrossPL
   
   public class MsgAckEvent: EventArgs {
     public override init(type: Int, humanCode: String, channelType: Int, data: Data?) {
-      nanoTime = data?.reversed().reduce(0) { $0 << 8 + Int64($1) } ?? -1
+      //nanoTime = data?.reversed().reduce(0) { $0 << 8 + Int64($1) } ?? -1
+      let msgAckEvent = try! JSONSerialization.jsonObject(with: data!)  as! [String: Any]
+      memo = msgAckEvent[ContactInternal.JsonKey.Memo] as! String
+      ackToNanoTime = msgAckEvent[ContactInternal.JsonKey.AckToNanoTime] as! Int64
       super.init(type: type, humanCode: humanCode, channelType: channelType, data: data)
     }
     
     public override func toString() -> String {
     return  "MsgAckEvent" + "[type=\(type)"
           + ",humanCode=\(humanCode)" + ",channelType=\(channelType)"
-          + ",nanoTime=\(nanoTime)" + "]"
+          + ",memo=\(memo)"
+          + ",ackToNanoTime=\(ackToNanoTime)" + "]"
     }
 
-    public let nanoTime: Int64
+    public let memo: String
+    public let ackToNanoTime: Int64
   }
   
   public init() {
@@ -135,11 +140,13 @@ import CrossPL
 
   /* @CrossPlatformInterface */
   @objc internal func onReceivedMessage(_ humanCode: String, _ channelType: Int,
-                                       _ type: Int, _ data: Data, _ cryptoAlgorithm: String,
+                                       _ type: Int, _ data: Data,
+                                       _ cryptoAlgorithm: String, _ memo: String,
                                        _ nanoTime: Int64, _ replyToNanoTime: Int64) {
     let message = Contact.Message(type: Contact.Message.Kind(rawValue: type)!,
                                   data: data,
-                                  cryptoAlgorithm: cryptoAlgorithm)
+                                  cryptoAlgorithm: cryptoAlgorithm,
+                                  memo: memo)
     message.nanoTime = nanoTime
     message.replyToNanoTime = replyToNanoTime
 

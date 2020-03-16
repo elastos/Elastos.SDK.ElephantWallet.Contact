@@ -7,6 +7,7 @@
 
 #include <ContactListener.hpp>
 #include "Log.hpp"
+#include "JsonDefine.hpp"
 
 #ifdef WITH_CROSSPL
 #define ENABLE_PLATFORM_FUNCTION
@@ -243,7 +244,7 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
 
         virtual void onSentMessage(std::shared_ptr<elastos::HumanInfo> humanInfo,
                                    elastos::MessageManager::ChannelType channelType,
-                                   int64_t msgNanoTime) override {
+                                   const std::shared_ptr<elastos::MessageManager::MessageAckInfo> msgAckInfo) override {
             Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
 
             std::string humanCode;
@@ -252,14 +253,16 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
 
             LOCK_PTR(mMutex, mHelperPtr, );
 #ifdef WITH_CROSSPL
-            std::span<uint8_t> data {reinterpret_cast<uint8_t*>(&msgNanoTime),
-                                     sizeof(msgNanoTime)};
+            auto jsonInfo = elastos::Json(msgAckInfo);
+            std::string msgAckStr = jsonInfo.dump();
+            std::span<uint8_t> data {reinterpret_cast<uint8_t*>(msgAckStr.data()),
+                                     msgAckStr.size()};
             mHelperPtr->onEvent(EventType::MessageAck, humanCode,
                                 static_cast<ChannelType>(channelType), &data);
 #else
             auto event = MsgAckEvent{EventType::MessageAck, humanCode,
                                       static_cast<ChannelType>(channelType),
-                                      msgNanoTime};
+                                      msgAckInfo->mMemo, msgAckInfo->mAckToNanoTime};
             mHelperPtr->onEvent(event);
 #endif // WITH_CROSSPL
         }
@@ -373,6 +376,7 @@ void ContactListener::onReceivedMessage(const std::string& humanCode, ChannelTyp
                                                     static_cast<int>(msgInfo->mType),
                                                     &data,
                                                     msgInfo->mCryptoAlgorithm.c_str(),
+                                                    msgInfo->mMemo.c_str(),
                                                     msgInfo->mNanoTime,
                                                     msgInfo->mReplyToNanoTime);
     return;

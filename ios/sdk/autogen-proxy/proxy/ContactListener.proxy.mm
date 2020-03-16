@@ -38,7 +38,7 @@ void crosspl_Proxy_ContactListener_onEvent(int64_t platformHandle, int var0, con
 
 
 }
-void crosspl_Proxy_ContactListener_onReceivedMessage(int64_t platformHandle, const char* var0, int var1, int var2, const std::span<uint8_t>* var3, const char* var4, int64_t var5, int64_t var6)
+void crosspl_Proxy_ContactListener_onReceivedMessage(int64_t platformHandle, const char* var0, int var1, int var2, const std::span<uint8_t>* var3, const char* var4, const char* var5, int64_t var6, int64_t var7)
 {
   auto ocobj = crosspl::CrossPLUtils::SafeCastCrossObjectToSwift<ContactListener>(platformHandle);
   auto ocvar0 = crosspl::CrossPLUtils::SafeCastString(var0);
@@ -46,10 +46,11 @@ void crosspl_Proxy_ContactListener_onReceivedMessage(int64_t platformHandle, con
   int ocvar2 = var2;
   auto ocvar3 = crosspl::CrossPLUtils::SafeCastByteArray(var3);
   auto ocvar4 = crosspl::CrossPLUtils::SafeCastString(var4);
-  int64_t ocvar5 = var5;
+  auto ocvar5 = crosspl::CrossPLUtils::SafeCastString(var5);
   int64_t ocvar6 = var6;
+  int64_t ocvar7 = var7;
 
-  [ocobj onReceivedMessage :ocvar0.get() :ocvar1 :ocvar2 :ocvar3.get() :ocvar4.get() :ocvar5 :ocvar6];
+  [ocobj onReceivedMessage :ocvar0.get() :ocvar1 :ocvar2 :ocvar3.get() :ocvar4.get() :ocvar5.get() :ocvar6 :ocvar7];
 
 
 

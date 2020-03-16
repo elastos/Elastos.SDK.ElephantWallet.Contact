@@ -651,7 +651,7 @@ class ViewController: UIViewController {
       return ViewController.ErrorPrefix + "Failed to get user info."
     }
     
-    let msgInfo = Contact.MakeTextMessage(text: "test loop message", cryptoAlgorithm: nil)
+    let msgInfo = Contact.MakeTextMessage(text: "test loop message", cryptoAlgorithm: nil, memo: nil)
     let ret = mContact!.sendMessage(friendCode: info!.humanCode!,
                                     channelType: mCustomChannelStrategy!.getChannel(),
                                     message: msgInfo)
@@ -779,7 +779,7 @@ class ViewController: UIViewController {
           }
         }
         
-        let msgInfo = Contact.MakeTextMessage(text: message, cryptoAlgorithm: nil)
+        let msgInfo = Contact.MakeTextMessage(text: message, cryptoAlgorithm: nil, memo: "memo-ios")
         if(replyTo != 0) {
           msgInfo.replyTo(toNanoTime: replyTo);
         }
@@ -823,7 +823,7 @@ class ViewController: UIViewController {
           return
         }
         
-        let msgInfo = Contact.MakeFileMessage(file: URL(string: filepath!)!, cryptoAlgorithm: nil)
+        let msgInfo = Contact.MakeFileMessage(file: URL(string: filepath!)!, cryptoAlgorithm: nil, memo: nil)
 
         let status = self.mContact!.getStatus(humanCode: friendCode!)
         if(status != Contact.Status.Online) {

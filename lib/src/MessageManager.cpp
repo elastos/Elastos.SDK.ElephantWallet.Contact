@@ -37,6 +37,17 @@ std::shared_ptr<MessageManager::MessageInfo> MessageManager::MakeEmptyMessage()
     return msgInfo;
 }
 
+std::shared_ptr<MessageManager::MessageAckInfo> MessageManager::MakeEmptyMessageAck()
+{
+    struct Impl: MessageManager::MessageAckInfo {
+    };
+
+    auto msgAckInfo = std::make_shared<Impl>();
+
+    return msgAckInfo;
+}
+
+
 std::shared_ptr<MessageManager::FileInfo> MessageManager::MakeEmptyFileInfo()
 {
     struct Impl: MessageManager::FileInfo {
@@ -401,18 +412,20 @@ int MessageManager::removeFriend(const std::string& friendCode, ChannelType huma
 
 std::shared_ptr<MessageManager::MessageInfo> MessageManager::MakeMessage(MessageType type,
                                                                          const std::vector<uint8_t>& plainContent,
-                                                                         const std::string& cryptoAlgorithm)
+                                                                         const std::string& cryptoAlgorithm,
+                                                                         const std::string& memo)
 {
     struct Impl: MessageManager::MessageInfo {
         Impl(MessageType type,
              const std::vector<uint8_t>& plainContent,
-             const std::string& cryptoAlgorithm)
-            : MessageManager::MessageInfo(type, plainContent, cryptoAlgorithm) {
+             const std::string& cryptoAlgorithm,
+             const std::string& memo)
+                : MessageManager::MessageInfo(type, plainContent, cryptoAlgorithm, memo) {
             mNanoTime = DateTime::CurrentMS() * TimeOffset + Random::Gen(100000);
         }
     };
 
-    auto msgInfo = std::make_shared<Impl>(type, plainContent, cryptoAlgorithm);
+    auto msgInfo = std::make_shared<Impl>(type, plainContent, cryptoAlgorithm, memo);
 
     return msgInfo;
 }
@@ -654,10 +667,12 @@ int MessageManager::broadcastDesc(ChannelType chType)
 /***********************************************/
 MessageManager::MessageInfo::MessageInfo(MessageType type,
                                          const std::vector<uint8_t>& plainContent,
-                                         const std::string& cryptoAlgorithm)
+                                         const std::string& cryptoAlgorithm,
+                                         const std::string& memo)
     : mType(type)
     , mPlainContent(plainContent)
     , mCryptoAlgorithm(cryptoAlgorithm)
+    , mMemo(memo)
     , mNanoTime(0)
     , mReplyToNanoTime(0)
 {
@@ -670,6 +685,7 @@ MessageManager::MessageInfo::MessageInfo(const MessageInfo& info,
                                          bool ignoreContent)
     : mType(info.mType)
     , mPlainContent()
+    , mMemo()
     , mCryptoAlgorithm(info.mCryptoAlgorithm)
     , mNanoTime(info.mNanoTime)
     , mReplyToNanoTime(info.mReplyToNanoTime)
@@ -677,6 +693,12 @@ MessageManager::MessageInfo::MessageInfo(const MessageInfo& info,
     if(ignoreContent == false) {
         mPlainContent = info.mPlainContent;
     }
+}
+
+MessageManager::MessageAckInfo::MessageAckInfo(std::shared_ptr<MessageInfo> msgInfo)
+        : mMemo(msgInfo->mMemo)
+        , mAckToNanoTime(msgInfo->mReplyToNanoTime)
+{
 }
 
 MessageManager::FileInfo::FileInfo(const std::string& devId,
@@ -1133,7 +1155,10 @@ int MessageManager::processCtrlMessage(std::shared_ptr<HumanInfo> humanInfo,
         auto status = (ret == 0 ? DataListener::Status::PeerInitialized : DataListener::Status::PeerFailed);
         mDataListener->onNotify(humanInfo, channelType, "", static_cast<int>(status));
     } else if(msgInfo->mType == MessageType::CtrlMsgAck) {
-        mMessageListener->onSentMessage(humanInfo, channelType, msgInfo->mReplyToNanoTime);
+        auto msgAckInfo = MakeEmptyMessageAck();
+        msgAckInfo->mMemo = msgInfo->mMemo;
+        msgAckInfo->mAckToNanoTime = msgInfo->mReplyToNanoTime;
+        mMessageListener->onSentMessage(humanInfo, channelType, msgAckInfo);
     }
 
     return 0;
@@ -1141,7 +1166,7 @@ int MessageManager::processCtrlMessage(std::shared_ptr<HumanInfo> humanInfo,
 
 int MessageManager::sendDescMessage(const std::vector<std::shared_ptr<HumanInfo>>& humanList, ChannelType chType)
 {
-    Log::W(Log::TAG, "Process Sync Desc =======================");
+    Log::W(Log::TAG, "Send Sync Desc =======================");
     // send latest user desc.
     auto userMgr = SAFE_GET_PTR(mUserManager);
     std::shared_ptr<UserInfo> userInfo;
@@ -1195,6 +1220,7 @@ int MessageManager::sendMsgAckMessage(const std::shared_ptr<HumanInfo> humanInfo
     }
     if (kind != HumanInfo::HumanKind::Carrier) {
         auto msgAckInfo = MakeMessage(MessageType::CtrlMsgAck, std::vector<uint8_t>());
+        msgAckInfo->mMemo = msgInfo->mMemo;
         msgAckInfo->mReplyToNanoTime = msgInfo->mNanoTime;
         int ret = sendMessage(humanInfo, chType, msgAckInfo, false);
         CHECK_ERROR(ret);
@@ -1235,6 +1261,10 @@ int MessageManager::sendMsgAckMessage(const std::shared_ptr<HumanInfo> humanInfo
         CHECK_ERROR(ret)
     }
 
+    if(msgInfo->mMemo.length() > MessageInfo::MemoMaxSize) {
+        CHECK_ERROR(ErrCode::SizeOverflowError);
+    }
+
     Json jsonData = Json::object();
     jsonData[JsonKey::MessageData] = msgInfo;
     //std::vector<uint8_t> data = Json::to_cbor(jsonData);
@@ -1256,17 +1286,6 @@ int MessageManager::unpackMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
                                       const std::vector<uint8_t>& data,
                                       std::shared_ptr<MessageInfo>& msgInfo)
 {
-    std::string humanCode;
-    humanInfo->getHumanCode(humanCode);
-    auto kind = HumanInfo::AnalyzeHumanKind(humanCode);
-    if (static_cast<int>(kind) < 0) {
-        CHECK_ERROR(static_cast<int>(kind));
-    }
-    if (kind == HumanInfo::HumanKind::Carrier) {
-        msgInfo = MessageManager::MakeMessage(MessageType::MsgText, data);
-        return 0;
-    }
-
     auto msgSepStartIt = std::find(data.begin(), data.end(), MsgSeparator[0]);
     for(auto idx = 0; idx < MsgSeparatorSize; idx++) {
         if(msgSepStartIt + idx == data.end()) {
@@ -1279,8 +1298,13 @@ int MessageManager::unpackMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
         }
     }
 
-    // it's contact sdk
     std::string jsonStr(data.begin(), msgSepStartIt);
+    if(msgSepStartIt == data.end()) { // it's from origin carrier app
+        msgInfo = MessageManager::MakeTextMessage(jsonStr);
+        return 0;
+    }
+
+    // it's contact sdk
     auto jsonData = Json::parse(jsonStr);
     //auto jsonData = Json::from_cbor(msgContent);
     msgInfo = jsonData[JsonKey::MessageData];

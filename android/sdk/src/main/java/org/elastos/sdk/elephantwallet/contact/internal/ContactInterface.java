@@ -77,20 +77,20 @@ public interface ContactInterface {
     } // class Channel
 
     public static class Message extends ContactMessage {
-        public Message(String text, String cryptoAlgorithm) {
-            super(text, cryptoAlgorithm);
+        public Message(String text, String cryptoAlgorithm, String memo) {
+            super(text, cryptoAlgorithm, memo);
         }
 
-        public Message(byte[] binary, String cryptoAlgorithm) {
-            super(binary, cryptoAlgorithm);
+        public Message(byte[] binary, String cryptoAlgorithm, String memo) {
+            super(binary, cryptoAlgorithm, memo);
         }
 
-        public Message(File file, String cryptoAlgorithm) {
-            super(file, cryptoAlgorithm);
+        public Message(File file, String cryptoAlgorithm, String memo) {
+            super(file, cryptoAlgorithm, memo);
         }
 
-        public Message(Type type, byte[] data, String cryptoAlgorithm) {
-            super(type, data, cryptoAlgorithm);
+        public Message(Type type, byte[] data, String cryptoAlgorithm, String memo) {
+            super(type, data, cryptoAlgorithm, memo);
         }
 
         static { Utils.EnsureNativeLibrary(); }

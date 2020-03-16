@@ -39,14 +39,17 @@ ContactMessage::~ContactMessage()
 int ContactMessage::syncMessageToNative(int type,
                                         const std::span<uint8_t>* data,
                                         ConstStringPtr cryptoAlgorithm,
+                                        ConstStringPtr memo,
                                         int64_t nanoTime,
                                         int64_t replyToNanoTime)
 {
     auto msg = std::vector<uint8_t>(data->data(), data->data() + data->size());
-    auto algorithm = (!IsEmpty(cryptoAlgorithm) ? cryptoAlgorithm : "");
+    auto castAlgorithm = (!IsEmpty(cryptoAlgorithm) ? cryptoAlgorithm : "");
+    auto castMemo = (!IsEmpty(memo) ? memo : "");
     mMessageInfo = elastos::MessageManager::MakeMessage(static_cast<elastos::MessageManager::MessageType>(type),
                                                         msg,
-                                                        algorithm);
+                                                        castAlgorithm,
+                                                        castMemo);
     mMessageInfo->mNanoTime = nanoTime;
     mMessageInfo->mReplyToNanoTime = replyToNanoTime;
     return 0;

@@ -37,24 +37,24 @@ std::shared_ptr<Contact> Contact::Factory::Create()
 }
 
 
-std::shared_ptr<Contact::Message> Contact::MakeTextMessage(const std::string& text, const std::string& cryptoAlgorithm)
+std::shared_ptr<Contact::Message> Contact::MakeTextMessage(const std::string& text, const std::string& cryptoAlgorithm, const std::string& memo)
 {
     auto data = std::make_shared<Message::TextData>(text);
-    auto msg = std::make_shared<Message>(Message::Type::MsgText, data, cryptoAlgorithm);
+    auto msg = std::make_shared<Message>(Message::Type::MsgText, data, cryptoAlgorithm, memo);
     return msg;
 }
 
-std::shared_ptr<Contact::Message> Contact::MakeBinaryMessage(const std::vector<uint8_t>& binary, const std::string& cryptoAlgorithm)
+std::shared_ptr<Contact::Message> Contact::MakeBinaryMessage(const std::vector<uint8_t>& binary, const std::string& cryptoAlgorithm, const std::string& memo)
 {
     auto data = std::make_shared<Message::BinaryData>(binary);
-    auto msg = std::make_shared<Message>(Message::Type::MsgBinary, data, cryptoAlgorithm);
+    auto msg = std::make_shared<Message>(Message::Type::MsgBinary, data, cryptoAlgorithm, memo);
     return msg;
 }
 
-std::shared_ptr<Contact::Message> Contact::MakeFileMessage(const std::string& filepath, const std::string& cryptoAlgorithm)
+std::shared_ptr<Contact::Message> Contact::MakeFileMessage(const std::string& filepath, const std::string& cryptoAlgorithm, const std::string& memo)
 {
     auto data = std::make_shared<Message::FileData>(filepath);
-    auto msg = std::make_shared<Message>(Message::Type::MsgFile, data, cryptoAlgorithm);
+    auto msg = std::make_shared<Message>(Message::Type::MsgFile, data, cryptoAlgorithm, memo);
     return msg;
 }
 
@@ -117,6 +117,7 @@ int Contact::sendMessage(const std::string& friendCode, Channel chType, std::sha
     std::span<uint8_t> data(dataInfo.data(), dataInfo.size());
     auto ret = message->syncMessageToNative(static_cast<int>(message->type), &data,
                                             message->cryptoAlgorithm,
+                                            message->memo,
                                             message->nanoTime,
                                             message->replyToNanoTime);
     CHECK_ERROR(ret);
@@ -127,13 +128,15 @@ int Contact::sendMessage(const std::string& friendCode, Channel chType, std::sha
     return 0;
 }
 
-Contact::Message::Message(Type type, std::shared_ptr<MsgData> data, const std::string& cryptoAlgorithm)
-    : crosspl::native::ContactMessage(),
-      type(type),
-      data(data),
-      cryptoAlgorithm(cryptoAlgorithm),
-      nanoTime(0),
-      replyToNanoTime(0)
+Contact::Message::Message(Type type, std::shared_ptr<MsgData> data,
+                          const std::string& cryptoAlgorithm, const std::string& memo)
+    : crosspl::native::ContactMessage()
+    , type(type)
+    , data(data)
+    , cryptoAlgorithm(cryptoAlgorithm)
+    , memo(memo)
+    , nanoTime(0)
+    , replyToNanoTime(0)
 {
     int64_t* nanoTimePtr = const_cast<int64_t*>(&nanoTime);
     *nanoTimePtr = elastos::DateTime::CurrentMS();
@@ -141,13 +144,15 @@ Contact::Message::Message(Type type, std::shared_ptr<MsgData> data, const std::s
 }
 
 
-Contact::Message::Message(Type type, const std::vector<uint8_t>& data, std::string cryptoAlgorithm,
+Contact::Message::Message(Type type, const std::vector<uint8_t>& data,
+                          const std::string& cryptoAlgorithm, const std::string& memo,
                           int64_t nanoTime, int64_t replyToNanoTime)
-        : type(type)
-        , data()
-        , cryptoAlgorithm(cryptoAlgorithm)
-        , nanoTime(nanoTime)
-        , replyToNanoTime(replyToNanoTime)
+    : type(type)
+    , data()
+    , cryptoAlgorithm(cryptoAlgorithm)
+    , memo(memo)
+    , nanoTime(nanoTime)
+    , replyToNanoTime(replyToNanoTime)
 {
             Log::W(Log::TAG, "======================== %lld", nanoTime);
 //        throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
@@ -268,7 +273,7 @@ Contact::ChannelStrategy::ChannelStrategy(int channelId, const std::string& name
 void Contact::Listener::onReceivedMessage(const std::string& humanCode, Channel channelType,
                                           std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo)
 {
-    auto message = std::make_shared<Message>(msgInfo->mType, msgInfo->mPlainContent, msgInfo->mCryptoAlgorithm,
+    auto message = std::make_shared<Message>(msgInfo->mType, msgInfo->mPlainContent, msgInfo->mCryptoAlgorithm, msgInfo->mMemo,
                                              msgInfo->mNanoTime, msgInfo->mReplyToNanoTime);
     onReceivedMessage(humanCode, channelType, message);
 }

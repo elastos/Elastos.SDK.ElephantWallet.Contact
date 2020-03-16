@@ -30,6 +30,7 @@ public:
     int syncMessageToNative(int type,
                             const std::span<uint8_t>* data,
                             ConstStringPtr cryptoAlgorithm,
+                            ConstStringPtr memo,
                             int64_t nanoTime,
                             int64_t replyToNanoTime);
 

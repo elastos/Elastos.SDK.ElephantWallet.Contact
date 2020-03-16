@@ -239,18 +239,18 @@ class ContactBridge extends CrossBase {
         return ret;
     }
 
-    public static Contact.Message MakeTextMessage(String text, String cryptoAlgorithm) {
-        Contact.Message msg = new Contact.Message(text, cryptoAlgorithm);
+    public static Contact.Message MakeTextMessage(String text, String cryptoAlgorithm, String memo) {
+        Contact.Message msg = new Contact.Message(text, cryptoAlgorithm, memo);
         return msg;
     }
 
-    public static Contact.Message MakeBinaryMessage(byte[] binary, String cryptoAlgorithm) {
-        Contact.Message msg = new Contact.Message(binary, cryptoAlgorithm);
+    public static Contact.Message MakeBinaryMessage(byte[] binary, String cryptoAlgorithm, String memo) {
+        Contact.Message msg = new Contact.Message(binary, cryptoAlgorithm, memo);
         return msg;
     }
 
-    public static Contact.Message MakeFileMessage(File file, String cryptoAlgorithm) {
-        Contact.Message msg = new Contact.Message(file, cryptoAlgorithm);
+    public static Contact.Message MakeFileMessage(File file, String cryptoAlgorithm, String memo) {
+        Contact.Message msg = new Contact.Message(file, cryptoAlgorithm, memo);
         return msg;
     }
 

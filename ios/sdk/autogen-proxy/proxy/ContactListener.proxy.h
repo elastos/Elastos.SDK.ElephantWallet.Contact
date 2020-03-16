@@ -19,7 +19,7 @@ extern "C" {
 
 std::shared_ptr<std::span<uint8_t>> crosspl_Proxy_ContactListener_onAcquire(int64_t platformHandle, int var0, const char* var1, const std::span<uint8_t>* var2, const char* var3);
 void crosspl_Proxy_ContactListener_onEvent(int64_t platformHandle, int var0, const char* var1, int var2, const std::span<uint8_t>* var3);
-void crosspl_Proxy_ContactListener_onReceivedMessage(int64_t platformHandle, const char* var0, int var1, int var2, const std::span<uint8_t>* var3, const char* var4, int64_t var5, int64_t var6);
+void crosspl_Proxy_ContactListener_onReceivedMessage(int64_t platformHandle, const char* var0, int var1, int var2, const std::span<uint8_t>* var3, const char* var4, const char* var5, int64_t var6, int64_t var7);
 void crosspl_Proxy_ContactListener_onError(int64_t platformHandle, int32_t var0, const char* var1, const char* var2);
 
 

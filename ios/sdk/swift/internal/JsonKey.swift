@@ -41,8 +41,11 @@ public class JsonKey {
   static let Kind            = "Type"
   static let PlainContent    = "PlainContent"
   static let CryptoAlgorithm = "CryptoAlgorithm"
-  static let TimeStamp       = "TimeStamp"
-  
+  static let Memo            = "Memo";
+  static let NanoTime        = "NanoTime";
+  static let ReplyToNanoTime = "ReplyToNanoTime";
+  static let AckToNanoTime   = "AckToNanoTime";
+
   static let Text            = "Text";
   static let Name            = "Name";
   static let Size            = "Size";

@@ -96,8 +96,10 @@ public:
             std::string md5;
         };
 
-        explicit Message(Type type, std::shared_ptr<MsgData> data, const std::string& cryptoAlgorithm);
-        explicit Message(Type type, const std::vector<uint8_t>& data, std::string cryptoAlgorithm,
+        explicit Message(Type type, std::shared_ptr<MsgData> data,
+                         const std::string& cryptoAlgorithm, const std::string& memo);
+        explicit Message(Type type, const std::vector<uint8_t>& data,
+                         const std::string& cryptoAlgorithm, const std::string& memo,
                          int64_t nanoTime, int64_t replyToNanoTime);
         virtual ~Message();
 
@@ -106,6 +108,7 @@ public:
         const Type type;
         std::shared_ptr<MsgData> data;
         const std::string cryptoAlgorithm;
+        const std::string memo;
         const int64_t nanoTime;
         int64_t replyToNanoTime;
     }; // class Message
@@ -134,9 +137,9 @@ public:
     }; // class ContactDebug
 
     /*** static function and variable ***/
-    static std::shared_ptr<Message> MakeTextMessage(const std::string& text, const std::string& cryptoAlgorithm = "");
-    static std::shared_ptr<Message> MakeBinaryMessage(const std::vector<uint8_t>& binary, const std::string& cryptoAlgorithm = "");
-    static std::shared_ptr<Message> MakeFileMessage(const std::string& filepath, const std::string& cryptoAlgorithm = "");
+    static std::shared_ptr<Message> MakeTextMessage(const std::string& text, const std::string& cryptoAlgorithm = "", const std::string& memo = "");
+    static std::shared_ptr<Message> MakeBinaryMessage(const std::vector<uint8_t>& binary, const std::string& cryptoAlgorithm = "", const std::string& memo = "");
+    static std::shared_ptr<Message> MakeFileMessage(const std::string& filepath, const std::string& cryptoAlgorithm = "", const std::string& memo = "");
 
     /*** class function and variable ***/
     std::shared_ptr<Contact::UserInfo> getUserInfo();
