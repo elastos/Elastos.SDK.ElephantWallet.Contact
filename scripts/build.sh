@@ -36,6 +36,9 @@ build_extfunc_depends()
 
 	#CFG_BUILD_ROOT
 	"$DEPENDS_DIR/scripts/build-Elastos.SDK.Keypair.C.sh" $params;
+
+	"$DEPENDS_DIR/scripts/build-alioss.sh" $params;
+	"$DEPENDS_DIR/scripts/build-PersonalStorage.SDK.OSS.sh" $params;
 }
 
 export CFG_PROJECT_NAME="Elastos.SDK.Contact";

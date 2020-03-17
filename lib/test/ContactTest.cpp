@@ -289,7 +289,22 @@ int ContactTest::doSyncUpload()
         return -1;
     }
 
-    int ret = mContact->syncInfoUploadToDidChain();
+    int ret = mContact->syncInfoUpload( elastos::sdk::Contact::SyncInfoLocation::DidChain
+                                      | elastos::sdk::Contact::SyncInfoLocation::Oss);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactTest::doSyncDownload()
+{
+    if (mContact == nullptr) {
+        ShowError("Contact is null.");
+        return -1;
+    }
+
+    int ret = mContact->syncInfoDownload( elastos::sdk::Contact::SyncInfoLocation::DidChain
+                                        | elastos::sdk::Contact::SyncInfoLocation::Oss);
     CHECK_ERROR(ret);
 
     return 0;

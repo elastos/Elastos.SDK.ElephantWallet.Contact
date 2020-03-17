@@ -18,7 +18,10 @@
 #include "Platform.hpp"
 #include "SafePtr.hpp"
 #include "JsonDefine.hpp"
-
+#include "ProofApiClient.hpp"
+#include <CloudDisk.hpp>
+#include <CloudPartition.hpp>
+#include <CloudFile.hpp>
 
 namespace elastos {
 
@@ -177,6 +180,60 @@ int ContactV1::syncInfoUploadToDidChain()
 
     int ret = dcClient->uploadCachedDidProp();
     CHECK_ERROR(ret)
+
+    return 0;
+}
+
+int ContactV1::syncInfoDownload(int fromLocation)
+{
+    if((fromLocation & SyncInfoLocation::DidChain) != 0) {
+        Log::W(Log::TAG, "ContactV1::syncInfoDownload() download from didchain.");
+    }
+    if((fromLocation & SyncInfoLocation::Oss) != 0) {
+        Log::W(Log::TAG, "ContactV1::syncInfoDownload() download from oss.");
+    }
+
+    return 0;
+}
+
+int ContactV1::syncInfoUpload(int toLocation)
+{
+    if((toLocation & SyncInfoLocation::DidChain) != 0) {
+        Log::W(Log::TAG, "ContactV1::syncInfoUpload() upload to didchain.");
+    }
+    if((toLocation & SyncInfoLocation::Oss) != 0) {
+        Log::W(Log::TAG, "ContactV1::syncInfoUpload() upload to oss.");
+        auto paClient = ProofApiClient::GetInstance();
+
+        ProofApiClient::OssInfo ossInfo;
+        int ret = paClient->getOssInfo(ossInfo);
+        CHECK_ERROR(ret);
+
+        auto disk = elastos::sdk::CloudDisk::Find(elastos::sdk::CloudDisk::Domain::AliOss);
+        ret = disk->login(ossInfo.mDisk, ossInfo.mUser, ossInfo.mPassword, ossInfo.mToken);
+        CHECK_ERROR(ret);
+        std::shared_ptr<elastos::sdk::CloudPartition> partition;
+        ret = disk->getPartition(ossInfo.mPartition, partition);
+        CHECK_ERROR(ret);
+
+        // Partition is already exists, ignore mount it.
+//        ret = partition->mount();
+//        CHECK_ERROR(ret);
+
+        uint8_t buf[] = {0, 1, 2, 3};
+        auto file = std::make_shared<elastos::sdk::CloudFile>();
+        //ret = file->open(partition, ossInfo.mPath, elastos::sdk::CloudMode::UserAll);
+
+        std::string did;
+        ret = mSecurityManager->getDid(did);
+        CHECK_ERROR(ret)
+        ret = file->open(partition, did + "/aaa", elastos::sdk::CloudMode::UserAll);
+        CHECK_ERROR(ret);
+        ret = file->write(buf, sizeof(buf));
+        CHECK_ERROR(ret);
+        ret = file->close();
+        CHECK_ERROR(ret);
+    }
 
     return 0;
 }
@@ -385,6 +442,9 @@ int ContactV1::initGlobal()
     CHECK_ERROR(ret)
 
     ret = DidChnDataListener::InitInstance(mUserManager, mFriendManager, mMessageManager);
+    CHECK_ERROR(ret)
+
+    ret = ProofApiClient::InitInstance(mConfig, mSecurityManager);
     CHECK_ERROR(ret)
 
     return 0;

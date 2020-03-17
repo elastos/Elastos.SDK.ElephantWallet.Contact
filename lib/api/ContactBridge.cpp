@@ -551,6 +551,30 @@ int ContactBridge::syncInfoUploadToDidChain()
     return 0;
 }
 
+int ContactBridge::syncInfoDownload(int fromLocation)
+{
+    if(mContactImpl->isStarted() == false) {
+        return elastos::ErrCode::NotReadyError;
+    }
+
+    int ret = mContactImpl->syncInfoDownload(fromLocation);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int  ContactBridge::syncInfoUpload(int toLocation)
+{
+    if(mContactImpl->isStarted() == false) {
+        return elastos::ErrCode::NotReadyError;
+    }
+
+    int ret = mContactImpl->syncInfoUpload(toLocation);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
 int ContactBridge::exportUserData(ConstStringPtr toFile)
 {
 //    if(mContactImpl->isStarted() == false) {

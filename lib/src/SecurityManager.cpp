@@ -10,6 +10,7 @@
 #include <Elastos.SDK.Keypair.C/Elastos.Wallet.Utility.h>
 #include <fstream>
 #include <Log.hpp>
+#include <MD5.hpp>
 
 namespace elastos {
 
@@ -213,7 +214,30 @@ int SecurityManager::signData(const std::vector<uint8_t>& src, std::vector<uint8
     return 0;
 }
 
-int SecurityManager::getDidPropAppId(std::string& appId)
+int SecurityManager::signDataSelfVerifiable(const std::vector<uint8_t>& src, std::string& dest)
+{
+    std::vector<uint8_t> signedBytes;
+    int ret = signData(src, signedBytes);
+    CHECK_ERROR(ret)
+
+    std::string pubKey;
+    ret = getPublicKey(pubKey);
+    CHECK_ERROR(ret)
+
+    std::string msgStr = MD5::MakeHexString(src);
+    std::string sigStr = MD5::MakeHexString(signedBytes);
+
+    // did prop key, sign, make {msg, sig, pub}
+    dest = std::string("{")
+         + "\"pub\":\"" + pubKey + "\","
+         + "\"msg\":\"" + msgStr + "\","
+         + "\"sig\":\"" + sigStr + "\""
+         + "}";
+
+    return 0;
+}
+
+    int SecurityManager::getDidPropAppId(std::string& appId)
 {
     if(mSecurityListener == nullptr) {
         return ErrCode::NoSecurityListener;
