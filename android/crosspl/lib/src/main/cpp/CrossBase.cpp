@@ -16,6 +16,16 @@
 /***********************************************/
 /***** static variables initialize *************/
 /***********************************************/
+#define FORMAT_METHOD GetFormatMethod(__PRETTY_FUNCTION__).c_str()
+
+/*** static function and variable ***/
+static std::string GetFormatMethod(const std::string& prettyFunction) {
+    size_t colons = prettyFunction.find("::");
+    size_t begin = prettyFunction.substr(0,colons).rfind(" ") + 1;
+    size_t end = prettyFunction.rfind("(") - begin;
+    std::string method = prettyFunction.substr(begin,end) + "()";
+    return method;
+}
 
 
 /***********************************************/
@@ -28,23 +38,23 @@ static auto gDestroyJavaObjFuncList = std::list<int(*)(const char*,int64_t)>();
 
 void RegCreateCppObjFunc(int64_t(*func)(const char*))
 {
-    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
+    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", FORMAT_METHOD);
     gCreateCppObjFuncList.push_back(func);
 }
 void RegDestroyCppObjFunc(int(*func)(const char*,int64_t))
 {
-    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
+    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", FORMAT_METHOD);
     gDestroyCppObjFuncList.push_back(func);
 }
 
 void RegCreateJavaObjFunc(int64_t(*func)(const char*,int64_t))
 {
-    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
+    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", FORMAT_METHOD);
     gCreateJavaObjFuncList.push_back(func);
 }
 void RegDestroyJavaObjFunc(int(*func)(const char*,int64_t))
 {
-    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
+    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", FORMAT_METHOD);
     gDestroyJavaObjFuncList.push_back(func);
 }
 
@@ -53,7 +63,7 @@ namespace native {
 
 int64_t CrossBase::CreateNativeObject(const char* javaClassName)
 {
-    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
+    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", FORMAT_METHOD);
 
     for(auto func: gCreateCppObjFuncList) {
         auto cppHandle = func(javaClassName);
@@ -69,7 +79,7 @@ int64_t CrossBase::CreateNativeObject(const char* javaClassName)
 
 void CrossBase::DestroyNativeObject(const char* javaClassName, int64_t nativeHandle)
 {
-    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
+    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", FORMAT_METHOD);
 
     for(auto func: gDestroyCppObjFuncList) {
         auto cppHandle = func(javaClassName, nativeHandle);
@@ -85,7 +95,7 @@ void CrossBase::DestroyNativeObject(const char* javaClassName, int64_t nativeHan
 
 int64_t CrossBase::CreatePlatformObject(const char* cppClassName, int64_t nativeHandle)
 {
-    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
+    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", FORMAT_METHOD);
 
     for(auto func: gCreateJavaObjFuncList) {
         auto javaHandle = func(cppClassName, nativeHandle);
@@ -101,7 +111,7 @@ int64_t CrossBase::CreatePlatformObject(const char* cppClassName, int64_t native
 
 void CrossBase::DestroyPlatformObject(const char* cppClassName, int64_t platformHandle)
 {
-    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", "%s", __PRETTY_FUNCTION__);
+    __android_log_print(ANDROID_LOG_DEBUG, "crosspl", FORMAT_METHOD);
 
     for(auto func: gDestroyJavaObjFuncList) {
         auto javaHandle = func(cppClassName, platformHandle);

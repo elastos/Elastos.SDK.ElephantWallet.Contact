@@ -18,10 +18,7 @@
 #include "Platform.hpp"
 #include "SafePtr.hpp"
 #include "JsonDefine.hpp"
-#include "ProofApiClient.hpp"
-#include <CloudDisk.hpp>
-#include <CloudPartition.hpp>
-#include <CloudFile.hpp>
+#include "ProofOssClient.hpp"
 
 namespace elastos {
 
@@ -202,36 +199,7 @@ int ContactV1::syncInfoUpload(int toLocation)
         Log::W(Log::TAG, "ContactV1::syncInfoUpload() upload to didchain.");
     }
     if((toLocation & SyncInfoLocation::Oss) != 0) {
-        Log::W(Log::TAG, "ContactV1::syncInfoUpload() upload to oss.");
-        auto paClient = ProofApiClient::GetInstance();
-
-        ProofApiClient::OssInfo ossInfo;
-        int ret = paClient->getOssInfo(ossInfo);
-        CHECK_ERROR(ret);
-
-        auto disk = elastos::sdk::CloudDisk::Find(elastos::sdk::CloudDisk::Domain::AliOss);
-        ret = disk->login(ossInfo.mDisk, ossInfo.mUser, ossInfo.mPassword, ossInfo.mToken);
-        CHECK_ERROR(ret);
-        std::shared_ptr<elastos::sdk::CloudPartition> partition;
-        ret = disk->getPartition(ossInfo.mPartition, partition);
-        CHECK_ERROR(ret);
-
-        // Partition is already exists, ignore mount it.
-//        ret = partition->mount();
-//        CHECK_ERROR(ret);
-
-        uint8_t buf[] = {0, 1, 2, 3};
-        auto file = std::make_shared<elastos::sdk::CloudFile>();
-        //ret = file->open(partition, ossInfo.mPath, elastos::sdk::CloudMode::UserAll);
-
-        std::string did;
-        ret = mSecurityManager->getDid(did);
-        CHECK_ERROR(ret)
-        ret = file->open(partition, did + "/aaa", elastos::sdk::CloudMode::UserAll);
-        CHECK_ERROR(ret);
-        ret = file->write(buf, sizeof(buf));
-        CHECK_ERROR(ret);
-        ret = file->close();
+        int ret = mRemoteStorageManager->uploadCachedProp();
         CHECK_ERROR(ret);
     }
 
@@ -371,6 +339,7 @@ ContactV1::ContactV1()
     , mUserManager(std::make_shared<UserManager>(mSecurityManager))
     , mFriendManager(std::make_shared<FriendManager>(mSecurityManager))
     , mMessageManager(std::make_shared<MessageManager>(mSecurityManager, mUserManager, mFriendManager))
+    , mRemoteStorageManager(std::make_shared<RemoteStorageManager>())
     , mConfig()
     , mHasListener(false)
     , mStarted(false)
@@ -426,14 +395,19 @@ int ContactV1::initGlobal()
     std::string userDataDir;
     ret = getUserDataDir(userDataDir);
     CHECK_ERROR(ret)
-    Log::D(Log::TAG, "%s userdatadir:%s", __PRETTY_FUNCTION__, userDataDir.c_str());
+    Log::D(Log::TAG, "%s userdatadir:%s", FORMAT_METHOD, userDataDir.c_str());
 
     mConfig = std::make_shared<Config>(userDataDir);
     ret = mConfig->load();
     CHECK_ERROR(ret)
 
-    mUserManager->setConfig(mConfig, mMessageManager);
-    mFriendManager->setConfig(mConfig, mMessageManager);
+    auto proofOssClient = std::make_shared<elastos::ProofOssClient>(mConfig, mSecurityManager);
+    ret = proofOssClient->init();
+    CHECK_ERROR(ret)
+    mRemoteStorageManager->addClient(elastos::RemoteStorageManager::ClientType::Oss, proofOssClient);
+
+    mUserManager->setConfig(mConfig, mRemoteStorageManager, mMessageManager);
+    mFriendManager->setConfig(mConfig, mRemoteStorageManager, mMessageManager);
 
     ret = ElaChnClient::InitInstance(mConfig, mSecurityManager);
     CHECK_ERROR(ret)
@@ -442,9 +416,6 @@ int ContactV1::initGlobal()
     CHECK_ERROR(ret)
 
     ret = DidChnDataListener::InitInstance(mUserManager, mFriendManager, mMessageManager);
-    CHECK_ERROR(ret)
-
-    ret = ProofApiClient::InitInstance(mConfig, mSecurityManager);
     CHECK_ERROR(ret)
 
     return 0;

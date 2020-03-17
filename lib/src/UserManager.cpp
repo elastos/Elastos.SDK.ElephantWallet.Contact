@@ -19,6 +19,7 @@
 #include <iostream>
 #include <sstream>
 #include <Json.hpp>
+#include <RemoteStorageManager.hpp>
 
 
 namespace elastos {
@@ -38,6 +39,7 @@ namespace elastos {
 UserManager::UserManager(std::weak_ptr<SecurityManager> sectyMgr)
     : mSecurityManager(sectyMgr)
     , mMessageManager()
+    , mRemoteStorageManager()
     , mConfig()
     , mUserListener()
     , mUserInfo()
@@ -53,9 +55,12 @@ void UserManager::setUserListener(std::shared_ptr<UserListener> listener)
     mUserListener = listener;
 }
 
-void UserManager::setConfig(std::weak_ptr<Config> config, std::weak_ptr<MessageManager> msgMgr)
+void UserManager::setConfig(std::weak_ptr<Config> config,
+                            std::weak_ptr<RemoteStorageManager> rsMgr,
+                            std::weak_ptr<MessageManager> msgMgr)
 {
     mConfig = config;
+    mRemoteStorageManager = rsMgr;
     mMessageManager = msgMgr;
 }
 
@@ -139,7 +144,7 @@ int UserManager::restoreUserInfo()
 
 int UserManager::ensureUserCarrierInfo()
 {
-    Log::V(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::V(Log::TAG, FORMAT_METHOD);
 
     auto msgMgr = SAFE_GET_PTR(mMessageManager);
     std::weak_ptr<MessageChannelStrategy> weakChCarrier;
@@ -185,7 +190,19 @@ int UserManager::ensureUserCarrierInfo()
     ret = dcClient->cacheDidProp(DidChnClient::NameCarrierKey, carrierInfoStr);
     CHECK_ERROR(ret)
 
-    Log::V(Log::TAG, "%s new carrier info: %s", __PRETTY_FUNCTION__, carrierInfoStr.c_str());
+    auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
+    ret = rsMgr->cacheProperty(RemoteStorageManager::PropKey::PublicKey, pubKey,
+                               DataFileName);
+    CHECK_ERROR(ret)
+
+    std::string devId;
+    ret = Platform::GetCurrentDevId(devId);
+    CHECK_ERROR(ret)
+    ret = rsMgr->cacheProperty(RemoteStorageManager::PropKey::CarrierInfo, carrierInfoStr,
+                               DataFileName, devId + "/carrier.data");
+    CHECK_ERROR(ret)
+
+    Log::V(Log::TAG, "%s new carrier info: %s", FORMAT_METHOD, carrierInfoStr.c_str());
 
     return 0;
 }
@@ -345,12 +362,12 @@ int UserManager::getAvatarFile(const std::string& md5, std::string& filepath)
 //
 //        virtual void onError(const std::string& did, const std::string& key,
 //                             int errcode) override {
-//            Log::I(Log::TAG, "%s did=%s, key=%s errcode=%d", __PRETTY_FUNCTION__, did.c_str(), key.c_str(), errcode);
+//            Log::I(Log::TAG, "%s did=%s, key=%s errcode=%d", FORMAT_METHOD, did.c_str(), key.c_str(), errcode);
 //        }
 //
 //        virtual int onChanged(const std::string& did, const std::string& key,
 //                               const std::vector<std::string>& didProps) override {
-//            Log::I(Log::TAG, "%s did=%s, key=%s", __PRETTY_FUNCTION__, did.c_str(), key.c_str());
+//            Log::I(Log::TAG, "%s did=%s, key=%s", FORMAT_METHOD, did.c_str(), key.c_str());
 //
 //            auto userMgr = SAFE_GET_PTR(mUserManager);
 //

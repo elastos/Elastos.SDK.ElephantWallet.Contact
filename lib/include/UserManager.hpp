@@ -11,13 +11,14 @@
 #ifndef _ELASTOS_USER_MANAGER_HPP_
 #define _ELASTOS_USER_MANAGER_HPP_
 
-#include "Config.hpp"
 #include "SecurityManager.hpp"
 #include "UserInfo.hpp"
 
 namespace elastos {
 
+class Config;
 class MessageManager;
+class RemoteStorageManager;
 
 class UserManager : public std::enable_shared_from_this<UserManager> {
 public:
@@ -39,7 +40,9 @@ public:
 
     virtual void setUserListener(std::shared_ptr<UserListener> listener);
 
-    void setConfig(std::weak_ptr<Config> config, std::weak_ptr<MessageManager> msgMgr);
+    void setConfig(std::weak_ptr<Config> config,
+                   std::weak_ptr<RemoteStorageManager> rsMgr,
+                   std::weak_ptr<MessageManager> msgMgr);
 
     bool contains(const std::string& userCode);
     bool contains(const std::shared_ptr<HumanInfo>& userInfo);
@@ -77,6 +80,7 @@ private:
 
     std::weak_ptr<SecurityManager> mSecurityManager;
     std::weak_ptr<MessageManager> mMessageManager;
+    std::weak_ptr<RemoteStorageManager> mRemoteStorageManager;
     std::weak_ptr<Config> mConfig;
     std::shared_ptr<UserListener> mUserListener;
     std::shared_ptr<UserInfo> mUserInfo;

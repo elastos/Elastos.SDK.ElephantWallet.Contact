@@ -8,6 +8,7 @@
 #include <Config.hpp>
 
 #include <CompatibleFileSystem.hpp>
+#include <Log.hpp>
 
 namespace elastos {
 
@@ -46,7 +47,7 @@ int Config::load()
 
 int Config::save()
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 int Config::loadDefaultValues()

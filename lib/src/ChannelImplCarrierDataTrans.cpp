@@ -69,7 +69,7 @@ int ChannelImplCarrierDataTrans::start(Direction direction,
     ftCallbacks.file          = DataRecvListener::OnFile;
     ftCallbacks.data          = DataRecvListener::OnData;
 
-    Log::I(Log::TAG, "%s ela_filetransfer_new()", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, "%s ela_filetransfer_new()", FORMAT_METHOD);
     mCarrierFileTrans = ela_filetransfer_new(mCarrier.get(), friendCode.c_str(), nullptr,
                                              &ftCallbacks, this);
     if (mCarrierFileTrans == nullptr) {
@@ -132,7 +132,7 @@ void ChannelImplCarrierDataTrans::runDataTransfer(const std::string fileid, uint
     setDataTransStatus(MessageChannelStrategy::ChannelDataListener::Status::Transmitting);
     for(;;) {
         std::unique_lock<std::recursive_mutex> lock(mDataTransMutex);
-        Log::I(Log::TAG, "%s %d", __PRETTY_FUNCTION__, __LINE__);
+        Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
         if(mCarrierFileTrans == nullptr) { // data transfer closed.
             Log::W(Log::TAG, "Failed to send data. user closed.");
             break;
@@ -172,7 +172,7 @@ void ChannelImplCarrierDataTrans::runDataTransfer(const std::string fileid, uint
         break;
     }
 
-    Log::I(Log::TAG, "%s end.", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, "%s end.", FORMAT_METHOD);
 
     std::unique_lock<std::recursive_mutex> lock(mDataTransMutex);
     stop();
@@ -191,7 +191,7 @@ void ChannelImplCarrierDataTrans::DataTransListener::OnStateChanged(ElaFileTrans
                                                                     FileTransferConnection state,
                                                                     void *context)
 {
-    Log::I(Log::TAG, "%s state=%d", __PRETTY_FUNCTION__, state);
+    Log::I(Log::TAG, "%s state=%d", FORMAT_METHOD, state);
     auto thiz = reinterpret_cast<ChannelImplCarrierDataTrans*>(context);
     std::unique_lock<std::recursive_mutex> lock(thiz->mDataTransMutex);
 
@@ -213,7 +213,7 @@ void ChannelImplCarrierDataTrans::DataTransListener::OnStateChanged(ElaFileTrans
                 strcpy(fileInfo.filename, thiz->mDataId.c_str());
                 fileInfo.size = -1; // not used
                 int ret = ela_filetransfer_add(filetransfer, &fileInfo);
-                Log::I(Log::TAG, "%s add ret=%d", __PRETTY_FUNCTION__, ret);
+                Log::I(Log::TAG, "%s add ret=%d", FORMAT_METHOD, ret);
                 CHECK_RETVAL(ret);
             }
             break;
@@ -241,7 +241,7 @@ void ChannelImplCarrierDataTrans::DataSendListener::OnPull(ElaFileTransfer *file
                                                   uint64_t offset,
                                                   void *context)
 {
-    Log::I(Log::TAG, "%s fileid=%s size=%llu", __PRETTY_FUNCTION__, fileid, offset);
+    Log::I(Log::TAG, "%s fileid=%s size=%llu", FORMAT_METHOD, fileid, offset);
     auto thiz = reinterpret_cast<ChannelImplCarrierDataTrans*>(context);
     std::unique_lock<std::recursive_mutex> lock(thiz->mDataTransMutex);
 
@@ -254,7 +254,7 @@ void ChannelImplCarrierDataTrans::DataRecvListener::OnFile(ElaFileTransfer *file
                                                   const char *filename, uint64_t size,
                                                   void *context)
 {
-    Log::I(Log::TAG, "%s fileid=%s name=%s size=%llu", __PRETTY_FUNCTION__, fileid, filename, size);
+    Log::I(Log::TAG, "%s fileid=%s name=%s size=%llu", FORMAT_METHOD, fileid, filename, size);
     auto thiz = reinterpret_cast<ChannelImplCarrierDataTrans*>(context);
     std::unique_lock<std::recursive_mutex> lock(thiz->mDataTransMutex);
 
@@ -263,14 +263,14 @@ void ChannelImplCarrierDataTrans::DataRecvListener::OnFile(ElaFileTransfer *file
     int ret = ela_filetransfer_pull(filetransfer, fileid, 0);
     CHECK_RETVAL(ret);
 
-//    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+//    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 bool ChannelImplCarrierDataTrans::DataRecvListener::OnData(ElaFileTransfer *filetransfer,
                                                   const char *fileid,
                                                   const uint8_t *data, size_t length,
                                                   void *context) {
-    Log::I(Log::TAG, "%s fileid=%s data=%p size=%d", __PRETTY_FUNCTION__, fileid, data, length);
+    Log::I(Log::TAG, "%s fileid=%s data=%p size=%d", FORMAT_METHOD, fileid, data, length);
     auto thiz = reinterpret_cast<ChannelImplCarrierDataTrans*>(context);
     std::unique_lock<std::recursive_mutex> lock(thiz->mDataTransMutex);
 
@@ -290,7 +290,7 @@ bool ChannelImplCarrierDataTrans::DataRecvListener::OnData(ElaFileTransfer *file
 
     thiz->mDataRecvOffset += length;
 
-    Log::I(Log::TAG, "%s fileid=%s end offset=%llu", __PRETTY_FUNCTION__, fileid, thiz->mDataRecvOffset);
+    Log::I(Log::TAG, "%s fileid=%s end offset=%llu", FORMAT_METHOD, fileid, thiz->mDataRecvOffset);
 
     if(length == 0) {
         thiz->stop();

@@ -66,15 +66,6 @@ bool SecurityManager::IsValidDid(const std::string& code)
 /***********************************************/
 /***** class public function implement  ********/
 /***********************************************/
-SecurityManager::SecurityManager()
-    : mSecurityListener()
-{
-}
-
-SecurityManager::~SecurityManager()
-{
-}
-
 void SecurityManager::setSecurityListener(std::shared_ptr<SecurityListener> listener)
 {
     mSecurityListener = listener;
@@ -82,15 +73,21 @@ void SecurityManager::setSecurityListener(std::shared_ptr<SecurityListener> list
 
 int SecurityManager::getPublicKey(std::string& value)
 {
+    if(mPublicKey.empty() == false) {
+        value = mPublicKey;
+        return 0;
+    }
+
     if(mSecurityListener == nullptr) {
         return ErrCode::NoSecurityListener;
     }
 
-    value = mSecurityListener->onAcquirePublicKey();
-    if(value.empty() == true) {
+    mPublicKey = mSecurityListener->onAcquirePublicKey();
+    if(mPublicKey.empty() == true) {
         return ErrCode::BadSecurityValue;
     }
 
+    value = mPublicKey;
     return 0;
 }
 
@@ -108,13 +105,19 @@ int SecurityManager::getElaAddress(std::string& value)
 
 int SecurityManager::getDid(std::string& value)
 {
+    if(mDid.empty() == false) {
+        value = mDid;
+        return 0;
+    }
+
     std::string pubKey;
     int ret = getPublicKey(pubKey);
     CHECK_ERROR(ret)
 
-    ret = GetDid(pubKey, value);
+    ret = GetDid(pubKey, mDid);
     CHECK_ERROR(ret)
 
+    value = mDid;
     return 0;
 }
 

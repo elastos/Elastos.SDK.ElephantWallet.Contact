@@ -155,7 +155,7 @@ Contact::Message::Message(Type type, const std::vector<uint8_t>& data,
     , replyToNanoTime(replyToNanoTime)
 {
             Log::W(Log::TAG, "======================== %lld", nanoTime);
-//        throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+//        throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
     switch (type) {
         case Type::MsgText:
             this->data = std::make_shared<TextData>();

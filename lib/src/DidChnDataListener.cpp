@@ -78,7 +78,7 @@ void DidChnDataListener::onError(const std::string& did, const std::string& key,
 
 int DidChnDataListener::onChanged(const std::string& did, const std::string& key, const std::vector<std::string>& didProps)
 {
-    Log::I(Log::TAG, "%s did=%s, key=%s", __PRETTY_FUNCTION__, did.c_str(), key.c_str());
+    Log::I(Log::TAG, "%s did=%s, key=%s", FORMAT_METHOD, did.c_str(), key.c_str());
 
     auto userMgr = SAFE_GET_PTR(mUserManager);
     auto friendMgr = SAFE_GET_PTR(mFriendManager);

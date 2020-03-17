@@ -16,6 +16,7 @@
 #include "MessageManager.hpp"
 #include "SecurityManager.hpp"
 #include "UserManager.hpp"
+#include "RemoteStorageManager.hpp"
 
 namespace elastos {
 
@@ -91,6 +92,7 @@ private:
     std::shared_ptr<UserManager> mUserManager;
     std::shared_ptr<FriendManager> mFriendManager;
     std::shared_ptr<MessageManager> mMessageManager;
+    std::shared_ptr<RemoteStorageManager> mRemoteStorageManager;
     std::shared_ptr<Config> mConfig;
     bool mHasListener;
     bool mStarted;

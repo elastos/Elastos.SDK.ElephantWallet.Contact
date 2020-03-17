@@ -10,7 +10,7 @@
 #define CHECK_CURL(curl_code) \
 	if(curl_code != CURLE_OK) { \
 		int errcode = (ErrCode::CurlBaseCode + (-curl_code)); \
-		Log::E(Log::TAG, "Failed to call %s, return %d.", __PRETTY_FUNCTION__, errcode); \
+		Log::E(Log::TAG, "Failed to call %s, return %d.", FORMAT_METHOD, errcode); \
 		return errcode; \
 	}
 
@@ -178,7 +178,7 @@ int HttpClient::syncPost(const std::string& body)
 
 void HttpClient::cancel()
 {
-	Log::I(Log::TAG, "%s url:%s", __PRETTY_FUNCTION__, mUrl.c_str());
+	Log::I(Log::TAG, "%s url:%s", FORMAT_METHOD, mUrl.c_str());
 	mCancelFlag = true;
 }
 

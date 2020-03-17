@@ -135,6 +135,14 @@ uint64_t Log::NanoNow() {
   return (duration_cast<nanoseconds>(system_clock::now().time_since_epoch())).count();
 }
 
+std::string Log::GetFormatMethod(const std::string& prettyFunction) {
+  size_t colons = prettyFunction.find("::");
+  size_t begin = prettyFunction.substr(0,colons).rfind(" ") + 1;
+  size_t end = prettyFunction.rfind("(") - begin;
+  std::string method = prettyFunction.substr(begin,end) + "()";
+  return method;
+}
+
 /***********************************************/
 /***** class public function implement  ********/
 /***********************************************/

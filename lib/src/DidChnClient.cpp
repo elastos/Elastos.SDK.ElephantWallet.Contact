@@ -215,13 +215,13 @@ DidChnClient::DidChnClient(std::weak_ptr<Config> config, std::weak_ptr<SecurityM
     , mDidPropCache()
     , mMonitor()
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 }
 
 DidChnClient::~DidChnClient()
 {
     stopMonitor();
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 }
 
 int DidChnClient::startMonitor()
@@ -233,7 +233,7 @@ int DidChnClient::startMonitor()
     mMonitor->mMonitorStopFlag = false;
     mMonitor->mMonitorLooper = [&]() {
         int64_t current = DateTime::CurrentMS();
-        Log::I(Log::TAG, "%s current timestamp=%lld", __PRETTY_FUNCTION__, current);
+        Log::I(Log::TAG, "%s current timestamp=%lld", FORMAT_METHOD, current);
         std::shared_ptr<Monitor> monitor;
         std::map<std::string, std::shared_ptr<MonitorCallback>> monitorCallbackMap;
         {
@@ -242,7 +242,7 @@ int DidChnClient::startMonitor()
             monitor = mMonitor;
             if(monitor.get() == nullptr
             || monitor->mMonitorStopFlag == true) {
-                Log::W(Log::TAG, "%s:%d Exit DidChnClient::Monitor loop", __PRETTY_FUNCTION__, __LINE__);
+                Log::W(Log::TAG, "%s:%d Exit DidChnClient::Monitor loop", FORMAT_METHOD, __LINE__);
                 return;
             }
 
@@ -256,12 +256,12 @@ int DidChnClient::startMonitor()
             std::ignore = DidChnClient::checkDidProps(monitor->mHttpClient, monitor->mMonitorStopFlag,
                                                       did, callback);
             if(monitor->mMonitorStopFlag == true) {
-                Log::W(Log::TAG, "%s:%d Exit DidChnClient::Monitor loop", __PRETTY_FUNCTION__, __LINE__);
+                Log::W(Log::TAG, "%s:%d Exit DidChnClient::Monitor loop", FORMAT_METHOD, __LINE__);
                 return;
             }
         }
         if(monitor->mMonitorStopFlag == true) {
-            Log::W(Log::TAG, "%s:%d Exit DidChnClient::Monitor loop", __PRETTY_FUNCTION__, __LINE__);
+            Log::W(Log::TAG, "%s:%d Exit DidChnClient::Monitor loop", FORMAT_METHOD, __LINE__);
             return;
         }
 
@@ -270,7 +270,7 @@ int DidChnClient::startMonitor()
         for(int idx = 0; idx < sleepCount; idx++) {
             std::ignore = monitor->mMonitorThread->sleepMS(sleepTime);
             if(monitor->mMonitorStopFlag == true) {
-                Log::W(Log::TAG, "%s:%d Exit DidChnClient::Monitor loop", __PRETTY_FUNCTION__, __LINE__);
+                Log::W(Log::TAG, "%s:%d Exit DidChnClient::Monitor loop", FORMAT_METHOD, __LINE__);
                 return;
             }
         }
@@ -278,7 +278,7 @@ int DidChnClient::startMonitor()
         {
             std::lock_guard<std::recursive_mutex> lock(mMutex);
             if(monitor->mMonitorThread.get() == nullptr) {
-                Log::W(Log::TAG, "%s:%d Exit DidChnClient::Monitor loop", __PRETTY_FUNCTION__, __LINE__);
+                Log::W(Log::TAG, "%s:%d Exit DidChnClient::Monitor loop", FORMAT_METHOD, __LINE__);
                 return;
             }
             monitor->mMonitorThread->post(monitor->mMonitorLooper);
@@ -286,7 +286,7 @@ int DidChnClient::startMonitor()
     };
 
     mMonitor->mMonitorThread->post(mMonitor->mMonitorLooper);
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 
     return 0;
 }
@@ -301,7 +301,7 @@ int DidChnClient::stopMonitor()
     mMonitor->mMonitorCallbackMap.clear();
 
     if(mMonitor->mHttpClient.get() != nullptr) {
-        Log::I(Log::TAG, "%s cancel HttpClient", __PRETTY_FUNCTION__);
+        Log::I(Log::TAG, "%s cancel HttpClient", FORMAT_METHOD);
         mMonitor->mHttpClient->cancel();
     }
 
@@ -309,7 +309,7 @@ int DidChnClient::stopMonitor()
 
     mMonitor->mMonitorThread = nullptr;
     mMonitor = nullptr;
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 
     return 0;
 }

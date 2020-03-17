@@ -89,13 +89,13 @@ ElaChnClient::ElaChnClient(std::weak_ptr<Config> config, std::weak_ptr<SecurityM
     , mSecurityManager(sectyMgr)
     , mConnectTimeoutMS(10000)
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 
 }
 
 ElaChnClient::~ElaChnClient()
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 }
 
 int ElaChnClient::downloadElaChnData(std::shared_ptr<HttpClient>& httpClient,

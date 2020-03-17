@@ -67,7 +67,7 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
                               elastos::MessageManager::ChannelType channelType,
                               const std::string& dataId,
                               int notify) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             std::string humanCode;
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_RETVAL(ret);
@@ -82,7 +82,7 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
                                elastos::MessageManager::ChannelType channelType,
                                const std::string& dataId, uint64_t offset,
                                std::vector<uint8_t>& data) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             std::string humanCode;
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_ERROR(ret);
@@ -112,7 +112,7 @@ std::shared_ptr<elastos::MessageManager::DataListener> ContactDataListener::make
                                 elastos::MessageManager::ChannelType channelType,
                                 const std::string& dataId, uint64_t offset,
                                 const std::vector<uint8_t>& data) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             std::string humanCode;
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_ERROR(ret);

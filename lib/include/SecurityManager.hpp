@@ -49,8 +49,8 @@ public:
     static bool IsValidDid(const std::string& code);
 
     /*** class function and variable ***/
-    explicit SecurityManager();
-    virtual ~SecurityManager();
+    explicit SecurityManager() = default;
+    virtual ~SecurityManager() = default;
 
     void setSecurityListener(std::shared_ptr<SecurityListener> listener);
 
@@ -79,6 +79,8 @@ private:
 
     /*** class function and variable ***/
     std::shared_ptr<SecurityListener> mSecurityListener;
+    std::string mPublicKey;
+    std::string mDid;
 
 }; // class SecurityManager
 

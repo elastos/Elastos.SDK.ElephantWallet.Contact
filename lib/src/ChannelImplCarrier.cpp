@@ -311,7 +311,7 @@ int ChannelImplCarrier::sendMessage(const std::string& friendCode,
 int ChannelImplCarrier::sendData(const std::string& friendCode,
                                  const std::string& dataId)
 {
-    Log::I(Log::TAG, "%s friendCode=%s dataId=%s", __PRETTY_FUNCTION__, friendCode.c_str(), dataId.c_str());
+    Log::I(Log::TAG, "%s friendCode=%s dataId=%s", FORMAT_METHOD, friendCode.c_str(), dataId.c_str());
     mCarrierDataTrans = std::make_unique<ChannelImplCarrierDataTrans>(mChannelType, mCarrier, mChannelDataListener);
     int ret = mCarrierDataTrans->start(ChannelImplCarrierDataTrans::Direction::Sender, friendCode, dataId);
     CHECK_ERROR(ret);
@@ -322,7 +322,7 @@ int ChannelImplCarrier::sendData(const std::string& friendCode,
 int ChannelImplCarrier::cancelSendData(const std::string& friendCode,
                                        const std::string& dataId)
 {
-    Log::I(Log::TAG, "%s friendCode=%s dataId=%s", __PRETTY_FUNCTION__, friendCode.c_str(), dataId.c_str());
+    Log::I(Log::TAG, "%s friendCode=%s dataId=%s", FORMAT_METHOD, friendCode.c_str(), dataId.c_str());
     mCarrierDataTrans.reset();
     return 0;
 }
@@ -546,7 +546,7 @@ void ChannelImplCarrier::OnCarrierFileTransConnect(ElaCarrier *carrier,
                                                    const ElaFileTransferInfo *fileinfo,
                                                    void *context)
 {
-    Log::I(Log::TAG, "%s from=%s fileinfo=%p", __PRETTY_FUNCTION__, from, fileinfo);
+    Log::I(Log::TAG, "%s from=%s fileinfo=%p", FORMAT_METHOD, from, fileinfo);
     if(fileinfo != nullptr) {
         Log::I(Log::TAG, "filename=%s", fileinfo->filename);
     }

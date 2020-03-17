@@ -119,7 +119,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener(
 
         std::string onAcquirePublicKey() override {
             auto pubKey = getPublicKey();
-            //std::cout << __PRETTY_FUNCTION__ << " pubKey:" << pubKey << std::endl;
+            //std::cout << FORMAT_METHOD << " pubKey:" << pubKey << std::endl;
             return pubKey;
         };
 
@@ -187,7 +187,7 @@ int testMonitor(std::shared_ptr<elastos::DidChnClient> bcClient)
     //}
 
     //auto monitorCallback = [](int errcode, const std::string& keyPath, const std::string& result) {
-        //std::cout << __PRETTY_FUNCTION__ << std::endl;
+        //std::cout << FORMAT_METHOD << std::endl;
         //std::cout << " errcode=" << errcode << std::endl;
         //std::cout << " keyPath=" << keyPath << std::endl;
         //std::cout << " result=" << result << std::endl;

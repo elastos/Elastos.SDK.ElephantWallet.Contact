@@ -11,31 +11,31 @@ public:
     /*** type define ***/
 #define CHECK_ERROR(ret) \
 	if(ret < 0) { \
-		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", __PRETTY_FUNCTION__, __LINE__, ret); \
+		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", FORMAT_METHOD, __LINE__, ret); \
 		return ret; \
 	}
 
 #define CHECK_RETVAL(ret) \
 	if(ret < 0) { \
-		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", __PRETTY_FUNCTION__, __LINE__, ret); \
+		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", FORMAT_METHOD, __LINE__, ret); \
         return; \
 	}
 
 #define CHECK_AND_RETDEF(ret, def) \
 	if(ret < 0) { \
-		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", __PRETTY_FUNCTION__, __LINE__, ret); \
+		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", FORMAT_METHOD, __LINE__, ret); \
 		return def; \
 	}
 
 #define CHECK_AND_NOTIFY_ERROR(ret) \
 	if(ret < 0) { \
-		elastos::ErrCode::SetError(ret, std::string(__PRETTY_FUNCTION__) + " line:" + std::to_string(__LINE__)); \
+		elastos::ErrCode::SetError(ret, std::string(FORMAT_METHOD) + " line:" + std::to_string(__LINE__)); \
 	} \
     CHECK_ERROR(ret) \
 
 #define CHECK_AND_NOTIFY_RETVAL(ret) \
 	if(ret < 0) { \
-		elastos::ErrCode::SetError(ret, std::string(__PRETTY_FUNCTION__) + " line:" + std::to_string(__LINE__)); \
+		elastos::ErrCode::SetError(ret, std::string(FORMAT_METHOD) + " line:" + std::to_string(__LINE__)); \
 	} \
     CHECK_RETVAL(ret) \
 

@@ -11,13 +11,14 @@
 #ifndef _ELASTOS_FRIEND_MANAGER_HPP_
 #define _ELASTOS_FRIEND_MANAGER_HPP_
 
-#include "Config.hpp"
 #include "FriendInfo.hpp"
 #include "SecurityManager.hpp"
 
 namespace elastos {
 
+class Config;
 class MessageManager;
+class RemoteStorageManager;
 
 class FriendManager : public std::enable_shared_from_this<FriendManager> {
 public:
@@ -40,7 +41,9 @@ public:
 
     virtual void setFriendListener(std::shared_ptr<FriendListener> listener);
 
-    void setConfig(std::weak_ptr<Config> config, std::weak_ptr<MessageManager> msgMgr);
+    void setConfig(std::weak_ptr<Config> config,
+                   std::weak_ptr<RemoteStorageManager> rsMgr,
+                   std::weak_ptr<MessageManager> msgMgr);
     int loadLocalData();
     int saveLocalData();
     int serialize(std::string& value) const;
@@ -99,6 +102,7 @@ private:
 
     std::weak_ptr<SecurityManager> mSecurityManager;
     std::weak_ptr<MessageManager> mMessageManager;
+    std::weak_ptr<RemoteStorageManager> mRemoteStorageManager;
     std::weak_ptr<Config> mConfig;
     std::recursive_mutex mMutex;
     std::shared_ptr<FriendListener> mFriendListener;

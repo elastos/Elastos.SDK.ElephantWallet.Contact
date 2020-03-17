@@ -33,7 +33,7 @@ ThreadPool::ThreadPool(const std::string& threadName, size_t threadCnt)
     , mTaskQueue()
     , mQuit(false)
 {
-    Log::D(Log::TAG, "%s name:%s count:%d", __PRETTY_FUNCTION__, threadName.c_str(), threadCnt);
+    Log::D(Log::TAG, "%s name:%s count:%d", FORMAT_METHOD, threadName.c_str(), threadCnt);
 
 	for(size_t idx = 0; idx < mThreadPool.size(); idx++) {
 		mThreadPool[idx] = std::thread(&ThreadPool::processTaskQueue, this);
@@ -54,14 +54,14 @@ ThreadPool::~ThreadPool()
 		auto& it = mThreadPool[idx];
 		if(it.joinable()) {
             Log::D(Log::TAG, "%s Joining thread %d until completion. tid=%d:%d",
-            		         __PRETTY_FUNCTION__, idx, it.get_id(), std::this_thread::get_id());
+            		         FORMAT_METHOD, idx, it.get_id(), std::this_thread::get_id());
 			it.join();
-			Log::D(Log::TAG, "%s Joined thread.", __PRETTY_FUNCTION__);
+			Log::D(Log::TAG, "%s Joined thread.", FORMAT_METHOD);
 		}
 	}
     mThreadPool.clear();
 
-    Log::D(Log::TAG, "%s name:%s", __PRETTY_FUNCTION__, mThreadName.c_str());
+    Log::D(Log::TAG, "%s name:%s", FORMAT_METHOD, mThreadName.c_str());
 }
 
 int ThreadPool::sleepMS(long milliSecond)
@@ -147,7 +147,7 @@ void ThreadPool::processTaskQueue(void)
 	} while (!mQuit);
 
 //	Platform::DetachCurrentThread();
-	Log::D(Log::TAG, "%s name:%s exit.", __PRETTY_FUNCTION__, mThreadName.c_str());
+	Log::D(Log::TAG, "%s name:%s exit.", FORMAT_METHOD, mThreadName.c_str());
 }
 
 } // namespace elastos

@@ -62,13 +62,13 @@ std::string MD5::Get(const elastos::filesystem::path& datapath)
 
         MD5_Update(&ctx, buffer, readsize);
 
-        Log::V(Log::TAG, "%s %d", __PRETTY_FUNCTION__, __LINE__);
+        Log::V(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
         filesize -= readsize;
     }
     MD5_Final(outmd, &ctx);
 
     std::string md5 = MakeHexString(std::vector<uint8_t>(std::begin(outmd), std::end(outmd)));
-    Log::V(Log::TAG, "%s %d", __PRETTY_FUNCTION__, __LINE__);
+    Log::V(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
     return md5;
 }
 

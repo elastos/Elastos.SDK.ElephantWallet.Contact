@@ -522,7 +522,7 @@ std::string ContactTest::getPublicKey()
     std::string retval = pubKey;
     freeBuf(pubKey);
 
-    Log::D(Log::TAG, "%s %d, pubkey=%s", __PRETTY_FUNCTION__, __LINE__, retval.c_str());
+    Log::D(Log::TAG, "%s %d, pubkey=%s", FORMAT_METHOD, __LINE__, retval.c_str());
     return retval;
 
 }
@@ -572,7 +572,7 @@ std::string ContactTest::GetMd5Sum(const std::string& data)
 
 std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const elastos::sdk::Contact::Listener::AcquireArgs& request)
 {
-    Log::D(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::D(Log::TAG, FORMAT_METHOD);
     std::shared_ptr<std::vector<uint8_t>> response;
 
     switch(request.type) {

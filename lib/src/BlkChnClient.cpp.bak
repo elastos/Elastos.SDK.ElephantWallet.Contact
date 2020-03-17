@@ -254,7 +254,7 @@ int BlkChnClient::downloadDidProp(const std::string& did, const std::string& key
 
 // int BlkChnClient::uploadDidProp(const std::string& key, const std::string& prop)
 // {
-//     throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+//     throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 // }
 
 int BlkChnClient::downloadDidPropHistory(const std::string& did, const std::string& key, std::vector<std::string>& values)
@@ -452,7 +452,7 @@ int BlkChnClient::startMonitor()
 {
     mMonitor.mMonitorLooper = [&]() {
         int64_t current = DateTime::CurrentMS();
-        Log::I(Log::TAG, "%s current timestamp=%lld", __PRETTY_FUNCTION__, current);
+        Log::I(Log::TAG, "%s current timestamp=%lld", FORMAT_METHOD, current);
         std::map<std::string, MonitorCallback> monitorCallbackMap;
         {
             std::lock_guard<std::recursive_mutex> lock(mMutex);

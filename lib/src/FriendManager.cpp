@@ -18,6 +18,7 @@
 #include <Log.hpp>
 #include <JsonDefine.hpp>
 #include <MessageManager.hpp>
+#include <RemoteStorageManager.hpp>
 #include <SafePtr.hpp>
 
 namespace elastos {
@@ -37,6 +38,7 @@ namespace elastos {
 FriendManager::FriendManager(std::weak_ptr<SecurityManager> sectyMgr)
     : mSecurityManager(sectyMgr)
     , mMessageManager()
+    , mRemoteStorageManager()
     , mConfig()
     , mMutex()
     , mFriendListener()
@@ -78,9 +80,12 @@ void FriendManager::setFriendListener(std::shared_ptr<FriendListener> listener)
     mFriendListener = listener;
 }
 
-void FriendManager::setConfig(std::weak_ptr<Config> config, std::weak_ptr<MessageManager> msgMgr)
+void FriendManager::setConfig(std::weak_ptr<Config> config,
+                              std::weak_ptr<RemoteStorageManager> rsMgr,
+                              std::weak_ptr<MessageManager> msgMgr)
 {
     mConfig = config;
+    mRemoteStorageManager = rsMgr;
     mMessageManager = msgMgr;
 }
 
@@ -180,7 +185,7 @@ int FriendManager::restoreFriendsInfo()
 
 int FriendManager::ensureFriendsCarrierInfo(int64_t currCarrierUpdateTime)
 {
-    Log::V(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::V(Log::TAG, FORMAT_METHOD);
 
     for(auto& friendInfo: mFriendList) {
         auto status = friendInfo->getHumanStatus();
@@ -335,7 +340,7 @@ int FriendManager::getFriendInfoList(std::vector<std::shared_ptr<FriendInfo>>& f
 
 std::vector<FriendInfo> FriendManager::filterFriends(std::string regex)
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 //int FriendManager::syncDownloadDidChainData()
@@ -374,12 +379,12 @@ std::vector<FriendInfo> FriendManager::filterFriends(std::string regex)
 //
 //        virtual void onError(const std::string& did, const std::string& key,
 //                             int errcode) override {
-//            Log::I(Log::TAG, "%s did=%s, key=%s errcode=%d", __PRETTY_FUNCTION__, did.c_str(), key.c_str(), errcode);
+//            Log::I(Log::TAG, "%s did=%s, key=%s errcode=%d", FORMAT_METHOD, did.c_str(), key.c_str(), errcode);
 //        }
 //
 //        virtual int onChanged(const std::string& did, const std::string& key,
 //                              const std::vector<std::string>& didProps) override {
-//            Log::I(Log::TAG, "%s did=%s, key=%s", __PRETTY_FUNCTION__, did.c_str(), key.c_str());
+//            Log::I(Log::TAG, "%s did=%s, key=%s", FORMAT_METHOD, did.c_str(), key.c_str());
 //
 //            auto friendMgr = SAFE_GET_PTR(mFriendManager);
 //
@@ -514,7 +519,7 @@ std::vector<FriendInfo> FriendManager::filterFriends(std::string regex)
 
 int FriendManager::acceptFriend(std::shared_ptr<FriendInfo> friendInfo)
 {
-    Log::I(Log::TAG, "==== %s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, "==== %s", FORMAT_METHOD);
     FriendInfo::Status oldStatus = friendInfo->getHumanStatus();
 
     std::vector<FriendInfo::CarrierInfo> carrierInfoArray;
@@ -752,7 +757,7 @@ int FriendManager::removeFriendByCarrier(const std::string& carrierUsrId)
 
 int FriendManager::removeFriendByEla(const std::string& elaAddress)
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 int FriendManager::getFriendInfoByDid(const std::string& did, std::shared_ptr<FriendInfo>& friendInfo)
@@ -794,7 +799,7 @@ int FriendManager::getFriendInfoByCarrier(const std::string& carrierUsrId, std::
 
 int FriendManager::getFriendInfoByEla(const std::string& elaAddress, std::shared_ptr<FriendInfo>& friendInfo)
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 int FriendManager::mergeFriendInfoFromJsonArray(const std::string& jsonArray)

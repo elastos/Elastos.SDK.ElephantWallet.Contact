@@ -1,7 +1,8 @@
 #include <iostream>
 #include <signal.h>
 
-#include <ProofApiClient.hpp>
+#include <RemoteStorageManager.hpp>
+#include <ProofOssClient.hpp>
 #include <DateTime.hpp>
 #include <Contact.V1.hpp>
 #include <Elastos.SDK.Keypair.C/Elastos.Wallet.Utility.h>
@@ -16,12 +17,13 @@ const char* gKeypairWords = "";
 
 void signalHandler(int sig);
 std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener();
-int testProofClient(std::shared_ptr<elastos::ProofApiClient> paClient);
+int testProofClient(std::shared_ptr<elastos::ProofOssClient> paClient);
 
 int main(int argc, char **argv)
 {
     signal(SIGSEGV, signalHandler);
 
+    auto rsMgr = std::make_shared<elastos::RemoteStorageManager>();
     auto config = std::make_shared<elastos::Config>("/tmp/elastos.sdk.contact/test");
     auto sectyMgr = std::make_shared<elastos::SecurityManager>();
 
@@ -29,17 +31,25 @@ int main(int argc, char **argv)
     auto sectyListener = getSecurityListener();
     sectyMgr->setSecurityListener(sectyListener);
 
-    int ret = elastos::ProofApiClient::InitInstance(config, sectyMgr);
-    if(ret < 0) {
-        throw std::runtime_error(std::string("Failed to init instance! ret=") + std::to_string(ret));
-    }
+    auto proofOssClient = std::make_shared<elastos::ProofOssClient>(config, sectyMgr);
+    rsMgr->addClient(elastos::RemoteStorageManager::ClientType::Oss, proofOssClient);
 
-    auto paClient = elastos::ProofApiClient::GetInstance();;
+    Log::W(Log::TAG, "UserDataDir: %s", config->mUserDataDir.c_str());
+    std::filesystem::create_directories(config->mUserDataDir);
+    auto dataFileName = "RemoteStorageTest";
+    auto dataFilePath = std::fstream();
+    dataFilePath.open(config->mUserDataDir + "/" + dataFileName, std::ios::out | std::ios::binary);
+    dataFilePath.write((char[]){0, 1, 2, 3}, 4);
+    dataFilePath.close();
+    int ret = rsMgr->cacheProperty(elastos::RemoteStorageManager::PropKey::PublicKey,
+                         "xxx",
+                         dataFileName);
+    CHECK_ERROR(ret);
 
-    ret = testProofClient(paClient);
-    if(ret < 0) {
-        throw std::runtime_error(std::string("Failed to test monitor! ret=") + std::to_string(ret));
-    }
+    ret = rsMgr->uploadCachedProp();
+    CHECK_ERROR(ret);
+
+    Log::W(Log::TAG, "Success to upload data.");
 
     while (true) {
         std::string input;
@@ -90,18 +100,6 @@ std::string getPrivateKey()
 
 }
 
-std::string getDid()
-{
-    std::string pubKey = getPublicKey();
-
-    auto did = ::getDid(pubKey.data());
-    std::string retval = did;
-    freeBuf(did);
-
-    return retval;
-}
-
-
 std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener()
 {
     class SecurityListener final : public elastos::SecurityManager::SecurityListener {
@@ -111,7 +109,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener(
 
         std::string onAcquirePublicKey() override {
             auto pubKey = getPublicKey();
-            //std::cout << __PRETTY_FUNCTION__ << " pubKey:" << pubKey << std::endl;
+            Log::W(Log::TAG, "Did: %s", ::getDid(pubKey.c_str()));
             return pubKey;
         };
 
@@ -165,13 +163,13 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener(
     return std::make_shared<SecurityListener>();
 }
 
-int testProofClient(std::shared_ptr<elastos::ProofApiClient> paClient)
-{
-    elastos::ProofApiClient::OssInfo ossInfo;
-    int ret = paClient->getOssInfo(ossInfo);
-    CHECK_ERROR(ret);
-
-    return 0;
-}
+//int testProofClient(std::shared_ptr<elastos::ProofOssClient> paClient)
+//{
+//    elastos::ProofOssClient::OssInfo ossInfo;
+//    int ret = paClient->getOssInfo(ossInfo);
+//    CHECK_ERROR(ret);
+//
+//    return 0;
+//}
 
 

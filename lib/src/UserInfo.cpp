@@ -133,7 +133,7 @@ int UserInfo::setHumanInfo(Item item, const std::string& value)
     }
 
     int ret = HumanInfo::setHumanInfo(item, *itemValue);
-    Log::D(Log::TAG, "%s ret=%d", __PRETTY_FUNCTION__, ret);
+    Log::D(Log::TAG, "%s ret=%d", FORMAT_METHOD, ret);
     if(ret <= 0) { // error or not changed
         return ret;
     }
@@ -147,7 +147,7 @@ int UserInfo::setHumanInfo(Item item, const std::string& value)
 int UserInfo::mergeHumanInfo(const HumanInfo& value, const Status status)
 {
     int ret = HumanInfo::mergeHumanInfo(value, status);
-    Log::D(Log::TAG, "%s ret=%d", __PRETTY_FUNCTION__, ret);
+    Log::D(Log::TAG, "%s ret=%d", FORMAT_METHOD, ret);
     if(ret < 0) { // error or not changed
         return ret;
     }

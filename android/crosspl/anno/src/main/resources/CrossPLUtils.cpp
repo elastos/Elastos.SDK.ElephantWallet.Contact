@@ -92,7 +92,7 @@ jclass CrossPLUtils::FindJavaClass(JNIEnv* jenv, const char* className)
     auto found = sJavaClassCache.find(className);
     if(found == sJavaClassCache.end()) {
         jclass clazz = jenv->FindClass(className);
-//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, clazz);
+//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, clazz);
         sJavaClassCache[className] = (jclass) jenv->NewGlobalRef(clazz);
         jenv->DeleteLocalRef(clazz);
     }
@@ -122,13 +122,13 @@ std::shared_ptr<const char> CrossPLUtils::SafeCastString(JNIEnv* jenv, jstring j
     auto creater = [=]() -> const char* {
         EnsureRunOnThread(threadId);
         const char* ptr = jenv->GetStringUTFChars(jdata, nullptr);
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
         return ptr;
     };
     auto deleter = [=](const char* ptr) -> void {
         EnsureRunOnThread(threadId);
         jenv->ReleaseStringUTFChars(jdata, ptr);
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
     };
 
     ret = std::shared_ptr<const char>(creater(), deleter);
@@ -153,12 +153,12 @@ std::shared_ptr<std::function<void()>> CrossPLUtils::SafeCastFunction(JNIEnv* je
             jmethodID jmethod = jenv->GetMethodID(jclazz, "run", "()V");
             jenv->CallVoidMethod(jdata, jmethod);
         });
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
         return ptr;
     };
     auto deleter = [=](std::function<void()>* ptr) -> void {
         EnsureRunOnThread(threadId);
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
         delete ptr;
     };
 
@@ -184,12 +184,12 @@ std::shared_ptr<std::span<uint8_t>> CrossPLUtils::SafeCastByteArray(JNIEnv* jenv
         auto ptr = new std::span<uint8_t>(reinterpret_cast<uint8_t*>(arrayPtr), arrayLen, true);
         jenv->ReleaseByteArrayElements(jdata, arrayPtr, JNI_ABORT);
 
-//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, retPtr->data());
+//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, retPtr->data());
         return ptr;
     };
     auto deleter = [=](std::span<uint8_t>* ptr) -> void {
         EnsureRunOnThread(threadId);
-//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr->data());
+//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr->data());
         delete ptr;
     };
 
@@ -219,13 +219,13 @@ std::shared_ptr<std::stringstream> CrossPLUtils::SafeCastStringBuffer(JNIEnv* je
 
         str.reset();
         jenv->DeleteLocalRef(jstr);
-//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %d %p", __PRETTY_FUNCTION__, __LINE__, retPtr);
+//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %d %p", FORMAT_METHOD, __LINE__, retPtr);
 
         return retPtr;
     };
     auto deleter = [=](std::stringstream* ptr) -> void {
         EnsureRunOnThread(threadId);
-//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %d %p", __PRETTY_FUNCTION__, __LINE__, ptr);
+//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %d %p", FORMAT_METHOD, __LINE__, ptr);
         delete ptr;
     };
 
@@ -260,12 +260,12 @@ std::shared_ptr<std::vector<uint8_t>> CrossPLUtils::SafeCastByteBuffer(JNIEnv* j
         bytes.reset();
         jenv->DeleteLocalRef(jbytes);
 
-//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ret);
+//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ret);
         return ret;
     };
     auto deleter = [=](std::vector<uint8_t>* ptr) -> void {
         EnsureRunOnThread(threadId);
-//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
         if(ptr == nullptr) {
             return;
         }
@@ -289,14 +289,14 @@ std::shared_ptr<_jstring> CrossPLUtils::SafeCastString(JNIEnv* jenv, const char*
     auto creater = [=]() -> jstring {
         EnsureRunOnThread(threadId);
         jstring ptr = jenv->NewStringUTF(data);
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
         return ptr;
     };
 
     auto deleter = [=](jstring ptr) -> void {
         EnsureRunOnThread(threadId);
         jenv->DeleteLocalRef(ptr);
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
     };
 
     ret = std::shared_ptr<_jstring>(creater(), deleter);
@@ -317,13 +317,13 @@ std::shared_ptr<_jbyteArray> CrossPLUtils::SafeCastByteArray(JNIEnv* jenv, const
         EnsureRunOnThread(threadId);
         jbyteArray jdata = jenv->NewByteArray(data->size());
         jenv->SetByteArrayRegion(jdata, 0, data->size(), reinterpret_cast<jbyte*>(data->data()));
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, jdata);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, jdata);
         return jdata;
     };
     auto deleter = [=](jbyteArray ptr) -> void {
         EnsureRunOnThread(threadId);
         jenv->DeleteLocalRef(ptr);
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
     };
 
     ret = std::shared_ptr<_jbyteArray>(creater(), deleter);
@@ -380,13 +380,13 @@ std::shared_ptr<_jobject> CrossPLUtils::SafeCastStringBuffer(JNIEnv* jenv, const
 
         SafeCopyStringBufferToJava(jenv, jobj, data);
 
-//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, jobj);
+//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, jobj);
         return jobj;
     };
     auto deleter = [=](jobject ptr) -> void {
         EnsureRunOnThread(threadId);
         jenv->DeleteLocalRef(ptr);
-//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+//        __android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
     };
 
     ret = std::shared_ptr<_jobject>(creater(), deleter);
@@ -413,13 +413,13 @@ std::shared_ptr<_jobject> CrossPLUtils::SafeCastByteBuffer(JNIEnv* jenv, const s
 
         SafeCopyByteBufferToJava(jenv, jobj, data);
 
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, jobj);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, jobj);
         return jobj;
     };
     auto deleter = [=](jobject ptr) -> void {
         EnsureRunOnThread(threadId);
         jenv->DeleteLocalRef(ptr);
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
     };
 
     ret = std::shared_ptr<_jobject>(creater(), deleter);
@@ -527,14 +527,14 @@ std::shared_ptr<_jobject> CrossPLUtils::SafeCastGlobalObject(JNIEnv* jenv, int64
 
         EnsureRunOnThread(threadId);
         jobject ptr = jenv->NewLocalRef(jobj);
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
         return ptr;
     };
 
     auto deleter = [=](jobject ptr) -> void {
         EnsureRunOnThread(threadId);
         jenv->DeleteLocalRef(ptr);
-        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", __PRETTY_FUNCTION__, ptr);
+        //__android_log_print(ANDROID_LOG_WARN, "crosspl", "%s %p", FORMAT_METHOD, ptr);
     };
 
     ret = std::shared_ptr<_jobject>(creater(), deleter);

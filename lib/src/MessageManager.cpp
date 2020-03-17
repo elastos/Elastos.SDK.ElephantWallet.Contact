@@ -550,7 +550,7 @@ int MessageManager::sendMessage(const std::shared_ptr<HumanInfo> humanInfo,
         }
         return ret;
     } else if(humanChType == ChannelType::Email) {
-        throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+        throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
     } else { // custom defined channel strategy
         std::string humanCode;
         int ret = humanInfo->getHumanCode(humanCode);
@@ -597,7 +597,7 @@ int MessageManager::pullData(const std::shared_ptr<HumanInfo> humanInfo,
 
         return 0;
     } else {
-        throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+        throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
     }
 }
 
@@ -627,7 +627,7 @@ int MessageManager::cancelPullData(const std::shared_ptr<HumanInfo> humanInfo,
 
         return 0;
     } else {
-        throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+        throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
     }
 }
 
@@ -734,7 +734,7 @@ void MessageManager::MessageListener::onStatusChanged(const std::string& userCod
         }
         ret = userInfo->setCarrierStatus(userCode, userStatus);
     } else {
-        throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+        throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
     }
     CHECK_AND_NOTIFY_RETVAL(ret)
 
@@ -808,7 +808,7 @@ void MessageManager::MessageListener::onReceivedMessage(const std::string& frien
 //                                                    uint32_t channelType,
 //                                                    uint64_t msgNanoTime)
 //{
-//    Log::W(Log::TAG, "%s", __PRETTY_FUNCTION__);
+//    Log::W(Log::TAG, "%s", FORMAT_METHOD);
 //    auto ex = std::string("Never reached");
 //    throw std::runtime_error(ex);
 //}
@@ -855,7 +855,7 @@ void MessageManager::MessageListener::onFriendRequest(const std::string& friendC
 
         ret = humanInfo.addCarrierInfo(carrierInfo, HumanInfo::Status::WaitForAccept);
     } else {
-        throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+        throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
     }
     CHECK_AND_NOTIFY_RETVAL(ret)
 
@@ -940,7 +940,7 @@ void MessageManager::MessageListener::onFriendStatusChanged(const std::string& f
             ret = userInfo->setCarrierStatus(friendCode, humanStatus);
             CHECK_AND_NOTIFY_RETVAL(ret);
         } else {
-            throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+            throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
         }
         UserInfo::Status newStatus = userInfo->getHumanStatus();
         if(newStatus != oldStatus) {
@@ -959,7 +959,7 @@ void MessageManager::MessageListener::onFriendStatusChanged(const std::string& f
         if(humanChType == ChannelType::Carrier) {
             friendInfo->setCarrierStatus(friendCode, humanStatus);
         } else {
-            throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+            throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
         }
         FriendInfo::Status newStatus = friendInfo->getHumanStatus();
         if(newStatus != oldStatus) {

@@ -152,7 +152,7 @@ int HumanInfo::getHumanCode(std::string& humanCode) const
 
 int HumanInfo::addCarrierInfo(const HumanInfo::CarrierInfo& info, const HumanInfo::Status status)
 {
-    Log::D(Log::TAG, " ============    %s", __PRETTY_FUNCTION__);
+    Log::D(Log::TAG, " ============    %s", FORMAT_METHOD);
     if(info.mUsrAddr.empty() == true
     && info.mUsrId.empty() == true) {
         return ErrCode::InvalidArgument;
@@ -216,7 +216,7 @@ int HumanInfo::addCarrierInfo(const HumanInfo::CarrierInfo& info, const HumanInf
 
 int HumanInfo::delCarrierInfo(const std::string& carrierCode)
 {
-    Log::D(Log::TAG, " ============    %s", __PRETTY_FUNCTION__);
+    Log::D(Log::TAG, " ============    %s", FORMAT_METHOD);
     if(carrierCode.empty() == true) {
         return ErrCode::InvalidArgument;
     }
@@ -234,7 +234,7 @@ int HumanInfo::delCarrierInfo(const std::string& carrierCode)
 
 int HumanInfo::hasCarrierInfo(const std::string& carrierCode)
 {
-    Log::D(Log::TAG, " ============    %s", __PRETTY_FUNCTION__);
+    Log::D(Log::TAG, " ============    %s", FORMAT_METHOD);
     if(carrierCode.empty() == true) {
         return ErrCode::InvalidArgument;
     }
@@ -376,7 +376,7 @@ int HumanInfo::setHumanInfo(Item item, const std::string& value)
         return 0;
     }
 
-    Log::D(Log::TAG, "%s %d %s=>%s", __PRETTY_FUNCTION__, item, mCommonInfoMap[item].c_str(), value.c_str());
+    Log::D(Log::TAG, "%s %d %s=>%s", FORMAT_METHOD, item, mCommonInfoMap[item].c_str(), value.c_str());
 
     if(item == Item::ChainPubKey) {
         std::string expectedDid, expectedElaAddr;
@@ -453,7 +453,7 @@ int HumanInfo::mergeHumanInfo(const HumanInfo& value, const Status status)
         this->mCommonInfoMap[Item::ElaAddress] = it->second;
     }
 
-//    Log::D(Log::TAG, " ============ 0   %s mBoundCarrierArray:%d", __PRETTY_FUNCTION__, value.mBoundCarrierArray.size());
+//    Log::D(Log::TAG, " ============ 0   %s mBoundCarrierArray:%d", FORMAT_METHOD, value.mBoundCarrierArray.size());
     for(const auto& it: value.mBoundCarrierArray) {
         int ret = addCarrierInfo(it, status);
         if(ret == ErrCode::IgnoreMergeOldInfo) {
