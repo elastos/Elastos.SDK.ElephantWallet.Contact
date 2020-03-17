@@ -10,6 +10,7 @@
 //#include <ela_session.h>
 #include <cstring>
 #include <Log.hpp>
+#include <ErrCode.hpp>
 #include <SafePtr.hpp>
 #include <Platform.hpp>
 
