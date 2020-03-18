@@ -49,8 +49,6 @@ int ContactTest::init()
     std::getline(mnemStream, mSavedMnemonic);
     mnemStream.close();
 
-    mSavedMnemonic = "dove arctic cute sunset solution invest wasp lawn dawn town snake eight";
-
     auto ret = newAndSaveMnemonic(mSavedMnemonic);
     return ret;
 }
@@ -509,6 +507,7 @@ std::string ContactTest::getPublicKey()
     std::string retval = pubKey;
     freeBuf(pubKey);
 
+    //retval = "0220f01b9a715acf02b3d45be2a29138be8f2f8c328da118c617ac11305cdf44fa";
     Log::D(Log::TAG, "%s %d, pubkey=%s", __PRETTY_FUNCTION__, __LINE__, retval.c_str());
     return retval;
 
@@ -525,6 +524,7 @@ std::string ContactTest::getPrivateKey()
     std::string retval = privKey;
     freeBuf(privKey);
 
+    //retval = "fc930bfc48efaa0aedd245725ce3a3f16294c7c9c5f7219d741409d3d1c927d8";
     return retval;
 
 }

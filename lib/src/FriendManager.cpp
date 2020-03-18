@@ -639,6 +639,10 @@ int FriendManager::addFriendByDid(const std::string& did, const std::string& sum
     CHECK_ERROR(ret)
     for(const auto& info: carrierInfoArray) {
         ret = addFriendByCarrier(info.mUsrAddr, summary, true, forceRequest);
+        if(ret == ErrCode::ChannelFailedFriendExists) {
+            Log::I(Log::TAG, "Ignore to add friend %s, is already exists.", info.mUsrAddr.c_str());
+            ret = 0;
+        }
         CHECK_ERROR(ret)
     }
 
