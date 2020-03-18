@@ -2,9 +2,16 @@
 #define _REMOTE_STORAGE_MANAGER_HPP_
 
 #include <map>
+#include <mutex>
+#include <set>
 #include <string>
+#include <Config.hpp>
+#include <SecurityManager.hpp>
 
 namespace elastos {
+
+class FriendInfo;
+class UserInfo;
 
 class RemoteStorageManager final {
 public:
@@ -24,10 +31,8 @@ public:
 
     class RemoteStorageClient {
     public:
-        virtual int init() { return 0; }
-        virtual int cacheProperty(const char* key, const std::string& value,
-                                  const std::string& savedAt, const std::string& extra) = 0;
-        virtual int uploadCachedProp() = 0;
+        virtual int uploadProperties(const std::map<std::string, std::string>& changedPropMap,
+                                     const std::map<std::string, std::shared_ptr<std::fstream>>& totalPropMap) = 0;
     protected:
         explicit RemoteStorageClient() = default;
         virtual ~RemoteStorageClient() = default;
@@ -39,20 +44,36 @@ public:
     explicit RemoteStorageManager() = default;
     virtual ~RemoteStorageManager() = default;
 
+    int setConfig(std::weak_ptr<Config> config, std::weak_ptr<SecurityManager> sectyMgr);
+
     void addClient(ClientType type, std::shared_ptr<RemoteStorageClient> client);
 
-    int cacheProperty(const char* key, const std::string& value,
-                      const std::string& savedAt, const std::string& extra = "");
-    int uploadCachedProp();
+    int cacheProperty(const std::string& did, const char* key);
+    int uploadCachedProp(const std::shared_ptr<UserInfo> userInfo,
+                         const std::vector<std::shared_ptr<FriendInfo>>& friendInfoList);
 
 private:
     /*** type define ***/
 
     /*** static function and variable ***/
+    static constexpr const char* DataFileName = "remotestorage-cacheddata.dat";
 
     /*** class function and variable ***/
+    int loadLocalData();
+    int saveLocalData();
 
+    int packUserSegment(const std::shared_ptr<UserInfo> userInfo,
+                        const std::string& propKey,
+                        std::string& segment);
+    int packFriendSegment(const std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
+                          const std::string& friendCode,
+                          std::string& segment);
+
+    std::recursive_mutex mMutex;
+    std::weak_ptr<Config> mConfig;
+    std::weak_ptr<SecurityManager> mSecurityManager;
     std::map<ClientType, std::shared_ptr<RemoteStorageClient>> mRemoteStorageClientMap;
+    std::map<std::string, std::string> mPropCache;
 };
 
 /***********************************************/

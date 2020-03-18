@@ -291,6 +291,13 @@ int FriendManager::addFriend(FriendInfo::HumanKind friendKind, const std::string
     } else if(friendKind == FriendInfo::HumanKind::Carrier) {
         ret = addFriendByCarrier(friendCode, summary, remoteRequest, forceRequest);
     }
+    CHECK_ERROR(ret);
+
+//    std::shared_ptr<FriendInfo> friendInfo;
+//    ret = tryGetFriendInfo(friendCode, friendInfo);
+//    CHECK_ERROR(ret);
+//    ret = cacheFriendToDidChain(friendInfo);
+//    CHECK_ERROR(ret)
 
     return ret;
 }
@@ -306,6 +313,13 @@ int FriendManager::removeFriend(FriendInfo::HumanKind friendKind, const std::str
     } else if(friendKind == FriendInfo::HumanKind::Carrier) {
         ret = removeFriendByCarrier(friendCode);
     }
+    CHECK_ERROR(ret)
+
+    std::shared_ptr<FriendInfo> friendInfo;
+    ret = tryGetFriendInfo(friendCode, friendInfo);
+    CHECK_ERROR(ret);
+    ret = cacheFriendToDidChain(friendInfo);
+    CHECK_ERROR(ret)
 
     return ret;
 }
@@ -571,6 +585,10 @@ int FriendManager::cacheFriendToDidChain(std::shared_ptr<FriendInfo> friendInfo)
         return ret;
     }
 
+    auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
+    ret = rsMgr->cacheProperty(humanCode, RemoteStorageManager::PropKey::FriendKey);
+    CHECK_ERROR(ret)
+
     return 0;
 }
 
@@ -729,9 +747,6 @@ int FriendManager::removeFriendByDid(const std::string& did)
     }
 
     ret = friendInfo->setHumanStatus(HumanInfo::HumanKind::Did, HumanInfo::Status::Removed);
-    CHECK_ERROR(ret)
-
-    ret = cacheFriendToDidChain(friendInfo);
     CHECK_ERROR(ret)
 
     Log::I(Log::TAG, "FriendManager::removeFriendByDid() Remove friend did: %s.", did.c_str());

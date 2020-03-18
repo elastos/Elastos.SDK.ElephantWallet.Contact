@@ -39,60 +39,24 @@ ProofOssClient::~ProofOssClient()
     Log::I(Log::TAG, FORMAT_METHOD);
 }
 
-int ProofOssClient::init()
+int ProofOssClient::uploadProperties(const std::map<std::string, std::string>& changedPropMap,
+                                     const std::map<std::string, std::shared_ptr<std::fstream>>& totalPropMap)
 {
-    int ret = loadLocalData();
-    if(ret == ErrCode::FileNotExistsError) {
-        Log::D(Log::TAG, "DidChnClient::InitInstance() Local data file is not exists.");
+    Log::W(Log::TAG, "%s Start upload data.", FORMAT_METHOD);
+
+    if(totalPropMap.size() == 0) {
+        Log::W(Log::TAG, "%s No data need to upload", FORMAT_METHOD);
         return 0;
-    }
-    CHECK_ERROR(ret);
 
-    return 0;
-}
-
-int ProofOssClient::cacheProperty(const char* key, const std::string& value,
-                                  const std::string& savedAt, const std::string& extra)
-{
-    Log::I(Log::TAG, FORMAT_METHOD);
-    if(key == nullptr) {
-        CHECK_ERROR(ErrCode::InvalidArgument);
-    }
-    if(savedAt.empty() == true) {
-        CHECK_ERROR(ErrCode::InvalidArgument);
     }
 
-    std::lock_guard<std::recursive_mutex> lock(mMutex);
-
-    mFileCache.insert(savedAt);
-    if(extra.empty() == true) {
-        mFileCache.insert(extra);
-    }
-
-    int ret = saveLocalData();
-    CHECK_ERROR(ret);
-
-    return 0;
-}
-
-int ProofOssClient::uploadCachedProp()
-{
     int ret = ossLogin();
     CHECK_ERROR(ret);
 
-    std::lock_guard<std::recursive_mutex> lock(mMutex);
-
-    auto fileCache = mFileCache;
-    for(const auto& it: fileCache) {
-        Log::I(Log::TAG, "ProofOssClient::uploadCachedProp() ");
-        ret = ossWrite(it);
+    for(const auto& [path, content]: totalPropMap) {
+        ret = ossWrite(path, content);
         CHECK_ERROR(ret);
-
-        mFileCache.erase(it);
     }
-
-    ret = saveLocalData();
-    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -216,6 +180,7 @@ int ProofOssClient::getOssInfo(std::shared_ptr<HttpClient> httpClient, const std
 
 int ProofOssClient::ossLogin()
 {
+    Log::D(Log::TAG, FORMAT_METHOD);
     if(mExpiredTime > DateTime::CurrentMS()) {
         Log::I(Log::TAG, "%s Expired time not reached, ignore to login.", FORMAT_METHOD);
         return 0;
@@ -232,6 +197,7 @@ int ProofOssClient::ossLogin()
     CHECK_ERROR(ret);
 
     mExpiredTime = DateTime::CurrentMS() + 30 * 60 * 1000; // half of hour
+
         // Partition is already exists, ignore mount it.
 //        ret = partition->mount();
 //        CHECK_ERROR(ret);
@@ -239,7 +205,7 @@ int ProofOssClient::ossLogin()
     return 0;
 }
 
-int ProofOssClient::ossWrite(const std::string& fileRelativePath)
+int ProofOssClient::ossWrite(const std::string& path, std::shared_ptr<std::fstream> content)
 {
     auto config = SAFE_GET_PTR(mConfig);
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
@@ -248,13 +214,13 @@ int ProofOssClient::ossWrite(const std::string& fileRelativePath)
     int ret = sectyMgr->getDid(did);
     CHECK_ERROR(ret);
 
+    Log::D(Log::TAG, "%s filepath=%s", FORMAT_METHOD, (did + "/" + path).c_str());
+
     auto ossFile = std::make_shared<elastos::sdk::CloudFile>();
     CHECK_ERROR(ret);
-    ret = ossFile->open(mOssPartition, did + "/" + fileRelativePath, elastos::sdk::CloudMode::UserAll);
+    ret = ossFile->open(mOssPartition, did + "/" + path, elastos::sdk::CloudMode::UserAll);
     CHECK_ERROR(ret);
-    auto localFile = std::make_shared<std::fstream>(config->mUserDataDir + "/" + fileRelativePath,
-                                                    std::ios::in | std::ios::binary);
-    ret = ossFile->write(localFile);
+    ret = ossFile->write(content);
     CHECK_ERROR(ret);
     ret = ossFile->close();
     CHECK_ERROR(ret);

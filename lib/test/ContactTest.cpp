@@ -60,6 +60,7 @@ int ContactTest::newAndSaveMnemonic(const std::string& newMnemonic)
         mSavedMnemonic = generateMnemonic(KeypairLanguage, KeypairWords);
     }
 
+    std::filesystem::create_directories(gCacheDir);
     std::ofstream mnemStream(gCacheDir + MnemonicFileName);
     mnemStream << mSavedMnemonic;
     mnemStream.close();

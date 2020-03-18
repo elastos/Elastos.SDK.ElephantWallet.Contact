@@ -15,9 +15,12 @@ std::string gCachedMnemonic = "reopen mechanic feed suspect bus session write sp
 const char* gKeypairLanguage = "english";
 const char* gKeypairWords = "";
 
+
 void signalHandler(int sig);
 std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener();
 int testProofClient(std::shared_ptr<elastos::ProofOssClient> paClient);
+std::string getDid();
+std::string getPublicKey();
 
 int main(int argc, char **argv)
 {
@@ -41,15 +44,13 @@ int main(int argc, char **argv)
     dataFilePath.open(config->mUserDataDir + "/" + dataFileName, std::ios::out | std::ios::binary);
     dataFilePath.write((char[]){0, 1, 2, 3}, 4);
     dataFilePath.close();
-    int ret = rsMgr->cacheProperty(elastos::RemoteStorageManager::PropKey::PublicKey,
-                         "xxx",
-                         dataFileName);
+    int ret = rsMgr->cacheProperty(getDid(), elastos::RemoteStorageManager::PropKey::PublicKey);
     CHECK_ERROR(ret);
 
-    ret = rsMgr->uploadCachedProp();
-    CHECK_ERROR(ret);
+//    ret = rsMgr->uploadCachedProp();
+//    CHECK_ERROR(ret);
 
-    Log::W(Log::TAG, "Success to upload data.");
+    Log::W(Log::TAG, "XXX to upload data.");
 
     while (true) {
         std::string input;
@@ -68,6 +69,17 @@ void signalHandler(int sig) {
     std::cerr << backtrace << std::endl;
 
     exit(0);
+}
+
+std::string getDid()
+{
+    auto pubKey = getPublicKey();
+
+    auto did = ::getDid(pubKey.c_str());
+    std::string retval = did;
+    freeBuf(did);
+
+    return retval;
 }
 
 std::string getPublicKey()

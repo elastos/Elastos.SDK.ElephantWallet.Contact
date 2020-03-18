@@ -25,10 +25,11 @@ public:
     explicit ProofOssClient(std::weak_ptr<Config> config, std::weak_ptr<SecurityManager> sectyMgr);
     virtual ~ProofOssClient();
 
-    virtual int init() override;
-    virtual int cacheProperty(const char* key, const std::string& value,
-                              const std::string& savedAt, const std::string& extra) override;
-    virtual int uploadCachedProp() override;
+    virtual int uploadProperties(const std::map<std::string, std::string>& changedPropMap,
+                                 const std::map<std::string, std::shared_ptr<std::fstream>>& totalPropMap) override;
+//    virtual int cacheProperty(const char* key, const std::string& value,
+//                              const std::string& savedAt, const std::string& extra);
+//    virtual int uploadCachedProp();
 
 protected:
     /*** type define ***/
@@ -57,17 +58,16 @@ private:
     int getOssInfo(std::shared_ptr<HttpClient> httpClient, const std::string signedVerifyCode,
                    OssInfo& ossInfo);
     int ossLogin();
-    int ossWrite(const std::string& fileRelativePath);
+    int ossWrite(const std::string& path, std::shared_ptr<std::fstream> content);
 
     int loadLocalData();
     int saveLocalData();
 
-    std::recursive_mutex mMutex;
     std::weak_ptr<Config> mConfig;
     std::weak_ptr<SecurityManager> mSecurityManager;
     std::set<std::string> mFileCache;
     std::shared_ptr<elastos::sdk::CloudPartition> mOssPartition;
-    int mExpiredTime = 0;
+    int64_t mExpiredTime = 0;
 };
 
 /***********************************************/

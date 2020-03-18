@@ -190,6 +190,10 @@ int DidChnClient::downloadDidProp(const std::string& did, bool humanInfoOnly,
         std::shared_ptr<HttpClient> httpClient;
         std::vector<std::string> props;
         int ret = downloadDidPropsByAgent(httpClient, did, key, it.withHistory, props);
+        if (ret == ErrCode::BlkChnEmptyPropError && it.key == NameDetailKey) {
+            Log::I(Log::TAG, "Ignore to process empty detail key.");
+            continue;
+        }
         CHECK_ERROR(ret)
 
         didProps.insert({ key, std::move(props)} );

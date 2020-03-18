@@ -71,9 +71,9 @@ std::shared_ptr<ContactV1> ContactV1::Factory::Create()
 /***** class public function implement  ********/
 /***********************************************/
 void ContactV1::setListener(std::shared_ptr<SecurityManager::SecurityListener> sectyListener,
-                          std::shared_ptr<UserManager::UserListener> userListener,
-                          std::shared_ptr<FriendManager::FriendListener> friendListener,
-                          std::shared_ptr<MessageManager::MessageListener> msgListener)
+                            std::shared_ptr<UserManager::UserListener> userListener,
+                            std::shared_ptr<FriendManager::FriendListener> friendListener,
+                            std::shared_ptr<MessageManager::MessageListener> msgListener)
 {
     mSecurityManager->setSecurityListener(sectyListener);
     mUserManager->setUserListener(userListener);
@@ -199,7 +199,14 @@ int ContactV1::syncInfoUpload(int toLocation)
         Log::W(Log::TAG, "ContactV1::syncInfoUpload() upload to didchain.");
     }
     if((toLocation & SyncInfoLocation::Oss) != 0) {
-        int ret = mRemoteStorageManager->uploadCachedProp();
+        std::shared_ptr<UserInfo> userInfo;
+        int ret = mUserManager->getUserInfo(userInfo);
+        CHECK_ERROR(ret);
+        std::vector<std::shared_ptr<FriendInfo>> friendInfoList;
+        ret = mFriendManager->getFriendInfoList(friendInfoList);
+        CHECK_ERROR(ret);
+
+        ret = mRemoteStorageManager->uploadCachedProp(userInfo, friendInfoList);
         CHECK_ERROR(ret);
     }
 
@@ -401,9 +408,9 @@ int ContactV1::initGlobal()
     ret = mConfig->load();
     CHECK_ERROR(ret)
 
-    auto proofOssClient = std::make_shared<elastos::ProofOssClient>(mConfig, mSecurityManager);
-    ret = proofOssClient->init();
+    ret = mRemoteStorageManager->setConfig(mConfig, mSecurityManager);
     CHECK_ERROR(ret)
+    auto proofOssClient = std::make_shared<elastos::ProofOssClient>(mConfig, mSecurityManager);
     mRemoteStorageManager->addClient(elastos::RemoteStorageManager::ClientType::Oss, proofOssClient);
 
     mUserManager->setConfig(mConfig, mRemoteStorageManager, mMessageManager);

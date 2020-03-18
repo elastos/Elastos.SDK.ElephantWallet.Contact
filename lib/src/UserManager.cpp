@@ -190,16 +190,18 @@ int UserManager::ensureUserCarrierInfo()
     ret = dcClient->cacheDidProp(DidChnClient::NameCarrierKey, carrierInfoStr);
     CHECK_ERROR(ret)
 
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
-    ret = rsMgr->cacheProperty(RemoteStorageManager::PropKey::PublicKey, pubKey,
-                               DataFileName);
+    std::string did;
+    ret = sectyMgr->getDid(did);
+    CHECK_ERROR(ret)
+    ret = rsMgr->cacheProperty(did, RemoteStorageManager::PropKey::PublicKey);
     CHECK_ERROR(ret)
 
     std::string devId;
     ret = Platform::GetCurrentDevId(devId);
     CHECK_ERROR(ret)
-    ret = rsMgr->cacheProperty(RemoteStorageManager::PropKey::CarrierInfo, carrierInfoStr,
-                               DataFileName, devId + "/carrier.data");
+    ret = rsMgr->cacheProperty(did, RemoteStorageManager::PropKey::CarrierInfo);
     CHECK_ERROR(ret)
 
     Log::V(Log::TAG, "%s new carrier info: %s", FORMAT_METHOD, carrierInfoStr.c_str());
@@ -236,6 +238,14 @@ int UserManager::setUserInfo(UserInfo::Item item, const std::string& value)
     ret = dcClient->cacheDidProp(DidChnClient::NameDetailKey, userDetails);
     CHECK_ERROR(ret)
 
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+    auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
+    std::string did;
+    ret = sectyMgr->getDid(did);
+    CHECK_ERROR(ret)
+    ret = rsMgr->cacheProperty(did, RemoteStorageManager::PropKey::DetailKey);
+    CHECK_ERROR(ret)
+
     auto msgMgr = SAFE_GET_PTR(mMessageManager);
     ret = msgMgr->broadcastDesc(MessageManager::ChannelType::Carrier);
     CHECK_ERROR(ret)
@@ -263,6 +273,14 @@ int UserManager::setIdentifyCode(elastos::IdentifyCode::Type type, const std::st
     ret = dcClient->cacheDidProp(DidChnClient::NameIdentifyKey, userIdentify);
     CHECK_ERROR(ret)
 
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+    auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
+    std::string did;
+    ret = sectyMgr->getDid(did);
+    CHECK_ERROR(ret)
+    ret = rsMgr->cacheProperty(did, RemoteStorageManager::PropKey::IdentifyKey);
+    CHECK_ERROR(ret)
+
 //    auto msgMgr = SAFE_GET_PTR(mMessageManager);
 //    ret = msgMgr->broadcastDesc(MessageManager::ChannelType::Carrier);
 //    CHECK_ERROR(ret)
@@ -285,6 +303,14 @@ int UserManager::setWalletAddress(const std::string& name, const std::string& va
 
     auto dcClient = DidChnClient::GetInstance();
     ret = dcClient->cacheDidProp(DidChnClient::NameDetailKey, userDetails);
+    CHECK_ERROR(ret)
+
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+    auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
+    std::string did;
+    ret = sectyMgr->getDid(did);
+    CHECK_ERROR(ret)
+    ret = rsMgr->cacheProperty(did, RemoteStorageManager::PropKey::DetailKey);
     CHECK_ERROR(ret)
 
     auto msgMgr = SAFE_GET_PTR(mMessageManager);
