@@ -49,6 +49,8 @@ int ContactTest::init()
     std::getline(mnemStream, mSavedMnemonic);
     mnemStream.close();
 
+    mSavedMnemonic = "dove arctic cute sunset solution invest wasp lawn dawn town snake eight";
+
     auto ret = newAndSaveMnemonic(mSavedMnemonic);
     return ret;
 }
@@ -572,8 +574,8 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const elastos:
             const char* cryptoBuf = ::eciesEncrypt(request.publicKey.c_str(), request.data.data(), request.data.size());
             if(cryptoBuf != nullptr) {
                 std::string cryptoData {cryptoBuf};
+                response = std::make_shared<std::vector<uint8_t>>(cryptoData.begin(), cryptoData.end());
                 ::freeBuf((void*)cryptoBuf);
-                response = std::make_shared<std::vector<uint8_t>>(cryptoData.begin(), cryptoData.end()); // ignore encrypt
             } else {
                 response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore encrypt
             }
@@ -588,10 +590,10 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const elastos:
             unsigned char* plainBuf = ::eciesDecrypt(privKey.c_str(), (char*)request.data.data(), &plainLen);
             if(plainBuf != nullptr) {
                 std::vector <uint8_t> plainData {plainBuf, plainBuf + plainLen};
+                response = std::make_shared<std::vector<uint8_t>>(plainData);
                 ::freeBuf((void*)plainBuf);
-                response = std::make_shared<std::vector<uint8_t>>(plainData); // ignore encrypt
             } else {
-                response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore encrypt
+                response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore decrypt
             }
         } else {
             response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore encrypt

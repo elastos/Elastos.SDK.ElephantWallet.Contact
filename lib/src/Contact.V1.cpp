@@ -329,6 +329,11 @@ ContactV1::~ContactV1()
 
 int ContactV1::getUserDataDir(std::string& dir)
 {
+    std::string did;
+    int ret = mSecurityManager->getDid(did);
+    CHECK_ERROR(ret)
+    Log::W(Log::TAG, "User DID: %s", did.c_str());
+
     if(Factory::sLocalDataDir.empty()) {
         return ErrCode::InvalidLocalDataDir;
     }
@@ -341,10 +346,6 @@ int ContactV1::getUserDataDir(std::string& dir)
     || (perms & elastos::filesystem::perms::owner_write) == elastos::filesystem::perms::none) {
         return ErrCode::InvalidLocalDataDir;
     }
-
-    std::string did;
-    int ret = mSecurityManager->getDid(did);
-    CHECK_ERROR(ret)
 
     auto userDataDir = elastos::filesystem::path(Factory::sLocalDataDir) / did;
     std::error_code stdErrCode;
