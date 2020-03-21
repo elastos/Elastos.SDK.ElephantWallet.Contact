@@ -125,13 +125,13 @@ int ProofOssClient::getVerifyCode(std::shared_ptr<HttpClient> httpClient, std::s
     Log::I(Log::TAG, "%s time=%lld", FORMAT_METHOD, DateTime::CurrentMS());
     if(ret < 0) {
         Log::I(Log::TAG, "%s ret=%d", FORMAT_METHOD, ret);
-        CHECK_ERROR(ErrCode::HttpClientError + ret);
+        CHECK_ERROR(ErrCode::HttpClientErrorIndex + ret);
     }
 
     std::string respBody;
     ret = httpClient->getResponseBody(respBody);
     if(ret < 0) {
-        CHECK_ERROR(ErrCode::HttpClientError + ret);
+        CHECK_ERROR(ErrCode::HttpClientErrorIndex + ret);
     }
     Log::I(Log::TAG, "DidChnClient::getVerifyCode() respBody=%s", respBody.c_str());
 
@@ -139,18 +139,18 @@ int ProofOssClient::getVerifyCode(std::shared_ptr<HttpClient> httpClient, std::s
         Json jsonResp = Json::parse(respBody);
         int status = jsonResp["state"];
         if(status != 200) {
-            return ErrCode::ProofApiGetPropError;
+            CHECK_ERROR(ErrCode::ProofApiGetPropError);
         }
 
         std::string result = jsonResp["data"];
         if(result.empty() == true) {
-            return ErrCode::ProofApiEmptyPropError;
+            CHECK_ERROR(ErrCode::ProofApiEmptyPropError);
         }
 
         verifyCode = result;
     } catch(const std::exception& ex) {
         Log::E(Log::TAG, "Failed to parse verify code from: %s.\nex=%s", respBody.c_str(), ex.what());
-        return ErrCode::JsonParseException;
+        CHECK_ERROR(ErrCode::JsonParseException);
     }
 
     return 0;
@@ -169,13 +169,13 @@ int ProofOssClient::getOssInfo(std::shared_ptr<HttpClient> httpClient, const std
     int ret = httpClient->syncPost(signedVerifyCode);
     Log::I(Log::TAG, "%s time=%lld", FORMAT_METHOD, DateTime::CurrentMS());
     if(ret < 0) {
-        CHECK_ERROR(ErrCode::HttpClientError + ret);
+        CHECK_ERROR(ErrCode::HttpClientErrorIndex + ret);
     }
 
     std::string respBody;
     ret = httpClient->getResponseBody(respBody);
     if(ret < 0) {
-        CHECK_ERROR(ErrCode::HttpClientError + ret);
+        CHECK_ERROR(ErrCode::HttpClientErrorIndex + ret);
     }
     Log::I(Log::TAG, "DidChnClient::getOssInfo() respBody=%s", respBody.c_str());
 
@@ -183,7 +183,7 @@ int ProofOssClient::getOssInfo(std::shared_ptr<HttpClient> httpClient, const std
         Json jsonResp = Json::parse(respBody);
         int status = jsonResp["state"];
         if(status != 200) {
-            return ErrCode::ProofApiGetPropError;
+            CHECK_ERROR(ErrCode::ProofApiGetPropError);
         }
 
         Json data = jsonResp["data"];
@@ -196,7 +196,7 @@ int ProofOssClient::getOssInfo(std::shared_ptr<HttpClient> httpClient, const std
         ossInfo.mPath = data["path"];
     } catch(const std::exception& ex) {
         Log::E(Log::TAG, "Failed to parse oss info data from: %s.\nex=%s", respBody.c_str(), ex.what());
-        return ErrCode::JsonParseException;
+        CHECK_ERROR(ErrCode::JsonParseException);
     }
 
     return 0;
@@ -267,7 +267,7 @@ int ProofOssClient::ossWrite(const std::string& path, std::shared_ptr<std::iostr
     ret = ossFile->close();
     CHECK_ERROR(ret);
 
-    return 0;
+    return ret;
 }
 
 int ProofOssClient::ossRead(const std::string& path, std::shared_ptr<std::iostream> content)
@@ -289,55 +289,7 @@ int ProofOssClient::ossRead(const std::string& path, std::shared_ptr<std::iostre
     ret = ossFile->close();
     CHECK_ERROR(ret);
 
-    return 0;
-}
-
-int ProofOssClient::loadLocalData()
-{
-    auto config = SAFE_GET_PTR(mConfig);
-    auto dataFilePath = elastos::filesystem::path(config->mUserDataDir) / DataFileName;
-
-    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
-    std::vector<uint8_t> originData;
-    int ret = sectyMgr->loadCryptoFile(dataFilePath.string(), originData);
-    CHECK_ERROR(ret);
-
-    std::string cacheData {originData.begin(), originData.end()};
-    try {
-        Json jsonCache = Json::parse(cacheData);
-
-        mFileCache = jsonCache.get<std::set<std::string>>();
-    } catch(const std::exception& ex) {
-        Log::E(Log::TAG, "Failed to load local data from: %s.\nex=%s", dataFilePath.c_str(), ex.what());
-        return ErrCode::JsonParseException;
-    }
-
-    Log::I(Log::TAG, "Success to load local data from: %s.", dataFilePath.c_str());
-    return 0;
-}
-
-int ProofOssClient::saveLocalData()
-{
-    auto config = SAFE_GET_PTR(mConfig);
-    auto dataFilePath = elastos::filesystem::path(config->mUserDataDir) / DataFileName;
-
-    std::string cacheData;
-    try {
-        Json jsonCache = Json(mFileCache);
-        cacheData = jsonCache.dump();
-    } catch(const std::exception& ex) {
-        Log::E(Log::TAG, "Failed to save local data to: %s.\nex=%s", dataFilePath.c_str(), ex.what());
-        return ErrCode::JsonParseException;
-    }
-
-    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
-    std::vector<uint8_t> originData {cacheData.begin(), cacheData.end()};
-    int ret = sectyMgr->saveCryptoFile(dataFilePath.string(), originData);
-    CHECK_ERROR(ret);
-
-    Log::D(Log::TAG, "Save local data to: %s, data: %s", dataFilePath.c_str(), cacheData.c_str());
-
-    return 0;
+    return ret;
 }
 
 } // namespace elastos

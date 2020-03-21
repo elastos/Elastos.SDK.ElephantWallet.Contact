@@ -110,13 +110,13 @@ int ElaChnClient::downloadElaChnData(std::shared_ptr<HttpClient>& httpClient,
     httpClient->url(agentUrl);
     int ret = httpClient->syncGet();
     if(ret < 0) {
-        return ErrCode::HttpClientError + ret;
+        return ErrCode::HttpClientErrorIndex + ret;
     }
 
     std::string respBody;
     ret = httpClient->getResponseBody(respBody);
     if(ret < 0) {
-        return ErrCode::HttpClientError + ret;
+        return ErrCode::HttpClientErrorIndex + ret;
     }
     Log::I(Log::TAG, "respBody=%s", respBody.c_str());
 

@@ -61,8 +61,8 @@ private:
     int ossWrite(const std::string& path, std::shared_ptr<std::iostream> content);
     int ossRead(const std::string& path, std::shared_ptr<std::iostream> content);
 
-    int loadLocalData();
-    int saveLocalData();
+//    int loadLocalData();
+//    int saveLocalData();
 
     std::weak_ptr<Config> mConfig;
     std::weak_ptr<SecurityManager> mSecurityManager;

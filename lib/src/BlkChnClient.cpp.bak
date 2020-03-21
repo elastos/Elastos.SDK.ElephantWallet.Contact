@@ -197,13 +197,13 @@ int BlkChnClient::uploadAllDidProps(const std::vector<std::pair<std::string, std
     httpClient.setHeader("X-Elastos-Agent-Auth", authHeader);
     ret = httpClient.syncPost(reqBody);
     if(ret < 0) {
-        return ErrCode::HttpClientError + ret;
+        return ErrCode::HttpClientErrorIndex + ret;
     }
 
     std::string respBody;
     ret = httpClient.getResponseBody(respBody);
     if(ret < 0) {
-        return ErrCode::HttpClientError + ret;
+        return ErrCode::HttpClientErrorIndex + ret;
     }
     Log::I(Log::TAG, "respBody=%s", respBody.c_str());
 
@@ -489,13 +489,13 @@ int BlkChnClient::downloadFromDidChn(const std::string& path, std::string& resul
     httpClient.url(agentUrl);
     int ret = httpClient.syncGet();
     if(ret < 0) {
-        return ErrCode::HttpClientError + ret;
+        return ErrCode::HttpClientErrorIndex + ret;
     }
 
     std::string respBody;
     ret = httpClient.getResponseBody(respBody);
     if(ret < 0) {
-        return ErrCode::HttpClientError + ret;
+        return ErrCode::HttpClientErrorIndex + ret;
     }
     Log::I(Log::TAG, "respBody=%s", respBody.c_str());
 

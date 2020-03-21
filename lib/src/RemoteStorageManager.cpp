@@ -115,6 +115,9 @@ int RemoteStorageManager::uploadData(const std::shared_ptr<UserInfo> userInfo,
 
     for (const auto& [type, client]: mRemoteStorageClientMap){
         int ret = client->uploadProperties(changedPropMap, totalPropMap);
+        if(ErrCode::AdditivityIndex < ret && ret < 0) {
+            ret += ErrCode::RemoteStorageClientErrorIndex;
+        }
         CHECK_ERROR(ret);
     }
 
@@ -148,12 +151,17 @@ int RemoteStorageManager::downloadData(std::shared_ptr<UserInfo>& userInfo,
     };
     std::map<std::string, std::shared_ptr<std::iostream>> totalPropMap {
             {UserManager::DataFileName, nullptr},
-            {carrierDataPath, nullptr},
             {FriendManager::DataFileName, nullptr},
     };
+    if(carrierData.get() != nullptr) {
+        totalPropMap[carrierDataPath] = nullptr;
+    }
 
     for (const auto& [type, client]: mRemoteStorageClientMap){
         int ret = client->downloadProperties(changedPropMap, totalPropMap);
+        if(ErrCode::AdditivityIndex < ret && ret < 0) {
+            ret += ErrCode::RemoteStorageClientErrorIndex;
+        }
         CHECK_ERROR(ret);
     }
 

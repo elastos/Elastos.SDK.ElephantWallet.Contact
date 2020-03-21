@@ -470,13 +470,13 @@ int DidChnClient::uploadDidAgentData(const std::string& didAgentData)
     httpClient.setHeader("X-Elastos-Agent-Auth", authHeader);
     ret = httpClient.syncPost(reqBody);
     if(ret < 0) {
-        CHECK_ERROR(ErrCode::HttpClientError + ret);
+        CHECK_ERROR(ErrCode::HttpClientErrorIndex + ret);
     }
 
     std::string respBody;
     ret = httpClient.getResponseBody(respBody);
     if(ret < 0) {
-        CHECK_ERROR(ErrCode::HttpClientError + ret);
+        CHECK_ERROR(ErrCode::HttpClientErrorIndex + ret);
     }
     Log::I(Log::TAG, "DidChnClient::uploadDidAgentData() respBody=%s", respBody.c_str());
 
@@ -658,13 +658,13 @@ int DidChnClient::downloadDidChnData(std::shared_ptr<HttpClient>& httpClient,
     httpClient->setHeader("Content-Type", "application/json");
     int ret = httpClient->syncGet();
     if(ret < 0) {
-        CHECK_ERROR(ErrCode::HttpClientError + ret);
+        CHECK_ERROR(ErrCode::HttpClientErrorIndex + ret);
     }
 
     std::string respBody;
     ret = httpClient->getResponseBody(respBody);
     if(ret < 0) {
-        CHECK_ERROR(ErrCode::HttpClientError + ret);
+        CHECK_ERROR(ErrCode::HttpClientErrorIndex + ret);
     }
     Log::I(Log::TAG, "respBody=%s", respBody.c_str());
 
