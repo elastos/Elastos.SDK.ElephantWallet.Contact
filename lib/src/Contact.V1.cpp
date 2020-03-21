@@ -89,22 +89,22 @@ int ContactV1::start()
     }
 
     int ret = initGlobal();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = mUserManager->restoreUserInfo();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = mMessageManager->presetChannels(mConfig);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = mUserManager->ensureUserCarrierInfo();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = mFriendManager->restoreFriendsInfo();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = mMessageManager->openChannels();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
 //    ret = mUserManager->monitorDidChainData();
 //    CHECK_ERROR(ret)
@@ -187,7 +187,11 @@ int ContactV1::syncInfoDownload(int fromLocation)
         Log::W(Log::TAG, "ContactV1::syncInfoDownload() download from didchain.");
     }
     if((fromLocation & SyncInfoLocation::Oss) != 0) {
-        Log::W(Log::TAG, "ContactV1::syncInfoDownload() download from oss.");
+        std::shared_ptr<UserInfo> userInfo;
+        std::vector<std::shared_ptr<FriendInfo>> friendInfoList;
+
+        int ret = mRemoteStorageManager->downloadData(userInfo, friendInfoList);
+        CHECK_ERROR(ret);
     }
 
     return 0;
@@ -206,7 +210,7 @@ int ContactV1::syncInfoUpload(int toLocation)
         ret = mFriendManager->getFriendInfoList(friendInfoList);
         CHECK_ERROR(ret);
 
-        ret = mRemoteStorageManager->uploadCachedProp(userInfo, friendInfoList);
+        ret = mRemoteStorageManager->uploadData(userInfo, friendInfoList);
         CHECK_ERROR(ret);
     }
 
@@ -401,15 +405,15 @@ int ContactV1::initGlobal()
 
     std::string userDataDir;
     ret = getUserDataDir(userDataDir);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     Log::D(Log::TAG, "%s userdatadir:%s", FORMAT_METHOD, userDataDir.c_str());
 
     mConfig = std::make_shared<Config>(userDataDir);
     ret = mConfig->load();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
-    ret = mRemoteStorageManager->setConfig(mConfig, mSecurityManager);
-    CHECK_ERROR(ret)
+    ret = mRemoteStorageManager->setConfig(mConfig, mSecurityManager, mUserManager, mFriendManager);
+    CHECK_ERROR(ret);
     auto proofOssClient = std::make_shared<elastos::ProofOssClient>(mConfig, mSecurityManager);
     mRemoteStorageManager->addClient(elastos::RemoteStorageManager::ClientType::Oss, proofOssClient);
 

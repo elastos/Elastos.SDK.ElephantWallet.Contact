@@ -10,7 +10,7 @@
 #include <Platform.hpp>
 #include <SafePtr.hpp>
 #include <UserInfo.hpp>
-#include "../include/ErrCode.hpp"
+#include <UserManager.hpp>
 
 namespace elastos {
 
@@ -26,10 +26,14 @@ namespace elastos {
 /* === class public function implement  ====== */
 /* =========================================== */
 int RemoteStorageManager::setConfig(std::weak_ptr<Config> config,
-                                    std::weak_ptr<SecurityManager> sectyMgr)
+                                    std::weak_ptr<SecurityManager> sectyMgr,
+                                    std::weak_ptr<UserManager> userMgr,
+                                    std::weak_ptr<FriendManager> friendMgr)
 {
     mConfig = config;
     mSecurityManager = sectyMgr;
+    mUserManager = userMgr;
+    mFriendManager = friendMgr;
 
     int ret = loadLocalData();
     if(ret == ErrCode::FileNotExistsError) {
@@ -66,15 +70,15 @@ int RemoteStorageManager::cacheProperty(const std::string& did, const char* key)
     return 0;
 }
 
-int RemoteStorageManager::uploadCachedProp(const std::shared_ptr<UserInfo> userInfo,
-                                           const std::vector<std::shared_ptr<FriendInfo>>& friendInfoList)
+int RemoteStorageManager::uploadData(const std::shared_ptr<UserInfo> userInfo,
+                                     const std::vector<std::shared_ptr<FriendInfo>>& friendInfoList)
 {
     Log::I(Log::TAG, FORMAT_METHOD);
 
     auto config = SAFE_GET_PTR(mConfig);
 
     std::map<std::string, std::string> changedPropMap;
-    std::map<std::string, std::shared_ptr<std::fstream>> totalPropMap;
+    std::map<std::string, std::shared_ptr<std::iostream>> totalPropMap;
     {
         std::lock_guard<std::recursive_mutex> lock(mMutex);
         for(const auto& [did, propKey]: mPropCache) {
@@ -113,6 +117,51 @@ int RemoteStorageManager::uploadCachedProp(const std::shared_ptr<UserInfo> userI
         mPropCache.clear();
         int ret = saveLocalData();
         CHECK_ERROR(ret);
+    }
+
+    return 0;
+}
+
+int RemoteStorageManager::downloadData(std::shared_ptr<UserInfo>& userInfo,
+                                       std::vector<std::shared_ptr<FriendInfo>>& friendInfoList)
+{
+    std::string currDevId;
+    int ret = Platform::GetCurrentDevId(currDevId);
+    CHECK_ERROR(ret);
+
+    std::map<std::string, std::string> changedPropMap {
+            {PropKey::PublicKey, ""},
+            {PropKey::CarrierInfo, ""},
+            {PropKey::DetailKey, ""},
+            {PropKey::IdentifyKey, ""},
+            {PropKey::FriendKey, ""},
+    };
+    std::map<std::string, std::shared_ptr<std::iostream>> totalPropMap {
+            {UserManager::DataFileName, nullptr},
+            {currDevId + "/carrier.data", nullptr},
+            {FriendManager::DataFileName, nullptr},
+    };
+
+    for (const auto& [type, client]: mRemoteStorageClientMap){
+        int ret = client->downloadProperties(changedPropMap, totalPropMap);
+        CHECK_ERROR(ret);
+    }
+
+    for(const auto& [path, content]: totalPropMap) {
+        if(content == nullptr) {
+            Log::W(Log::TAG, "%s Ignore to process empty content from: %s", FORMAT_METHOD, path.c_str());
+            continue;
+        }
+        std::string data;
+        (*content) >> data;
+
+        if(path == UserManager::DataFileName) {
+            int ret = unpackUserData(data, userInfo);
+            CHECK_ERROR(ret);
+        } else if(path == UserManager::DataFileName) {
+            int ret = unpackFriendData(data, friendInfoList);
+            CHECK_ERROR(ret);
+        }
     }
 
     return 0;
@@ -227,6 +276,59 @@ int RemoteStorageManager::packFriendSegment(const std::vector<std::shared_ptr<Fr
     jsonInfo[JsonKey::Status] = friendInfo->getHumanStatus();
     jsonInfo[JsonKey::UpdateTime] = DateTime::CurrentMS();
     segment = jsonInfo.dump();
+
+    return 0;
+}
+
+int RemoteStorageManager::unpackUserData(const std::string& data,
+                                         std::shared_ptr<UserInfo>& userInfo)
+{
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+    auto userMgr = SAFE_GET_PTR(mUserManager);
+
+    std::string originData;
+    int ret = sectyMgr->decryptString(SecurityManager::DefaultCryptoAlgorithm,
+                                      data, originData);
+    CHECK_ERROR(ret);
+
+    userInfo = std::make_shared<UserInfo>(userMgr);
+    try {
+        ret = userInfo->deserialize(originData);
+        CHECK_ERROR(ret);
+    } catch(const std::exception& ex) {
+        Log::E(Log::TAG, "%s Failed to deserialize user data.\nex=%s", FORMAT_METHOD, ex.what());
+        return ErrCode::JsonParseException;
+    }
+    Log::I(Log::TAG, "%s Success to deserialize user data.", FORMAT_METHOD);
+
+    return 0;
+}
+
+int RemoteStorageManager::unpackFriendData(const std::string& data,
+                                           std::vector<std::shared_ptr<FriendInfo>>& friendInfoList)
+{
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+    auto friendMgr = SAFE_GET_PTR(mFriendManager);
+
+    std::string originData;
+    int ret = sectyMgr->decryptString(SecurityManager::DefaultCryptoAlgorithm,
+                                      data, originData);
+    CHECK_ERROR(ret);
+
+    friendInfoList.clear();
+    try {
+        Json jsonFriend = Json::parse(originData);
+        for(const auto& it: jsonFriend) {
+            auto info = std::make_shared<FriendInfo>(friendMgr);
+            ret = info->deserialize(it);
+            CHECK_ERROR(ret);
+            friendInfoList.push_back(info);
+        }
+    } catch(const std::exception& ex) {
+        Log::E(Log::TAG, "%s Failed to deserialize friend data.\nex=%s", FORMAT_METHOD, ex.what());
+        return ErrCode::JsonParseException;
+    }
+    Log::I(Log::TAG, "%s Success to deserialize friend data.", FORMAT_METHOD);
 
     return 0;
 }

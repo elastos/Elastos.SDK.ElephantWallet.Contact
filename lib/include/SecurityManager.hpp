@@ -58,8 +58,15 @@ public:
     int getElaAddress(std::string& elaAddr);
     int getDid(std::string& did);
 
-    int encryptData(const std::string& pubKey, const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
-    int decryptData(const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
+    int encryptData(const std::string& pubKey, const std::string& cryptoAlgorithm,
+                    const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
+    int decryptData(const std::string& cryptoAlgorithm,
+                    const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
+
+    int encryptString(const std::string& pubKey, const std::string& cryptoAlgorithm,
+                      const std::string& src, std::string& dest);
+    int decryptString(const std::string& cryptoAlgorithm,
+                      const std::string& src, std::string& dest);
 
     int saveCryptoFile(const std::string& filePath, const std::vector<uint8_t>& originData);
     int loadCryptoFile(const std::string& filePath, std::vector<uint8_t>& originData);

@@ -40,14 +40,12 @@ ProofOssClient::~ProofOssClient()
 }
 
 int ProofOssClient::uploadProperties(const std::map<std::string, std::string>& changedPropMap,
-                                     const std::map<std::string, std::shared_ptr<std::fstream>>& totalPropMap)
+                                     const std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap)
 {
-    Log::W(Log::TAG, "%s Start upload data.", FORMAT_METHOD);
-
+    Log::I(Log::TAG, "%s Start upload data.", FORMAT_METHOD);
     if(totalPropMap.size() == 0) {
         Log::W(Log::TAG, "%s No data need to upload", FORMAT_METHOD);
         return 0;
-
     }
 
     int ret = ossLogin();
@@ -56,6 +54,32 @@ int ProofOssClient::uploadProperties(const std::map<std::string, std::string>& c
     for(const auto& [path, content]: totalPropMap) {
         ret = ossWrite(path, content);
         CHECK_ERROR(ret);
+    }
+
+    return 0;
+}
+
+int ProofOssClient::downloadProperties(std::map<std::string, std::string>& changedPropMap,
+                                       std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap)
+{
+    Log::I(Log::TAG, "%s Start download data.", FORMAT_METHOD);
+    if(totalPropMap.size() == 0) {
+        Log::W(Log::TAG, "%s No data need to download", FORMAT_METHOD);
+        return 0;
+    }
+
+    int ret = ossLogin();
+    CHECK_ERROR(ret);
+
+    for(auto& [path, placeholder]: totalPropMap) {
+        auto content = std::make_shared<std::stringstream>();
+        ret = ossRead(path, content);
+        if(ret < 0) {
+            Log::W(Log::TAG, "%s Failed to read oss content from: %s", FORMAT_METHOD, path.c_str());
+            continue;
+        }
+//        CHECK_ERROR(ret);
+        totalPropMap[path] = content;
     }
 
     return 0;
@@ -205,7 +229,26 @@ int ProofOssClient::ossLogin()
     return 0;
 }
 
-int ProofOssClient::ossWrite(const std::string& path, std::shared_ptr<std::fstream> content)
+int ProofOssClient::ossList(std::vector<std::string>& pathList)
+{
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+
+    std::string did;
+    int ret = sectyMgr->getDid(did);
+    CHECK_ERROR(ret);
+
+    auto ossFile = std::make_shared<elastos::sdk::CloudFile>();
+    ret = ossFile->open(mOssPartition, did + "/", elastos::sdk::CloudMode::UserAll);
+    CHECK_ERROR(ret);
+    ret = ossFile->list(pathList);
+    CHECK_ERROR(ret);
+    ret = ossFile->close();
+    CHECK_ERROR(ret);
+
+    return ret;
+}
+
+int ProofOssClient::ossWrite(const std::string& path, std::shared_ptr<std::iostream> content)
 {
     auto config = SAFE_GET_PTR(mConfig);
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
@@ -217,10 +260,31 @@ int ProofOssClient::ossWrite(const std::string& path, std::shared_ptr<std::fstre
     Log::D(Log::TAG, "%s filepath=%s", FORMAT_METHOD, (did + "/" + path).c_str());
 
     auto ossFile = std::make_shared<elastos::sdk::CloudFile>();
-    CHECK_ERROR(ret);
     ret = ossFile->open(mOssPartition, did + "/" + path, elastos::sdk::CloudMode::UserAll);
     CHECK_ERROR(ret);
     ret = ossFile->write(content);
+    CHECK_ERROR(ret);
+    ret = ossFile->close();
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ProofOssClient::ossRead(const std::string& path, std::shared_ptr<std::iostream> content)
+{
+    auto config = SAFE_GET_PTR(mConfig);
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+
+    std::string did;
+    int ret = sectyMgr->getDid(did);
+    CHECK_ERROR(ret);
+
+    Log::D(Log::TAG, "%s filepath=%s", FORMAT_METHOD, (did + "/" + path).c_str());
+
+    auto ossFile = std::make_shared<elastos::sdk::CloudFile>();
+    ret = ossFile->open(mOssPartition, did + "/" + path, elastos::sdk::CloudMode::UserAll);
+    CHECK_ERROR(ret);
+    ret = ossFile->read(content);
     CHECK_ERROR(ret);
     ret = ossFile->close();
     CHECK_ERROR(ret);

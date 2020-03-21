@@ -26,10 +26,9 @@ public:
     virtual ~ProofOssClient();
 
     virtual int uploadProperties(const std::map<std::string, std::string>& changedPropMap,
-                                 const std::map<std::string, std::shared_ptr<std::fstream>>& totalPropMap) override;
-//    virtual int cacheProperty(const char* key, const std::string& value,
-//                              const std::string& savedAt, const std::string& extra);
-//    virtual int uploadCachedProp();
+                                 const std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap) override;
+    virtual int downloadProperties(std::map<std::string, std::string>& changedPropMap,
+                                   std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap) override;
 
 protected:
     /*** type define ***/
@@ -58,7 +57,9 @@ private:
     int getOssInfo(std::shared_ptr<HttpClient> httpClient, const std::string signedVerifyCode,
                    OssInfo& ossInfo);
     int ossLogin();
-    int ossWrite(const std::string& path, std::shared_ptr<std::fstream> content);
+    int ossList(std::vector<std::string>& pathList);
+    int ossWrite(const std::string& path, std::shared_ptr<std::iostream> content);
+    int ossRead(const std::string& path, std::shared_ptr<std::iostream> content);
 
     int loadLocalData();
     int saveLocalData();

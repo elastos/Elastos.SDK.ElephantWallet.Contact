@@ -56,7 +56,7 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { 's', "set-udetails",    ContactTestCmd::SetUserDetails,      "\tSet User Details [s [4:Nickname|7:Description|8:Addition] ${text}]" },
     { ' ', "set-uwaddr",      ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
     { 'u', "sync-upload",     ContactTestCmd::SyncUpload,          "\tSync Upload" },
-    { ' ', "sync-download",   ContactTestCmd::SyncDownload,        "\tSync Download" },
+    { 'v', "sync-download",   ContactTestCmd::SyncDownload,        "\tSync Download" },
     { 'w', "export-userdata", ContactTestCmd::ExportUserData,      "\tExport User Data [x ${toFilePath}]" },
     { 'x', "import-userdata", ContactTestCmd::ImportUserData,      "\tImport User Data [w ${fromFilePath}]" },
     { 'o', "loop-message",    ContactTestCmd::LoopMessage,         "\tTest Loop Message" },

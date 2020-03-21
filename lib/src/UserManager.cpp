@@ -77,7 +77,7 @@ int UserManager::loadLocalData()
     std::string userData {originData.begin(), originData.end()};
     try {
         ret = mUserInfo->deserialize(userData);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     } catch(const std::exception& ex) {
         Log::E(Log::TAG, "Failed to load local data from: %s.\nex=%s", dataFilePath.c_str(), ex.what());
         return ErrCode::JsonParseException;

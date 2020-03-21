@@ -155,6 +155,34 @@ int SecurityManager::decryptData(const std::string& cryptoAlgorithm, const std::
     return 0;
 }
 
+int SecurityManager::encryptString(const std::string& pubKey, const std::string& cryptoAlgorithm,
+                                   const std::string& src, std::string& dest)
+{
+    std::vector<uint8_t> originData {src.begin(), src.end()};
+    std::vector<uint8_t> cryptedData;
+
+    int ret = encryptData(pubKey, cryptoAlgorithm, originData, cryptedData);
+    CHECK_ERROR(ret);
+
+    dest = {cryptedData.begin(), cryptedData.end()};
+
+    return 0;
+}
+
+int SecurityManager::decryptString(const std::string& cryptoAlgorithm,
+                                   const std::string& src, std::string& dest)
+{
+    std::vector<uint8_t> cryptedData {src.begin(), src.end()};
+    std::vector<uint8_t> originData;
+
+    int ret = decryptData(cryptoAlgorithm, cryptedData, originData);
+    CHECK_ERROR(ret);
+
+    dest = {originData.begin(), originData.end()};
+
+    return 0;
+}
+
 int SecurityManager::saveCryptoFile(const std::string& filePath, const std::vector<uint8_t>& originData)
 {
     std::string pubKey;
