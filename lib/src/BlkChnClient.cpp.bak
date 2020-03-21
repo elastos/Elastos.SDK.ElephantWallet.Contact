@@ -92,11 +92,11 @@ int BlkChnClient::downloadAllDidProps(const std::string& did, std::map<std::stri
 
     std::string propArrayStr;
     int ret = downloadFromDidChn(agentGetPropsPath, propArrayStr);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string keyPath;
     ret = getPropKeyPathPrefix(keyPath);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     Json jsonPropArray = Json::parse(propArrayStr);
     for(const auto& it: jsonPropArray){
@@ -167,11 +167,11 @@ int BlkChnClient::uploadAllDidProps(const std::vector<std::pair<std::string, std
     std::vector<uint8_t> originBytes(propProtStr.begin(), propProtStr.end());
     std::vector<uint8_t> signedBytes;
     int ret = sectyMgr->signData(originBytes, signedBytes);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string pubKey;
     ret = sectyMgr->getPublicKey(pubKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string msgStr = MD5::MakeHexString(originBytes);
     std::string sigStr = MD5::MakeHexString(signedBytes);
@@ -188,7 +188,7 @@ int BlkChnClient::uploadAllDidProps(const std::vector<std::pair<std::string, std
     std::string agentUploadUrl = didConfigUrl + agentUploadPath;
     std::string authHeader;
     ret = sectyMgr->getDidAgentAuthHeader(authHeader);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     Log::I(Log::TAG, "reqBody=%s", reqBody.c_str());
 
     HttpClient httpClient;
@@ -228,7 +228,7 @@ int BlkChnClient::downloadDidProp(const std::string& did, const std::string& key
 
     std::string keyPath;
     int ret = getPropKeyPath(key, keyPath);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto agentGetProps = config->mDidChainConfig->mAgentApi.mGetDidProps;
     auto agentDidProp = config->mDidChainConfig->mAgentApi.mDidProp;
@@ -236,7 +236,7 @@ int BlkChnClient::downloadDidProp(const std::string& did, const std::string& key
 
     std::string propArrayStr;
     ret = downloadFromDidChn(agentGetPropPath, propArrayStr);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     Json jsonPropArray = Json::parse(propArrayStr);
     for(const auto& it: jsonPropArray) {
@@ -263,11 +263,11 @@ int BlkChnClient::downloadDidPropHistory(const std::string& did, const std::stri
 
     std::string agentGetPropHistoryPath;
     int ret = getDidPropHistoryPath(did, key, agentGetPropHistoryPath);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string propArrayStr;
     ret = downloadFromDidChn(agentGetPropHistoryPath, propArrayStr);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     Json jsonPropArray = Json::parse(propArrayStr);
     for(const auto& it: jsonPropArray) {
@@ -285,7 +285,7 @@ int BlkChnClient::getDidPropHistoryPath(const std::string& did, const std::strin
 
     std::string keyPath;
     int ret = getPropKeyPath(key, keyPath);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto agentGetProps = config->mDidChainConfig->mAgentApi.mGetDidProps;
     auto agentDidPropHistory = config->mDidChainConfig->mAgentApi.mDidPropHistory;
@@ -300,18 +300,18 @@ int BlkChnClient::downloadHumanInfo(const std::string& did, std::shared_ptr<Huma
 
     std::string pubKey;
     int ret = downloadDidProp(did, NamePublicKey, pubKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string expectedDid;
     ret = SecurityManager::GetDid(pubKey, expectedDid);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = humanInfo->setHumanInfo(HumanInfo::Item::ChainPubKey, pubKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::vector<std::string> propHistory;
     ret = downloadDidPropHistory(did, NameCarrierKey, propHistory);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     for(const auto& it: propHistory) {
         HumanInfo::CarrierInfo carrierInfo;
@@ -341,25 +341,25 @@ int BlkChnClient::downloadHumanInfo(const std::string& did, std::shared_ptr<Huma
 // {
 //     std::string pubKey;
 //     int ret = humanInfo->getHumanInfo(HumanInfo::Item::ChainPubKey, pubKey);
-//     CHECK_ERROR(ret)
+//     CHECK_ERROR(ret);
 
 //     std::string devId;
 //     ret = Platform::GetCurrentDevId(devId);
-//     CHECK_ERROR(ret)
+//     CHECK_ERROR(ret);
 
 //     HumanInfo::CarrierInfo carrierInfo;
 //     ret = humanInfo->getCarrierInfoByDevId(devId, carrierInfo);
-//     CHECK_ERROR(ret)
+//     CHECK_ERROR(ret);
 
 //     std::string carrierInfoStr;
 //     ret = humanInfo->serialize(carrierInfo, carrierInfoStr);
-//     CHECK_ERROR(ret)
+//     CHECK_ERROR(ret);
 
 //     std::map<std::string, std::string> propMap;
 //     propMap["PublicKey"] = pubKey;
 //     propMap["CarrierID"] = carrierInfoStr;
 //     ret = uploadAllDidProps(propMap);
-//     CHECK_ERROR(ret)
+//     CHECK_ERROR(ret);
 
 
 //     return 0;
@@ -385,7 +385,7 @@ int BlkChnClient::uploadCachedDidProp()
 
     std::string txid;
     int ret = uploadAllDidProps(mDidPropCache, txid);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     mDidPropCache.clear();
 
     ret = saveLocalData();
@@ -407,7 +407,7 @@ int BlkChnClient::uploadCachedDidProp()
     // };
 
     // ret = BlkChnClient::appendMoniter(getTxPath, confirmFunc);
-    // CHECK_ERROR(ret)
+    // CHECK_ERROR(ret);
 
     return 0;
 }
@@ -543,7 +543,7 @@ int BlkChnClient::getPropKeyPath(const std::string& key, std::string& keyPath)
 
     std::string keyPathPrefix;
     int ret = getPropKeyPathPrefix(keyPathPrefix);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     keyPath = (keyPathPrefix + key);
     return 0;
@@ -557,7 +557,7 @@ int BlkChnClient::loadLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData;
     int ret = sectyMgr->loadCryptoFile(dataFilePath.string(), originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string cacheData {originData.begin(), originData.end()};
     try {
@@ -590,7 +590,7 @@ int BlkChnClient::saveLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData {cacheData.begin(), cacheData.end()};
     int ret = sectyMgr->saveCryptoFile(dataFilePath.string(), originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     Log::D(Log::TAG, "Save local data to: %s, data: %s", dataFilePath.c_str(), cacheData.c_str());
 

@@ -11,9 +11,7 @@
 namespace elastos {
 
 class FriendInfo;
-class FriendManager;
 class UserInfo;
-class UserManager;
 
 class RemoteStorageManager final {
 public:
@@ -49,17 +47,17 @@ public:
     virtual ~RemoteStorageManager() = default;
 
     int setConfig(std::weak_ptr<Config> config,
-                  std::weak_ptr<SecurityManager> sectyMgr,
-                  std::weak_ptr<UserManager> userMgr,
-                  std::weak_ptr<FriendManager> friendMgr);
+                  std::weak_ptr<SecurityManager> sectyMgr);
 
     void addClient(ClientType type, std::shared_ptr<RemoteStorageClient> client);
 
     int cacheProperty(const std::string& did, const char* key);
     int uploadData(const std::shared_ptr<UserInfo> userInfo,
-                   const std::vector<std::shared_ptr<FriendInfo>>& friendInfoList);
+                   const std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
+                   const std::shared_ptr<std::fstream> carrierData);
     int downloadData(std::shared_ptr<UserInfo>& userInfo,
-                     std::vector<std::shared_ptr<FriendInfo>>& friendInfoList);
+                     std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
+                     std::shared_ptr<std::fstream>& carrierData);
 
 private:
     /*** type define ***/
@@ -86,8 +84,6 @@ private:
     std::recursive_mutex mMutex;
     std::weak_ptr<Config> mConfig;
     std::weak_ptr<SecurityManager> mSecurityManager;
-    std::weak_ptr<UserManager> mUserManager;
-    std::weak_ptr<FriendManager> mFriendManager;
     std::map<ClientType, std::shared_ptr<RemoteStorageClient>> mRemoteStorageClientMap;
     std::map<std::string, std::string> mPropCache;
 };

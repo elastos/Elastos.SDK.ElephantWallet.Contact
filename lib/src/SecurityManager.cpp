@@ -95,10 +95,10 @@ int SecurityManager::getElaAddress(std::string& value)
 {
     std::string pubKey;
     int ret = getPublicKey(pubKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = GetElaAddress(pubKey, value);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -112,10 +112,10 @@ int SecurityManager::getDid(std::string& value)
 
     std::string pubKey;
     int ret = getPublicKey(pubKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = GetDid(pubKey, mDid);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     value = mDid;
     return 0;
@@ -187,11 +187,11 @@ int SecurityManager::saveCryptoFile(const std::string& filePath, const std::vect
 {
     std::string pubKey;
     int ret = getPublicKey(pubKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::vector<uint8_t> encryptedData;
     ret = encryptData(pubKey, DefaultCryptoAlgorithm, originData, encryptedData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::ofstream cryptoFile;
 
@@ -226,7 +226,7 @@ int SecurityManager::loadCryptoFile(const std::string& filePath, std::vector<uin
     cryptoFile.close();
 
     int ret = decryptData(DefaultCryptoAlgorithm, encryptedData, originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -249,11 +249,11 @@ int SecurityManager::signDataSelfVerifiable(const std::vector<uint8_t>& src, std
 {
     std::vector<uint8_t> signedBytes;
     int ret = signData(src, signedBytes);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string pubKey;
     ret = getPublicKey(pubKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string msgStr = MD5::MakeHexString(src);
     std::string sigStr = MD5::MakeHexString(signedBytes);

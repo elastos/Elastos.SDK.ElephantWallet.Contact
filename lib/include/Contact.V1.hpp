@@ -95,6 +95,7 @@ private:
     std::shared_ptr<RemoteStorageManager> mRemoteStorageManager;
     std::shared_ptr<Config> mConfig;
     bool mHasListener;
+    bool mGlobalInited;
     bool mStarted;
 }; // class ContactV1
 

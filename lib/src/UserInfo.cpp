@@ -34,6 +34,13 @@ UserInfo::UserInfo(std::weak_ptr<UserManager> userMgr)
 {
 }
 
+UserInfo::UserInfo()
+    : HumanInfo()
+    , IdentifyCode()
+    , mUserManager()
+{
+}
+
 UserInfo::~UserInfo()
 {
 }
@@ -56,13 +63,13 @@ int UserInfo::serialize(std::string& value, bool summaryOnly) const
 
     std::string humanInfo;
     int ret = HumanInfo::serialize(humanInfo, summaryOnly);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     jsonInfo[JsonKey::HumanInfo] = humanInfo;
 
     if(summaryOnly == false) {
         std::string identCode;
         ret = IdentifyCode::serialize(identCode);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
         jsonInfo[JsonKey::IdentifyCode] = identCode;
     }
 
@@ -77,12 +84,12 @@ int UserInfo::deserialize(const std::string& value, bool summaryOnly)
 
     std::string humanInfo = jsonInfo[JsonKey::HumanInfo];
     int ret = HumanInfo::deserialize(humanInfo, summaryOnly);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     if(summaryOnly == false) {
         std::string identCode = jsonInfo[JsonKey::IdentifyCode];
         ret = IdentifyCode::deserialize(identCode);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     return 0;
@@ -96,10 +103,10 @@ int UserInfo::toJson(std::shared_ptr<Json>& value) const
     }
 
     int ret = HumanInfo::toJson(value);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = IdentifyCode::toJson(value);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     (*value)[JsonKey::IsMyself] = true;
 
@@ -115,7 +122,7 @@ int UserInfo::addCarrierInfo(const CarrierInfo& info, const Status status)
 
     auto userMgr = SAFE_GET_PTR(mUserManager);
     ret = userMgr->saveLocalData();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -154,7 +161,7 @@ int UserInfo::mergeHumanInfo(const HumanInfo& value, const Status status)
 
     auto userMgr = SAFE_GET_PTR(mUserManager);
     ret = userMgr->saveLocalData();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -170,7 +177,7 @@ int UserInfo::setWalletAddress(const std::string& name, const std::string& value
 
     auto userMgr = SAFE_GET_PTR(mUserManager);
     int ret = userMgr->saveLocalData();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -180,11 +187,11 @@ int UserInfo::getCurrDevCarrierAddr(std::string& value)
     std::string devId;
 
     int ret = Platform::GetCurrentDevId(devId);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     CarrierInfo info;
     ret = getCarrierInfoByDevId(devId, info);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     value = info.mUsrAddr;
 
@@ -196,11 +203,11 @@ int UserInfo::getCurrDevCarrierId(std::string& value)
     std::string devId;
 
     int ret = Platform::GetCurrentDevId(devId);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     CarrierInfo info;
     ret = getCarrierInfoByDevId(devId, info);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     value = info.mUsrId;
 
@@ -212,11 +219,11 @@ int UserInfo::getCurrDevUpdateTime(int64_t& value)
     std::string devId;
 
     int ret = Platform::GetCurrentDevId(devId);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     CarrierInfo info;
     ret = getCarrierInfoByDevId(devId, info);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     value = info.mUpdateTime;
 
@@ -233,7 +240,7 @@ int UserInfo::setIdentifyCode(Type type, const std::string& value)
 
     auto userMgr = SAFE_GET_PTR(mUserManager);
     ret = userMgr->saveLocalData();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }

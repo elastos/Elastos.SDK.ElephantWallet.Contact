@@ -72,7 +72,7 @@ int UserManager::loadLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData;
     int ret = sectyMgr->loadCryptoFile(dataFilePath.string(), originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string userData {originData.begin(), originData.end()};
     try {
@@ -91,7 +91,7 @@ int UserManager::saveLocalData()
 {
     std::string userData;
     int ret = serialize(userData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto config = SAFE_GET_PTR(mConfig);
     auto dataFilePath = elastos::filesystem::path(config->mUserDataDir) / DataFileName;
@@ -99,7 +99,7 @@ int UserManager::saveLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData {userData.begin(), userData.end()};
     ret = sectyMgr->saveCryptoFile(dataFilePath.string(), originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     Log::D(Log::TAG, "Save local data to: %s, data: %s", dataFilePath.c_str(), userData.c_str());
 
@@ -112,7 +112,7 @@ int UserManager::serialize(std::string& value) const
 
     std::string userData;
     int ret = mUserInfo->serialize(userData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     value = userData;
     return 0;
@@ -129,9 +129,9 @@ int UserManager::restoreUserInfo()
         auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
         std::string pubKey;
         int ret = sectyMgr->getPublicKey(pubKey);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
         ret = mUserInfo->setHumanInfo(UserInfo::Item::ChainPubKey, pubKey);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
 
         Log::I(Log::TAG, "UserManager::restoreUserInfo() Success to create user.");
     }
@@ -149,15 +149,15 @@ int UserManager::ensureUserCarrierInfo()
     auto msgMgr = SAFE_GET_PTR(mMessageManager);
     std::weak_ptr<MessageChannelStrategy> weakChCarrier;
     int ret = msgMgr->getChannel(MessageManager::ChannelType::Carrier, weakChCarrier);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     auto chCarrier = SAFE_GET_PTR(weakChCarrier);
     std::string carrierAddr;
     ret = chCarrier->getAddress(carrierAddr);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string currDevId;
     ret = Platform::GetCurrentDevId(currDevId);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     UserInfo::CarrierInfo info;
     ret = mUserInfo->getCarrierInfoByDevId(currDevId, info);
@@ -167,42 +167,42 @@ int UserManager::ensureUserCarrierInfo()
 
     std::string currDevName;
     ret = Platform::GetCurrentDevName(currDevName);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     HumanInfo::CarrierInfo carrierInfo;
     carrierInfo.mUsrAddr = carrierAddr;
     carrierInfo.mDevInfo = {currDevId, currDevName};
     carrierInfo.mUpdateTime = DateTime::CurrentMS();
     ret = mUserInfo->addCarrierInfo(carrierInfo, UserInfo::Status::Offline);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string carrierInfoStr;
     ret = HumanInfo::SerializeCarrierInfo(carrierInfo, carrierInfoStr);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string pubKey;
     ret = mUserInfo->getHumanInfo(HumanInfo::Item::ChainPubKey, pubKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto dcClient = DidChnClient::GetInstance();
     ret = dcClient->cacheDidProp(DidChnClient::NamePublicKey, pubKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     ret = dcClient->cacheDidProp(DidChnClient::NameCarrierKey, carrierInfoStr);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
     std::string did;
     ret = sectyMgr->getDid(did);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     ret = rsMgr->cacheProperty(did, RemoteStorageManager::PropKey::PublicKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string devId;
     ret = Platform::GetCurrentDevId(devId);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     ret = rsMgr->cacheProperty(did, RemoteStorageManager::PropKey::CarrierInfo);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     Log::V(Log::TAG, "%s new carrier info: %s", FORMAT_METHOD, carrierInfoStr.c_str());
 
@@ -236,19 +236,19 @@ int UserManager::setUserInfo(UserInfo::Item item, const std::string& value)
 
     auto dcClient = DidChnClient::GetInstance();
     ret = dcClient->cacheDidProp(DidChnClient::NameDetailKey, userDetails);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
     std::string did;
     ret = sectyMgr->getDid(did);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     ret = rsMgr->cacheProperty(did, RemoteStorageManager::PropKey::DetailKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto msgMgr = SAFE_GET_PTR(mMessageManager);
     ret = msgMgr->broadcastDesc(MessageManager::ChannelType::Carrier);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -271,19 +271,19 @@ int UserManager::setIdentifyCode(elastos::IdentifyCode::Type type, const std::st
 
     auto dcClient = DidChnClient::GetInstance();
     ret = dcClient->cacheDidProp(DidChnClient::NameIdentifyKey, userIdentify);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
     std::string did;
     ret = sectyMgr->getDid(did);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     ret = rsMgr->cacheProperty(did, RemoteStorageManager::PropKey::IdentifyKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
 //    auto msgMgr = SAFE_GET_PTR(mMessageManager);
 //    ret = msgMgr->broadcastDesc(MessageManager::ChannelType::Carrier);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -303,19 +303,19 @@ int UserManager::setWalletAddress(const std::string& name, const std::string& va
 
     auto dcClient = DidChnClient::GetInstance();
     ret = dcClient->cacheDidProp(DidChnClient::NameDetailKey, userDetails);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
     std::string did;
     ret = sectyMgr->getDid(did);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     ret = rsMgr->cacheProperty(did, RemoteStorageManager::PropKey::DetailKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto msgMgr = SAFE_GET_PTR(mMessageManager);
     ret = msgMgr->broadcastDesc(MessageManager::ChannelType::Carrier);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -429,11 +429,11 @@ int UserManager::getAvatarFile(const std::string& md5, std::string& filepath)
 //    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
 //    std::string did;
 //    int ret = sectyMgr->getDid(did);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    auto dcClient = DidChnClient::GetInstance();
 //    ret = dcClient->appendMoniter(did, callback, false);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    return 0;
 //}
@@ -455,17 +455,17 @@ int UserManager::getAvatarFile(const std::string& md5, std::string& filepath)
 //    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
 //    std::string did;
 //    int ret = sectyMgr->getDid(did);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    auto bcClient = BlkChnClient::GetInstance();
 //
 //    std::string keyPath;
 //    ret = bcClient->getDidPropHistoryPath(did, "IdentifyCode", keyPath);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    Log::I(Log::TAG, "UserManager::monitorDidChainIdentifyCode() keyPath=%s", keyPath.c_str());
 //    ret = bcClient->appendMoniter(keyPath, callback);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    return 0;
 //}
@@ -475,7 +475,7 @@ int UserManager::getAvatarFile(const std::string& md5, std::string& filepath)
 //     auto bcClient = BlkChnClient::GetInstance();
 
 //     int ret = bcClient->uploadHumanInfo(mUserInfo);
-//     CHECK_ERROR(ret)
+//     CHECK_ERROR(ret);
 
 //     return 0;
 // }
@@ -486,7 +486,7 @@ int UserManager::setupMultiDevChannels()
 
     std::vector<HumanInfo::CarrierInfo> carrierInfoArray;
     int ret = mUserInfo->getAllCarrierInfo(carrierInfoArray);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     for(const auto& carrierInfo: carrierInfoArray) {
         int ret = msgMgr->requestFriend(carrierInfo.mUsrAddr,
@@ -508,7 +508,7 @@ int UserManager::setupMultiDevChannels()
 //    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
 //    std::string did;
 //    int ret = sectyMgr->getDid(did);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    auto dcClient = DidChnClient::GetInstance();
 //

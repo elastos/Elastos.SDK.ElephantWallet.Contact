@@ -16,6 +16,7 @@ public:
 
     /*** class function and variable ***/
     explicit FriendInfo(std::weak_ptr<FriendManager> friendMgr);
+    explicit FriendInfo();
     virtual ~FriendInfo();
 
     int setAlias(const std::string& value);
@@ -36,9 +37,8 @@ private:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    std::weak_ptr<FriendManager> mFriendManager;
-
     std::string mAlias;
+    std::weak_ptr<FriendManager> mFriendManager;
 
 }; // class FriendInfo
 

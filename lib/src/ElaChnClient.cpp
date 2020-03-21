@@ -65,7 +65,7 @@ int ElaChnClient::downloadPublicKey(const std::string& elaAddr, std::string& pub
     auto path = config->mElaChainConfig->mApi.mGetPubKey + elaAddr;
     std::string result;
     int ret = downloadElaChnData(httpClient, path, result);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     if(result.find(' ') != std::string::npos) {
         Log::W(Log::TAG, "Failed to download pubkey for ela addr: %s, result=%s", elaAddr.c_str(), result.c_str());

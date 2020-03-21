@@ -81,14 +81,14 @@ int ChannelImplCarrier::preset(const std::string& profile,
                                std::shared_ptr<ChannelDataListener> dataListener)
 {
     int ret = MessageChannelStrategy::preset(profile, chListener, dataListener);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     if(mCarrier != nullptr) {
         return ErrCode::ChannelFailedMultiOpen;
     }
 
     ret = initCarrier();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = ela_set_self_nospam(mCarrier.get(), 0);
     if(ret != 0) {
@@ -102,7 +102,7 @@ int ChannelImplCarrier::preset(const std::string& profile,
 
     std::string address;
     ret = ChannelImplCarrier::getAddress(address);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     Log::I(Log::TAG, "ChannelImplCarrier::preset() Success preset carrier on address: %s.", address.c_str());
 
 
@@ -175,7 +175,7 @@ int ChannelImplCarrier::requestFriend(const std::string& friendCode,
     if(remoteRequest == true) {
         std::string usrId;
         ret = GetCarrierUsrIdByAddress(friendCode, usrId);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
 
         const char* hello = (summary.empty() ? " " : summary.c_str());
         bool isAdded = ela_is_friend(mCarrier.get(), usrId.c_str());

@@ -129,7 +129,7 @@ int DidChnClient::cacheDidProp(const std::string& key, const std::string& value)
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::string did;
     int ret = sectyMgr->getDid(did);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::lock_guard<std::recursive_mutex> lock(mMutex);
 
@@ -147,10 +147,10 @@ int DidChnClient::uploadCachedDidProp()
     std::lock_guard<std::recursive_mutex> lock(mMutex);
 
     int ret = uploadDidPropsByAgent(mDidPropCache);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = clearDidPropCache(true);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -194,7 +194,7 @@ int DidChnClient::downloadDidProp(const std::string& did, bool humanInfoOnly,
             Log::I(Log::TAG, "Ignore to process empty detail key.");
             continue;
         }
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
 
         didProps.insert({ key, std::move(props)} );
     }
@@ -350,14 +350,14 @@ int DidChnClient::uploadDidPropsByAgent(const std::vector<std::pair<std::string,
 
     std::string didProtocolData;
     int ret = serializeDidProps(didProps, didProtocolData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string didAgentData;
     ret = makeDidAgentData(didProtocolData, didAgentData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = uploadDidAgentData(didAgentData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -386,7 +386,7 @@ int DidChnClient::serializeDidProps(const std::vector<std::pair<std::string, std
             auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
             std::string pubKey;
             int ret = sectyMgr->getPublicKey(pubKey);
-            CHECK_ERROR(ret)
+            CHECK_ERROR(ret);
             std::vector<uint8_t> cryptoData;
             ret = sectyMgr->encryptData(pubKey, SecurityManager::DefaultCryptoAlgorithm, std::vector<uint8_t>{std::begin(value), std::end(value)} , cryptoData);
             CHECK_ERROR(ret);
@@ -427,11 +427,11 @@ int DidChnClient::makeDidAgentData(const std::string& didProtocolData, std::stri
     std::vector<uint8_t> originBytes(didProtocolData.begin(), didProtocolData.end());
     std::vector<uint8_t> signedBytes;
     int ret = sectyMgr->signData(originBytes, signedBytes);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string pubKey;
     ret = sectyMgr->getPublicKey(pubKey);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string msgStr = MD5::MakeHexString(originBytes);
     std::string sigStr = MD5::MakeHexString(signedBytes);
@@ -459,7 +459,7 @@ int DidChnClient::uploadDidAgentData(const std::string& didAgentData)
     std::string agentUploadUrl = didConfigUrl + agentUploadPath;
     std::string authHeader;
     int ret = sectyMgr->getDidAgentAuthHeader(authHeader);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     const auto& reqBody = didAgentData;
     Log::I(Log::TAG, "DidChnClient::uploadDidAgentData() reqBody=%s", reqBody.c_str());
@@ -470,13 +470,13 @@ int DidChnClient::uploadDidAgentData(const std::string& didAgentData)
     httpClient.setHeader("X-Elastos-Agent-Auth", authHeader);
     ret = httpClient.syncPost(reqBody);
     if(ret < 0) {
-        CHECK_ERROR(ErrCode::HttpClientError + ret)
+        CHECK_ERROR(ErrCode::HttpClientError + ret);
     }
 
     std::string respBody;
     ret = httpClient.getResponseBody(respBody);
     if(ret < 0) {
-        CHECK_ERROR(ErrCode::HttpClientError + ret)
+        CHECK_ERROR(ErrCode::HttpClientError + ret);
     }
     Log::I(Log::TAG, "DidChnClient::uploadDidAgentData() respBody=%s", respBody.c_str());
 
@@ -579,7 +579,7 @@ int DidChnClient::downloadDidPropsByAgent(std::shared_ptr<HttpClient>& httpClien
 
     std::string dataPath;
     int ret = getDidPropPath(did, key, withHistory, dataPath, false);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     ret = downloadDidChnData(httpClient, dataPath, propArrayStr);
     if(ret == ErrCode::BlkChnEmptyPropError) {
         Log::W(Log::TAG, "Get property from DidChain return empty. urlpath=%s", dataPath.c_str());
@@ -589,7 +589,7 @@ int DidChnClient::downloadDidPropsByAgent(std::shared_ptr<HttpClient>& httpClien
     || withHistory == true) { // if history == true or cache is empty
         std::string dataCachePath;
         ret = getDidPropPath(did, key, withHistory, dataCachePath, true);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
         ret = downloadDidChnData(httpClient, dataCachePath, propCacheArrayStr);
         if (ret == ErrCode::BlkChnEmptyPropError) {
             Log::W(Log::TAG, "Get property from DidChain Cache return empty. urlpath=%s", dataCachePath.c_str());
@@ -691,7 +691,7 @@ int DidChnClient::getDidPropPath(const std::string& did, const std::string& key,
 
     std::string keyPath;
     int ret = getPropKeyPath(key, keyPath);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string agentGetProps;
     if(useCache == true) {
@@ -714,7 +714,7 @@ int DidChnClient::clearDidPropCache(bool refreshUpdateTime)
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::string did;
     int ret = sectyMgr->getDid(did);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::lock_guard<std::recursive_mutex> lock(mMutex);
 
@@ -753,7 +753,7 @@ int DidChnClient::loadLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData;
     int ret = sectyMgr->loadCryptoFile(dataFilePath.string(), originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string cacheData {originData.begin(), originData.end()};
     try {
@@ -789,7 +789,7 @@ int DidChnClient::saveLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData {cacheData.begin(), cacheData.end()};
     int ret = sectyMgr->saveCryptoFile(dataFilePath.string(), originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     Log::D(Log::TAG, "Save local data to: %s, data: %s", dataFilePath.c_str(), cacheData.c_str());
 
@@ -809,7 +809,7 @@ int DidChnClient::getPropKeyPath(const std::string& key, std::string& keyPath)
 
             std::string appId;
             int ret = sectyMgr->getDidPropAppId(appId);
-            CHECK_ERROR(ret)
+            CHECK_ERROR(ret);
 
             std::lock_guard<std::recursive_mutex> lock(mMutex);
             mPropKeyPathPrefix = "Apps/" + appId + "/";

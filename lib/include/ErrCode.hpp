@@ -59,7 +59,9 @@ public:
     constexpr static const int RepeatOperationError = -17;
 	constexpr static const int CreateDirectoryError = -18;
     constexpr static const int ExpectedBeforeStartedError = -19;
-    constexpr static const int SizeOverflowError = -20;
+	constexpr static const int ExpectedAfterStartedError = -20;
+	constexpr static const int SizeOverflowError = -21;
+	constexpr static const int NotExpectedReachedError = -22;
 
     constexpr static const int InvalidLocalDataDir = -50;
     constexpr static const int NoSecurityListener = -51;

@@ -25,8 +25,15 @@ namespace elastos {
 /***********************************************/
 FriendInfo::FriendInfo(std::weak_ptr<FriendManager> friendMgr)
     : HumanInfo()
-    , mFriendManager(friendMgr)
     , mAlias()
+    , mFriendManager(friendMgr)
+{
+}
+
+FriendInfo::FriendInfo()
+    : HumanInfo()
+    , mAlias()
+    , mFriendManager()
 {
 }
 
@@ -97,7 +104,7 @@ int FriendInfo::toJson(std::shared_ptr<Json>& value) const
     }
 
     int ret = HumanInfo::toJson(value);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     (*value)[JsonKey::Alias] = mAlias;
     (*value)[JsonKey::IsFriend] = true;

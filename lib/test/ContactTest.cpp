@@ -300,8 +300,7 @@ int ContactTest::doSyncUpload()
 int ContactTest::doSyncDownload()
 {
     if (mContact == nullptr) {
-        ShowError("Contact is null.");
-        return -1;
+        testNewContact();
     }
 
     int ret = mContact->syncInfoDownload( elastos::sdk::Contact::SyncInfoLocation::DidChain

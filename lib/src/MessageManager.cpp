@@ -217,7 +217,7 @@ int MessageManager::requestFriend(const std::string& friendAddr,
 
     std::string userDid;
     int ret = userInfo->getHumanInfo(HumanInfo::Item::Did, userDid);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string userNickname;
     ret = userInfo->getHumanInfo(HumanInfo::Item::Nickname, userNickname);
@@ -225,7 +225,7 @@ int MessageManager::requestFriend(const std::string& friendAddr,
         Log::W(Log::TAG, "MessageManager::requestFriend() Failed to get user nickname, ignore it.");
         ret = 0;
     }
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string currDevId;
     ret = Platform::GetCurrentDevId(currDevId);
@@ -237,7 +237,7 @@ int MessageManager::requestFriend(const std::string& friendAddr,
 
 //    std::string humanInfo;
 //    ret = userInfo->HumanInfo::serialize(humanInfo, true);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 
     Json jsonInfo = Json::object();
     jsonInfo[JsonKey::Did] = userDid;
@@ -253,7 +253,7 @@ int MessageManager::requestFriend(const std::string& friendAddr,
     || ret == ErrCode::ChannelFailedFriendExists) { // ignore to set error
         return ret;
     }
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -279,7 +279,7 @@ int MessageManager::updateFriend(const std::string& did)
 
     std::vector<HumanInfo::CarrierInfo> carrierInfoArray;
     int ret = humanInfo->getAllCarrierInfo(carrierInfoArray);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     int lastRet = 0;
     Log::I(Log::TAG, "MessageManager::updateFriend() =================== %d",
@@ -322,7 +322,7 @@ int MessageManager::removeFriend(const std::string& friendCode, ChannelType huma
     }
 
     int ret = channel->removeFriend(friendCode);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -641,18 +641,18 @@ int MessageManager::broadcastDesc(ChannelType chType)
 
     std::shared_ptr<UserInfo> userInfo;
     int ret = userMgr->getUserInfo(userInfo);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     broadcastList.push_back(userInfo);
 
     std::vector<std::shared_ptr<FriendInfo>> friendList;
     ret = friendMgr->getFriendInfoList(friendList);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     for(auto& it: friendList) {
         broadcastList.push_back(it);
     }
 
     ret = sendDescMessage(broadcastList, chType);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -1258,7 +1258,7 @@ int MessageManager::sendMsgAckMessage(const std::shared_ptr<HumanInfo> humanInfo
 
         auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
         ret = sectyMgr->encryptData(pubKey, msgInfo->mCryptoAlgorithm, msgInfo->mPlainContent, msgCryptoContent);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     if(msgInfo->mMemo.length() > MessageInfo::MemoMaxSize) {
@@ -1317,7 +1317,7 @@ int MessageManager::unpackMessageInfo(std::shared_ptr<HumanInfo> humanInfo,
     } else {
         auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
         int ret = sectyMgr->decryptData(msgInfo->mCryptoAlgorithm, msgCryptoContent, msgInfo->mPlainContent);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     Log::W(Log::TAG, "<<<<<<<<<<<<< %s", jsonStr.c_str());

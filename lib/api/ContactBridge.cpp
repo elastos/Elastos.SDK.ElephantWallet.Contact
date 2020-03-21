@@ -553,9 +553,9 @@ int ContactBridge::syncInfoUploadToDidChain()
 
 int ContactBridge::syncInfoDownload(int fromLocation)
 {
-    if(mContactImpl->isStarted() == false) {
-        return elastos::ErrCode::NotReadyError;
-    }
+//    if(mContactImpl->isStarted() == false) {
+//        return elastos::ErrCode::NotReadyError;
+//    }
 
     int ret = mContactImpl->syncInfoDownload(fromLocation);
     CHECK_ERROR(ret);
@@ -565,9 +565,9 @@ int ContactBridge::syncInfoDownload(int fromLocation)
 
 int  ContactBridge::syncInfoUpload(int toLocation)
 {
-    if(mContactImpl->isStarted() == false) {
-        return elastos::ErrCode::NotReadyError;
-    }
+//    if(mContactImpl->isStarted() == false) {
+//        return elastos::ErrCode::NotReadyError;
+//    }
 
     int ret = mContactImpl->syncInfoUpload(toLocation);
     CHECK_ERROR(ret);

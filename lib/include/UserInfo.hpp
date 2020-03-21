@@ -28,6 +28,7 @@ public:
 
     /*** class function and variable ***/
     explicit UserInfo(std::weak_ptr<UserManager> userMgr);
+    explicit UserInfo();
     virtual ~UserInfo();
 
     // virtual int serialize(const CarrierInfo& info, std::string& value) const override;

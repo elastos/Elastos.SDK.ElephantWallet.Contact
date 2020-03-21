@@ -169,13 +169,13 @@ int ProofOssClient::getOssInfo(std::shared_ptr<HttpClient> httpClient, const std
     int ret = httpClient->syncPost(signedVerifyCode);
     Log::I(Log::TAG, "%s time=%lld", FORMAT_METHOD, DateTime::CurrentMS());
     if(ret < 0) {
-        CHECK_ERROR(ErrCode::HttpClientError + ret)
+        CHECK_ERROR(ErrCode::HttpClientError + ret);
     }
 
     std::string respBody;
     ret = httpClient->getResponseBody(respBody);
     if(ret < 0) {
-        CHECK_ERROR(ErrCode::HttpClientError + ret)
+        CHECK_ERROR(ErrCode::HttpClientError + ret);
     }
     Log::I(Log::TAG, "DidChnClient::getOssInfo() respBody=%s", respBody.c_str());
 
@@ -300,7 +300,7 @@ int ProofOssClient::loadLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData;
     int ret = sectyMgr->loadCryptoFile(dataFilePath.string(), originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::string cacheData {originData.begin(), originData.end()};
     try {
@@ -333,7 +333,7 @@ int ProofOssClient::saveLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData {cacheData.begin(), cacheData.end()};
     int ret = sectyMgr->saveCryptoFile(dataFilePath.string(), originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     Log::D(Log::TAG, "Save local data to: %s, data: %s", dataFilePath.c_str(), cacheData.c_str());
 

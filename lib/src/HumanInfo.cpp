@@ -170,7 +170,7 @@ int HumanInfo::addCarrierInfo(const HumanInfo::CarrierInfo& info, const HumanInf
 
     if(correctedInfo.mUsrAddr.empty() == false) {
         int ret = ChannelImplCarrier::GetCarrierUsrIdByAddress(correctedInfo.mUsrAddr, correctedInfo.mUsrId);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
     if(info.mUsrId.empty() == false
     && info.mUsrId != correctedInfo.mUsrId) {
@@ -381,14 +381,14 @@ int HumanInfo::setHumanInfo(Item item, const std::string& value)
     if(item == Item::ChainPubKey) {
         std::string expectedDid, expectedElaAddr;
         int ret = SecurityManager::GetDid(value, expectedDid);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
         ret = HumanInfo::setHumanInfo(Item::Did, expectedDid);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
 
         ret = SecurityManager::GetElaAddress(value, expectedElaAddr);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
         ret = HumanInfo::setHumanInfo(Item::ElaAddress, expectedElaAddr);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
 
         mWalletAddressMap["ELA"] = expectedElaAddr;
     } else if(item == Item::Nickname
@@ -460,7 +460,7 @@ int HumanInfo::mergeHumanInfo(const HumanInfo& value, const Status status)
             Log::W(Log::TAG, "HumanInfo::mergeHumanInfo() Ignore to sync CarrierId: %s", it.mUsrId.c_str());
             continue;
         }
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
 
         changed = true;
     }
