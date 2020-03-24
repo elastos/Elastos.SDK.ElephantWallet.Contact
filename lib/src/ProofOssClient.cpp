@@ -85,6 +85,27 @@ int ProofOssClient::downloadProperties(std::map<std::string, std::string>& chang
     return 0;
 }
 
+int ProofOssClient::setOssAuth(const std::string& user, const std::string& password, const std::string& token,
+                               const std::string& disk, const std::string& partition, const std::string& path)
+{
+    Log::I(Log::TAG, "%s %s,%s,%s,%s,%s,%s", FORMAT_METHOD, user.c_str(), password.c_str(), token.c_str(),
+                                                            disk.c_str(), partition.c_str(), path.c_str());
+
+    mOssAuth = std::make_shared<OssAuth>();
+    mOssAuth->mUser = user;
+    mOssAuth->mPassword = password;
+    mOssAuth->mToken = token;
+    mOssAuth->mDisk = disk;
+    mOssAuth->mPartition = partition;
+    mOssAuth->mPath = path;
+
+    mExpiredTime = 0;
+    int ret = ossLogin();
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
 /* =========================================== */
 /* === class protected function implement  === */
 /* =========================================== */
@@ -93,7 +114,7 @@ int ProofOssClient::downloadProperties(std::map<std::string, std::string>& chang
 /* =========================================== */
 /* === class private function implement  ===== */
 /* =========================================== */
-int ProofOssClient::getOssInfo(OssInfo& ossInfo)
+int ProofOssClient::getOssAuthByDefault(std::shared_ptr<OssAuth>& ossAuth)
 {
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     auto httpClient = std::make_shared<HttpClient>();
@@ -106,9 +127,9 @@ int ProofOssClient::getOssInfo(OssInfo& ossInfo)
     ret = sectyMgr->signDataSelfVerifiable(std::vector<uint8_t>(verifyCode.begin(), verifyCode.end()),
                                            signedVerifyCode);
     CHECK_ERROR(ret);
-    Log::I(Log::TAG, "ProofOssClient::getOssInfo() %s", signedVerifyCode.c_str());
+    Log::I(Log::TAG, "%s %s", FORMAT_METHOD, signedVerifyCode.c_str());
 
-    ret = getOssInfo(httpClient, signedVerifyCode, ossInfo);
+    ret = getOssAuthByDefault(httpClient, signedVerifyCode, ossAuth);
     CHECK_ERROR(ret);
 
     return 0;
@@ -133,7 +154,7 @@ int ProofOssClient::getVerifyCode(std::shared_ptr<HttpClient> httpClient, std::s
     if(ret < 0) {
         CHECK_ERROR(ErrCode::HttpClientErrorIndex + ret);
     }
-    Log::I(Log::TAG, "DidChnClient::getVerifyCode() respBody=%s", respBody.c_str());
+    Log::I(Log::TAG, "%s respBody=%s", FORMAT_METHOD, respBody.c_str());
 
     try {
         Json jsonResp = Json::parse(respBody);
@@ -156,8 +177,8 @@ int ProofOssClient::getVerifyCode(std::shared_ptr<HttpClient> httpClient, std::s
     return 0;
 }
 
-int ProofOssClient::getOssInfo(std::shared_ptr<HttpClient> httpClient, const std::string signedVerifyCode,
-                               OssInfo& ossInfo)
+int ProofOssClient::getOssAuthByDefault(std::shared_ptr<HttpClient> httpClient, const std::string signedVerifyCode,
+                                        std::shared_ptr<OssAuth>& ossAuth)
 {
     auto config = SAFE_GET_PTR(mConfig);
 
@@ -177,7 +198,7 @@ int ProofOssClient::getOssInfo(std::shared_ptr<HttpClient> httpClient, const std
     if(ret < 0) {
         CHECK_ERROR(ErrCode::HttpClientErrorIndex + ret);
     }
-    Log::I(Log::TAG, "DidChnClient::getOssInfo() respBody=%s", respBody.c_str());
+    Log::I(Log::TAG, "%s respBody=%s", FORMAT_METHOD, respBody.c_str());
 
     try {
         Json jsonResp = Json::parse(respBody);
@@ -188,12 +209,13 @@ int ProofOssClient::getOssInfo(std::shared_ptr<HttpClient> httpClient, const std
 
         Json data = jsonResp["data"];
         Json sts = data["sts"];
-        ossInfo.mUser = sts["accessKeyId"];
-        ossInfo.mPassword = sts["accessKeySecret"];
-        ossInfo.mToken = sts["securityToken"];
-        ossInfo.mDisk = data["endpoint"];
-        ossInfo.mPartition = data["bucket"];
-        ossInfo.mPath = data["path"];
+        ossAuth = std::make_shared<OssAuth>();
+        ossAuth->mUser = sts["accessKeyId"];
+        ossAuth->mPassword = sts["accessKeySecret"];
+        ossAuth->mToken = sts["securityToken"];
+        ossAuth->mDisk = data["endpoint"];
+        ossAuth->mPartition = data["bucket"];
+        ossAuth->mPath = data["path"];
     } catch(const std::exception& ex) {
         Log::E(Log::TAG, "Failed to parse oss info data from: %s.\nex=%s", respBody.c_str(), ex.what());
         CHECK_ERROR(ErrCode::JsonParseException);
@@ -210,21 +232,25 @@ int ProofOssClient::ossLogin()
         return 0;
     }
 
-    ProofOssClient::OssInfo ossInfo;
-    int ret = getOssInfo(ossInfo);
-    CHECK_ERROR(ret);
+    bool needMount = true;
+    if(mOssAuth == nullptr) {
+        int ret = getOssAuthByDefault(mOssAuth);
+        CHECK_ERROR(ret);
+        needMount = false;
+    }
 
     auto disk = elastos::sdk::CloudDisk::Find(elastos::sdk::CloudDisk::Domain::AliOss);
-    ret = disk->login(ossInfo.mDisk, ossInfo.mUser, ossInfo.mPassword, ossInfo.mToken);
+    int ret = disk->login(mOssAuth->mDisk, mOssAuth->mUser, mOssAuth->mPassword, mOssAuth->mToken);
     CHECK_ERROR(ret);
-    ret = disk->getPartition(ossInfo.mPartition, mOssPartition);
+    ret = disk->getPartition(mOssAuth->mPartition, mOssPartition);
     CHECK_ERROR(ret);
+
+    if(needMount == true) {
+        ret = mOssPartition->mount();
+        CHECK_ERROR(ret);
+    }
 
     mExpiredTime = DateTime::CurrentMS() + 30 * 60 * 1000; // half of hour
-
-        // Partition is already exists, ignore mount it.
-//        ret = partition->mount();
-//        CHECK_ERROR(ret);
 
     return 0;
 }
@@ -233,12 +259,8 @@ int ProofOssClient::ossList(std::vector<std::string>& pathList)
 {
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
 
-    std::string did;
-    int ret = sectyMgr->getDid(did);
-    CHECK_ERROR(ret);
-
     auto ossFile = std::make_shared<elastos::sdk::CloudFile>();
-    ret = ossFile->open(mOssPartition, did + "/", elastos::sdk::CloudMode::UserAll);
+    int ret = ossFile->open(mOssPartition, mOssAuth->mPath + "/", elastos::sdk::CloudMode::UserAll);
     CHECK_ERROR(ret);
     ret = ossFile->list(pathList);
     CHECK_ERROR(ret);
@@ -253,14 +275,10 @@ int ProofOssClient::ossWrite(const std::string& path, std::shared_ptr<std::iostr
     auto config = SAFE_GET_PTR(mConfig);
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
 
-    std::string did;
-    int ret = sectyMgr->getDid(did);
-    CHECK_ERROR(ret);
-
-    Log::D(Log::TAG, "%s filepath=%s", FORMAT_METHOD, (did + "/" + path).c_str());
+    Log::D(Log::TAG, "%s filepath=%s", FORMAT_METHOD, (mOssAuth->mPath + "/" + path).c_str());
 
     auto ossFile = std::make_shared<elastos::sdk::CloudFile>();
-    ret = ossFile->open(mOssPartition, did + "/" + path, elastos::sdk::CloudMode::UserAll);
+    int ret = ossFile->open(mOssPartition, mOssAuth->mPath + "/" + path, elastos::sdk::CloudMode::UserAll);
     CHECK_ERROR(ret);
     ret = ossFile->write(content);
     CHECK_ERROR(ret);
@@ -275,14 +293,10 @@ int ProofOssClient::ossRead(const std::string& path, std::shared_ptr<std::iostre
     auto config = SAFE_GET_PTR(mConfig);
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
 
-    std::string did;
-    int ret = sectyMgr->getDid(did);
-    CHECK_ERROR(ret);
-
-    Log::D(Log::TAG, "%s filepath=%s", FORMAT_METHOD, (did + "/" + path).c_str());
+    Log::D(Log::TAG, "%s filepath=%s", FORMAT_METHOD, (mOssAuth->mPath + "/" + path).c_str());
 
     auto ossFile = std::make_shared<elastos::sdk::CloudFile>();
-    ret = ossFile->open(mOssPartition, did + "/" + path, elastos::sdk::CloudMode::UserAll);
+    int ret = ossFile->open(mOssPartition, mOssAuth->mPath + "/" + path, elastos::sdk::CloudMode::UserAll);
     CHECK_ERROR(ret);
     ret = ossFile->read(content);
     CHECK_ERROR(ret);

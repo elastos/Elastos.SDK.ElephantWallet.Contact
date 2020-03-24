@@ -283,6 +283,20 @@ int ContactTest::showGetUserBrief()
     return 0;
 }
 
+int ContactTest::doSyncAuth(const std::string& user, const std::string& password, const std::string& token,
+                            const std::string& disk, const std::string& partition, const std::string& path)
+{
+    if (mContact == nullptr) {
+        testNewContact();
+    }
+
+    int ret = mContact->syncInfoAuthOss(user, password, token,
+                                        disk, partition, path);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
 int ContactTest::doSyncUpload()
 {
     if (mContact == nullptr) {

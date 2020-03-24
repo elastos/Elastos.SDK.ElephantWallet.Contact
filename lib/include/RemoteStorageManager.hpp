@@ -50,6 +50,7 @@ public:
                   std::weak_ptr<SecurityManager> sectyMgr);
 
     void addClient(ClientType type, std::shared_ptr<RemoteStorageClient> client);
+    int getClient(ClientType type, std::shared_ptr<RemoteStorageClient>& client);
 
     int cacheProperty(const std::string& did, const char* key);
     int uploadData(const std::shared_ptr<UserInfo> userInfo,

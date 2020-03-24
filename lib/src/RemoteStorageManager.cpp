@@ -43,8 +43,22 @@ int RemoteStorageManager::setConfig(std::weak_ptr<Config> config,
 
 void RemoteStorageManager::addClient(ClientType type, std::shared_ptr<RemoteStorageClient> client)
 {
+    Log::I(Log::TAG, FORMAT_METHOD);
+
     std::lock_guard<std::recursive_mutex> lock(mMutex);
     mRemoteStorageClientMap[type] = client;
+}
+
+int RemoteStorageManager::getClient(ClientType type, std::shared_ptr<RemoteStorageClient>& client)
+{
+    std::lock_guard<std::recursive_mutex> lock(mMutex);
+    if(mRemoteStorageClientMap.find(type) == mRemoteStorageClientMap.end()) {
+        CHECK_ERROR(ErrCode::NotFoundError);
+    }
+
+    client = mRemoteStorageClientMap[type];
+
+    return 0;
 }
 
 int RemoteStorageManager::cacheProperty(const std::string& did, const char* key)

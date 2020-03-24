@@ -69,6 +69,8 @@ public:
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
 
+    int syncInfoAuthOss(const std::string& user, const std::string& password, const std::string& token,
+                        const std::string& disk, const std::string& partition, const std::string& path);
     int syncInfoDownload(int fromLocation);
     int syncInfoUpload(int toLocation);
 

@@ -290,6 +290,10 @@ class ContactBridge extends CrossBase {
     public native int syncInfoUploadToDidChain();
 
     @CrossInterface
+    public native int syncInfoAuthOss(String user, String password, String token,
+                                      String disk, String partition, String path);
+
+    @CrossInterface
     public native int syncInfoDownload(int fromLocation);
 
     @CrossInterface

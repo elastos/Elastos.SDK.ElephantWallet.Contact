@@ -551,6 +551,16 @@ int ContactBridge::syncInfoUploadToDidChain()
     return 0;
 }
 
+int ContactBridge::syncInfoAuthOss(ConstStringPtr user, ConstStringPtr password, ConstStringPtr token,
+                                   ConstStringPtr disk, ConstStringPtr partition, ConstStringPtr path)
+{
+    int ret = mContactImpl->syncInfoAuthOss(user, password, token,
+                                            disk, partition, path);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
 int ContactBridge::syncInfoDownload(int fromLocation)
 {
 //    if(mContactImpl->isStarted() == false) {

@@ -30,6 +30,9 @@ public:
     virtual int downloadProperties(std::map<std::string, std::string>& changedPropMap,
                                    std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap) override;
 
+    virtual int setOssAuth(const std::string& user, const std::string& password, const std::string& token,
+                           const std::string& disk, const std::string& partition, const std::string& path);
+
 protected:
     /*** type define ***/
 
@@ -39,7 +42,7 @@ protected:
 
 private:
     /*** type define ***/
-    struct OssInfo {
+    struct OssAuth {
         std::string mUser;
         std::string mPassword;
         std::string mToken;
@@ -52,10 +55,10 @@ private:
     static constexpr const char* DataFileName = "oss-cacheddata.dat";
 
     /*** class function and variable ***/
-    int getOssInfo(OssInfo& ossInfo);
+    int getOssAuthByDefault(std::shared_ptr<OssAuth>& ossAuth);
     int getVerifyCode(std::shared_ptr<HttpClient> httpClient, std::string& verifyCode);
-    int getOssInfo(std::shared_ptr<HttpClient> httpClient, const std::string signedVerifyCode,
-                   OssInfo& ossInfo);
+    int getOssAuthByDefault(std::shared_ptr<HttpClient> httpClient, const std::string signedVerifyCode,
+                            std::shared_ptr<OssAuth>& ossAuth);
     int ossLogin();
     int ossList(std::vector<std::string>& pathList);
     int ossWrite(const std::string& path, std::shared_ptr<std::iostream> content);
@@ -67,6 +70,7 @@ private:
     std::weak_ptr<Config> mConfig;
     std::weak_ptr<SecurityManager> mSecurityManager;
     std::set<std::string> mFileCache;
+    std::shared_ptr<OssAuth> mOssAuth;
     std::shared_ptr<elastos::sdk::CloudPartition> mOssPartition;
     int64_t mExpiredTime = 0;
 };

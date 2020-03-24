@@ -181,6 +181,27 @@ int ContactV1::syncInfoUploadToDidChain()
     return 0;
 }
 
+int ContactV1::syncInfoAuthOss(const std::string& user, const std::string& password, const std::string& token,
+                               const std::string& disk, const std::string& partition, const std::string& path)
+{
+    int ret = initGlobal();
+    CHECK_ERROR(ret);
+
+    std::shared_ptr<RemoteStorageManager::RemoteStorageClient> client;
+    ret = mRemoteStorageManager->getClient(RemoteStorageManager::ClientType::Oss, client);
+    CHECK_ERROR(ret);
+
+    auto proofOssClient = std::static_pointer_cast<ProofOssClient>(client);
+    if(proofOssClient == nullptr) {
+        CHECK_ERROR(ErrCode::NotFoundError);
+    }
+
+    ret = proofOssClient->setOssAuth(user, password, token, disk, partition, path);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
 int ContactV1::syncInfoDownload(int fromLocation)
 {
     if(isStarted() == true) {
@@ -440,6 +461,7 @@ int ContactV1::initGlobal()
     if(mGlobalInited == true) {
         return 0;
     }
+    Log::I(Log::TAG, FORMAT_METHOD);
 
     int ret;
 
@@ -454,8 +476,8 @@ int ContactV1::initGlobal()
 
     ret = mRemoteStorageManager->setConfig(mConfig, mSecurityManager);
     CHECK_ERROR(ret);
-    auto proofOssClient = std::make_shared<elastos::ProofOssClient>(mConfig, mSecurityManager);
-    mRemoteStorageManager->addClient(elastos::RemoteStorageManager::ClientType::Oss, proofOssClient);
+    auto proofOssClient = std::make_shared<ProofOssClient>(mConfig, mSecurityManager);
+    mRemoteStorageManager->addClient(RemoteStorageManager::ClientType::Oss, proofOssClient);
 
     mUserManager->setConfig(mConfig, mRemoteStorageManager, mMessageManager);
     mFriendManager->setConfig(mConfig, mRemoteStorageManager, mMessageManager);

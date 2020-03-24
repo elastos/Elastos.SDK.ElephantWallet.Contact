@@ -60,6 +60,8 @@ public:
 
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
+    int syncInfoAuthOss(ConstStringPtr user, ConstStringPtr password, ConstStringPtr token,
+                        ConstStringPtr disk, ConstStringPtr partition, ConstStringPtr path);
     int syncInfoDownload(int fromLocation);
     int syncInfoUpload(int toLocation);
     int exportUserData(ConstStringPtr toFile);
