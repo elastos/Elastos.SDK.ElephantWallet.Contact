@@ -1,5 +1,6 @@
 #include <DidChainClient.hpp>
 
+#include <future>
 #include <iomanip>
 
 #include <CompatibleFileSystem.hpp>
@@ -25,7 +26,7 @@ const std::map<std::string, bool> DidChainClient::mDidPropHistoryMap = {
 //         ignore to sync for this revision
         { PropKey::DetailKey, false },
         { PropKey::IdentifyKey, true },
-        { PropKey::FriendKey, true },
+//        { PropKey::FriendKey, true },
 };
 
 
@@ -81,24 +82,35 @@ int DidChainClient::downloadProperties(const std::string& fromDid,
     }
 
     savedPropMap.clear();
-    for(const auto& key: savedPropKeySet) {
-        bool withHistory = false;
-        auto found = mDidPropHistoryMap.find(key);
-        if(found != mDidPropHistoryMap.end()) {
-            withHistory = found->second;
-        }
 
-        std::vector<std::string> propList;
-        int ret = downloadDidPropsByAgent(fromDid, key, withHistory, propList);
+    std::map<std::string, std::future<int>> futureMap;
+    std::map<std::string, std::shared_ptr<std::vector<std::string>>> propMap;
+    for(const auto& key: savedPropKeySet) {
+        auto propList = std::make_shared < std::vector < std::string >> ();
+        auto func = std::bind(&DidChainClient::downloadDidPropsByAgent, this, fromDid, key,
+                              propList);
+        auto future = std::async(std::launch::async, func);
+
+        futureMap[key] = std::move(future);
+        propMap[key] = propList;
+    }
+    for(auto& [key, future]: futureMap) {
+        future.wait();
+    }
+
+    for(auto& [key, future]: futureMap) {
+        int ret = future.get();
         if (ret == ErrCode::BlkChnEmptyPropError) {
-            Log::I(Log::TAG, "%s Ignore to process empty key: %s.", FORMAT_METHOD, key.c_str());
+            Log::V(Log::TAG, "%s Ignore to process empty key: %s.", FORMAT_METHOD, key.c_str());
             continue;
         }
         CHECK_ERROR(ret);
 
-        for(const auto& prop: propList) {
+        auto propList = propMap[key];
+        for(const auto& prop: *propList) {
             savedPropMap.emplace(key, prop);
         }
+        Log::I(Log::TAG, "%s Success to process empty key: %s.", FORMAT_METHOD, key.c_str());
     }
 
     return 0;
@@ -112,9 +124,17 @@ int DidChainClient::downloadProperties(const std::string& fromDid,
 /* =========================================== */
 /* === class private function implement  ===== */
 /* =========================================== */
-int DidChainClient::downloadDidPropsByAgent(const std::string& did, const std::string& key, bool withHistory,
-                                            std::vector<std::string>& values)
+
+int DidChainClient::downloadDidPropsByAgent(const std::string& did, const std::string& key,
+                                            std::shared_ptr<std::vector<std::string>>& values)
 {
+    auto found = mDidPropHistoryMap.find(key);
+    if(found == mDidPropHistoryMap.end()) {
+        Log::W(Log::TAG, "Ignore to get property %s from DidChain", key.c_str());
+        return (ErrCode::BlkChnEmptyPropError);
+    }
+    bool withHistory = found->second;
+
     std::string propArrayStr;
     std::string propCacheArrayStr;
 
@@ -123,17 +143,19 @@ int DidChainClient::downloadDidPropsByAgent(const std::string& did, const std::s
     CHECK_ERROR(ret);
     ret = downloadDidChnData(dataPath, propArrayStr);
     if(ret == ErrCode::BlkChnEmptyPropError) {
-        Log::W(Log::TAG, "Get property from DidChain return empty. urlpath=%s", dataPath.c_str());
+        //Log::W(Log::TAG, "Get property %s from DidChain return empty. urlpath=%s", dataPath.c_str());
+        Log::W(Log::TAG, "Get property %s from DidChain return empty.", key.c_str());
         ret = 0;
     }
+    CHECK_ERROR(ret);
     if (propArrayStr.empty() == true
-        || withHistory == true) { // if history == true or cache is empty
+    || withHistory == true) { // if history == true or cache is empty
         std::string dataCachePath;
         ret = getDidPropPath(did, key, withHistory, dataCachePath, true);
         CHECK_ERROR(ret);
         ret = downloadDidChnData(dataCachePath, propCacheArrayStr);
         if (ret == ErrCode::BlkChnEmptyPropError) {
-            Log::W(Log::TAG, "Get property from DidChain Cache return empty. urlpath=%s", dataCachePath.c_str());
+            Log::W(Log::TAG, "Get property %s from DidChain Cache return empty.", key.c_str());
             ret = 0;
         }
     }
@@ -158,7 +180,7 @@ int DidChainClient::downloadDidPropsByAgent(const std::string& did, const std::s
                     CHECK_ERROR(ret);
                     value = std::string{originData.begin(), originData.end()};
                 }
-                values.push_back(value);
+                values->push_back(value);
             }
         }
         if(propArrayStr.empty() == false) {
@@ -174,7 +196,7 @@ int DidChainClient::downloadDidPropsByAgent(const std::string& did, const std::s
                     CHECK_ERROR(ret);
                     value = std::string{originData.begin(), originData.end()};
                 }
-                values.push_back(value);
+                values->push_back(value);
             }
         }
     } catch(const std::exception& ex) {

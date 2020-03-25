@@ -61,8 +61,8 @@ private:
 
     /*** class function and variable ***/
     int uploadDidPropsByAgent(const std::string& didAgentData);
-    int downloadDidPropsByAgent(const std::string& did, const std::string& key, bool withHistory,
-                                std::vector<std::string>& values);
+    int downloadDidPropsByAgent(const std::string& did, const std::string& key,
+                                std::shared_ptr<std::vector<std::string>>& values);
     int downloadDidChnData(const std::string& path, std::string& result);
     int serializeDidProps(const std::multimap<std::string, std::string>& changedPropMap,
                           std::string& result);

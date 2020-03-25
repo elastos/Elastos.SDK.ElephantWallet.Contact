@@ -1,8 +1,9 @@
 #include <HttpClient.hpp>
 
-#include <iostream>
-#include <cstring>
 #include <algorithm>
+#include <cstring>
+#include <iostream>
+#include <future>
 
 #include <curl/curl.h>
 #include <Log.hpp>
@@ -40,6 +41,46 @@ int HttpClient::InitGlobal()
     gIsGlobalInitialized = true;
 	return 0;
 }
+
+std::vector<int> HttpClient::MultiGet(std::vector<std::shared_ptr<HttpClient>>& httpClientList)
+{
+	std::vector<std::future<int>> futureList;
+	for(auto& httpClient: httpClientList) {
+		auto future = std::async(std::launch::async, std::bind(&HttpClient::syncGet, httpClient));
+		futureList.push_back(std::move(future));
+	}
+	for(auto& future: futureList) {
+		future.wait();
+	}
+
+	std::vector<int> retList;
+	for(auto& future: futureList) {
+		retList.push_back(future.get());
+	}
+
+	return retList;
+}
+
+std::vector<int> HttpClient::MultiPost(std::map<std::shared_ptr<HttpClient>, std::shared_ptr<std::string>>& httpClientList)
+{
+	std::vector<std::future<int>> futureList;
+	for(auto& [httpClient, body]: httpClientList) {
+		auto func = static_cast<int (HttpClient::*)(const std::string&)>(&HttpClient::syncPost);
+		auto future = std::async(std::launch::async, std::bind(func, httpClient, *body));
+		futureList.push_back(std::move(future));
+	}
+	for(auto& future: futureList) {
+		future.wait();
+	}
+
+	std::vector<int> retList;
+	for(auto& future: futureList) {
+		retList.push_back(future.get());
+	}
+
+	return retList;
+}
+
 
 /* =========================================== */
 /* === class public function implement  ====== */
