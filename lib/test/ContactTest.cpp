@@ -283,6 +283,19 @@ int ContactTest::showGetUserBrief()
     return 0;
 }
 
+int ContactTest::doSyncMigrate(const std::string& user, const std::string& password, const std::string& token,
+                            const std::string& disk, const std::string& partition, const std::string& path)
+{
+    if (mContact == nullptr) {
+        testNewContact();
+    }
+
+    int ret = mContact->syncInfoMigrateOss(user, password, token, disk, partition, path);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
 int ContactTest::doSyncAuth(const std::string& user, const std::string& password, const std::string& token,
                             const std::string& disk, const std::string& partition, const std::string& path)
 {
@@ -290,8 +303,7 @@ int ContactTest::doSyncAuth(const std::string& user, const std::string& password
         testNewContact();
     }
 
-    int ret = mContact->syncInfoAuthOss(user, password, token,
-                                        disk, partition, path);
+    int ret = mContact->syncInfoAuthOss(user, password, token, disk, partition, path);
     CHECK_ERROR(ret);
 
     return 0;
@@ -304,8 +316,8 @@ int ContactTest::doSyncUpload()
         return -1;
     }
 
-    int ret = mContact->syncInfoUpload( elastos::sdk::Contact::SyncInfoLocation::DidChain
-                                      | elastos::sdk::Contact::SyncInfoLocation::Oss);
+    int ret = mContact->syncInfoUpload( elastos::sdk::Contact::SyncInfoClient::DidChain
+                                      | elastos::sdk::Contact::SyncInfoClient::Oss);
     CHECK_ERROR(ret);
 
     return 0;
@@ -317,8 +329,8 @@ int ContactTest::doSyncDownload()
         testNewContact();
     }
 
-    int ret = mContact->syncInfoDownload( elastos::sdk::Contact::SyncInfoLocation::DidChain
-                                        | elastos::sdk::Contact::SyncInfoLocation::Oss);
+    int ret = mContact->syncInfoDownload( elastos::sdk::Contact::SyncInfoClient::DidChain
+                                        | elastos::sdk::Contact::SyncInfoClient::Oss);
     CHECK_ERROR(ret);
 
     return 0;
@@ -631,7 +643,6 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const elastos:
         std::string appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AA"
                             "A65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
         response = std::make_shared<std::vector<uint8_t>>(appId.begin(), appId.end());
-        response.reset(); // return null will use `DidFriend`
         break;
     }
     case elastos::sdk::Contact::Listener::AcquireType::DidAgentAuthHeader:

@@ -551,35 +551,45 @@ int ContactBridge::syncInfoUploadToDidChain()
     return 0;
 }
 
+int ContactBridge::syncInfoMigrateOss(ConstStringPtr user, ConstStringPtr password, ConstStringPtr token,
+                                      ConstStringPtr disk, ConstStringPtr partition, ConstStringPtr rootdir)
+{
+    int ret = mContactImpl->syncInfoMigrateOss(user, password, token,
+                                               disk, partition, rootdir);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
 int ContactBridge::syncInfoAuthOss(ConstStringPtr user, ConstStringPtr password, ConstStringPtr token,
-                                   ConstStringPtr disk, ConstStringPtr partition, ConstStringPtr path)
+                                   ConstStringPtr disk, ConstStringPtr partition, ConstStringPtr rootdir)
 {
     int ret = mContactImpl->syncInfoAuthOss(user, password, token,
-                                            disk, partition, path);
+                                            disk, partition, rootdir);
     CHECK_ERROR(ret);
 
     return 0;
 }
 
-int ContactBridge::syncInfoDownload(int fromLocation)
+int ContactBridge::syncInfoDownload(int fromClient)
 {
 //    if(mContactImpl->isStarted() == false) {
 //        return elastos::ErrCode::NotReadyError;
 //    }
 
-    int ret = mContactImpl->syncInfoDownload(fromLocation);
+    int ret = mContactImpl->syncInfoDownload(fromClient);
     CHECK_ERROR(ret);
 
     return 0;
 }
 
-int  ContactBridge::syncInfoUpload(int toLocation)
+int  ContactBridge::syncInfoUpload(int toClient)
 {
 //    if(mContactImpl->isStarted() == false) {
 //        return elastos::ErrCode::NotReadyError;
 //    }
 
-    int ret = mContactImpl->syncInfoUpload(toLocation);
+    int ret = mContactImpl->syncInfoUpload(toClient);
     CHECK_ERROR(ret);
 
     return 0;

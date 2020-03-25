@@ -80,7 +80,8 @@ int RemoteStorageManager::cacheProperty(const std::string& did, const char* key)
     return 0;
 }
 
-int RemoteStorageManager::uploadData(const std::shared_ptr<UserInfo> userInfo,
+int RemoteStorageManager::uploadData(const std::vector<ClientType>& toClient,
+                                     const std::shared_ptr<UserInfo> userInfo,
                                      const std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
                                      const std::shared_ptr<std::fstream> carrierData)
 {
@@ -88,7 +89,7 @@ int RemoteStorageManager::uploadData(const std::shared_ptr<UserInfo> userInfo,
 
     auto config = SAFE_GET_PTR(mConfig);
 
-    std::map<std::string, std::string> changedPropMap;
+    std::multimap<std::string, std::string> changedPropMap;
     std::map<std::string, std::shared_ptr<std::iostream>> totalPropMap;
     {
         std::lock_guard<std::recursive_mutex> lock(mMutex);
@@ -110,7 +111,7 @@ int RemoteStorageManager::uploadData(const std::shared_ptr<UserInfo> userInfo,
                 CHECK_ERROR(ErrCode::NotExpectedReachedError);
             }
 
-            changedPropMap[propKey] = segment;
+            changedPropMap.emplace(propKey, segment);
             totalPropMap[path] = std::make_shared<std::fstream>(config->mUserDataDir + "/" + path);
 
             if (propKey == PropKey::CarrierInfo) {
@@ -145,7 +146,8 @@ int RemoteStorageManager::uploadData(const std::shared_ptr<UserInfo> userInfo,
     return 0;
 }
 
-int RemoteStorageManager::downloadData(std::shared_ptr<UserInfo>& userInfo,
+int RemoteStorageManager::downloadData(const std::vector<ClientType>& fromClient,
+                                       std::shared_ptr<UserInfo>& userInfo,
                                        std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
                                        std::shared_ptr<std::fstream>& carrierData)
 {
@@ -156,7 +158,7 @@ int RemoteStorageManager::downloadData(std::shared_ptr<UserInfo>& userInfo,
     CHECK_ERROR(ret);
     std::string carrierDataPath = currDevId + "/carrier.data";
 
-    std::map<std::string, std::string> changedPropMap {
+    std::multimap<std::string, std::string> savedPropMap {
             {PropKey::PublicKey, ""},
             {PropKey::CarrierInfo, ""},
             {PropKey::DetailKey, ""},
@@ -171,8 +173,12 @@ int RemoteStorageManager::downloadData(std::shared_ptr<UserInfo>& userInfo,
         totalPropMap[carrierDataPath] = nullptr;
     }
 
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+    std::string did;
+    ret = sectyMgr->getDid(did);
+    CHECK_ERROR(ret);
     for (const auto& [type, client]: mRemoteStorageClientMap){
-        int ret = client->downloadProperties(changedPropMap, totalPropMap);
+        int ret = client->downloadProperties(did, savedPropMap, totalPropMap);
         if(ErrCode::AdditivityIndex < ret && ret < 0) {
             ret += ErrCode::RemoteStorageClientErrorIndex;
         }

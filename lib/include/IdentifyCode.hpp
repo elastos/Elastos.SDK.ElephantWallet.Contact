@@ -16,6 +16,7 @@ public:
         PhoneNumber = 1,
         EmailAddress,
         WechatId,
+        RemoteStorage,
     };
 
     /*** static function and variable ***/

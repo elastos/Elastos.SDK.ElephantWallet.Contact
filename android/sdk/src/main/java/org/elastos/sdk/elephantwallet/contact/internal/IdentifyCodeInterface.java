@@ -4,7 +4,8 @@ interface IdentifyCodeInterface {
     public enum Type {
         PhoneNumber(1),
         EmailAddress(2),
-        WechatId(3);
+        WechatId(3),
+        RemoteStorage(4);
 
         public static Type valueOf(int id) {
             Type[] values = Type.values();

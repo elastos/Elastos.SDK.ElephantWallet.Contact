@@ -31,13 +31,16 @@ public:
 
     class RemoteStorageClient {
     public:
-        virtual int uploadProperties(const std::map<std::string, std::string>& changedPropMap,
+        virtual int uploadProperties(const std::multimap<std::string, std::string>& changedPropMap,
                                      const std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap) = 0;
-        virtual int downloadProperties(std::map<std::string, std::string>& changedPropMap,
+        virtual int downloadProperties(const std::string& fromDid,
+                                       std::multimap<std::string, std::string>& savedPropMap,
                                        std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap) = 0;
     protected:
         explicit RemoteStorageClient() = default;
         virtual ~RemoteStorageClient() = default;
+
+        using PropKey = RemoteStorageManager::PropKey;
     };
 
     /*** static function and variable ***/
@@ -53,10 +56,12 @@ public:
     int getClient(ClientType type, std::shared_ptr<RemoteStorageClient>& client);
 
     int cacheProperty(const std::string& did, const char* key);
-    int uploadData(const std::shared_ptr<UserInfo> userInfo,
+    int uploadData(const std::vector<ClientType>& toClient,
+                   const std::shared_ptr<UserInfo> userInfo,
                    const std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
                    const std::shared_ptr<std::fstream> carrierData);
-    int downloadData(std::shared_ptr<UserInfo>& userInfo,
+    int downloadData(const std::vector<ClientType>& fromClient,
+                     std::shared_ptr<UserInfo>& userInfo,
                      std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
                      std::shared_ptr<std::fstream>& carrierData);
 

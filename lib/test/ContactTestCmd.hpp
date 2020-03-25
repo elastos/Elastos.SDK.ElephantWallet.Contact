@@ -57,6 +57,8 @@ private:
                             std::string& errMsg);
     static int SetUserDetails(const std::vector<std::string>& args,
                               std::string& errMsg);
+    static int SyncMigrate(const std::vector<std::string>& args,
+                           std::string& errMsg);
     static int SyncAuth(const std::vector<std::string>& args,
                         std::string& errMsg);
     static int SyncUpload(const std::vector<std::string>& args,

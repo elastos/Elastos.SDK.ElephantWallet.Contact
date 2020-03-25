@@ -39,7 +39,7 @@ public:
         virtual ~Factory() = default;
     }; // class Factory
 
-    using SyncInfoLocation = elastos::ContactV1::SyncInfoLocation;
+    using SyncInfoClient = elastos::ContactV1::SyncInfoClient;
     using Channel = crosspl::native::ChannelType;
     using Status = crosspl::native::StatusType;
     using HumanInfo = elastos::HumanInfo;

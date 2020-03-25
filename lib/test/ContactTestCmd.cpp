@@ -55,6 +55,7 @@ const std::vector<ContactTestCmd::CommandInfo> ContactTestCmd::gCmdInfoList{
     { ' ', "set-uid",         ContactTestCmd::Unimplemention,      "\t\tSet User Identifycode" },
     { 's', "set-udetails",    ContactTestCmd::SetUserDetails,      "\tSet User Details [s [4:Nickname|7:Description|8:Addition] ${text}]" },
     { ' ', "set-uwaddr",      ContactTestCmd::Unimplemention,      "\tSet User Wallet Address" },
+    { 'j', "sync-migrate",    ContactTestCmd::SyncMigrate,         "\tSync Migrate [k ${user} ${password} ${token} ${disk} ${partition} ${path}]" },
     { 'k', "sync-auth",       ContactTestCmd::SyncAuth,            "\tSync Auth [k ${user} ${password} ${token} ${disk} ${partition} ${path}]" },
     { 'u', "sync-upload",     ContactTestCmd::SyncUpload,          "\tSync Upload" },
     { 'v', "sync-download",   ContactTestCmd::SyncDownload,        "\tSync Download" },
@@ -302,6 +303,19 @@ int ContactTestCmd::SetUserDetails(const std::vector<std::string>& args,
     auto infoData = args[2];
 
     auto ret = ContactTest::GetInstance()->doSetHumanDetails("-user-info-", infoType, infoData);
+    return ret;
+}
+
+int ContactTestCmd::SyncMigrate(const std::vector<std::string>& args,
+                             std::string& errMsg)
+{
+    if(args.size() < 6) {
+        errMsg = "Bad input count: " + std::to_string(args.size());
+        return -1;
+    }
+
+    auto ret = ContactTest::GetInstance()->doSyncMigrate(args[1], args[2], args[3], args[4], args[5], args[6]);
+
     return ret;
 }
 

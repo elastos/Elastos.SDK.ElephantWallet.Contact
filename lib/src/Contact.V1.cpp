@@ -18,6 +18,7 @@
 #include "Platform.hpp"
 #include "SafePtr.hpp"
 #include "JsonDefine.hpp"
+#include "DidChainClient.hpp"
 #include "ProofOssClient.hpp"
 
 namespace elastos {
@@ -181,8 +182,8 @@ int ContactV1::syncInfoUploadToDidChain()
     return 0;
 }
 
-int ContactV1::syncInfoAuthOss(const std::string& user, const std::string& password, const std::string& token,
-                               const std::string& disk, const std::string& partition, const std::string& path)
+int ContactV1::syncInfoMigrateOss(const std::string& user, const std::string& password, const std::string& token,
+                               const std::string& disk, const std::string& partition, const std::string& rootdir)
 {
     int ret = initGlobal();
     CHECK_ERROR(ret);
@@ -196,13 +197,65 @@ int ContactV1::syncInfoAuthOss(const std::string& user, const std::string& passw
         CHECK_ERROR(ErrCode::NotFoundError);
     }
 
-    ret = proofOssClient->setOssAuth(user, password, token, disk, partition, path);
+    std::shared_ptr<ProofOssClient::OssAuth> ossAuthFrom;
+    ret = proofOssClient->getOssAuth(ossAuthFrom);
+    CHECK_ERROR(ret);
+
+    auto ossAuthTo = std::make_shared<ProofOssClient::OssAuth>();
+    *ossAuthTo = {
+            .user = user,
+            .password = password,
+            .token = token,
+            .disk = disk,
+            .partition = partition,
+            .rootdir = rootdir,
+    };
+
+    ret = proofOssClient->migrateOss(ossAuthFrom, ossAuthTo);
     CHECK_ERROR(ret);
 
     return 0;
 }
 
-int ContactV1::syncInfoDownload(int fromLocation)
+int ContactV1::syncInfoAuthOss(const std::string& user, const std::string& password, const std::string& token,
+                               const std::string& disk, const std::string& partition, const std::string& rootdir)
+{
+    int ret = initGlobal();
+    CHECK_ERROR(ret);
+
+    std::shared_ptr<RemoteStorageManager::RemoteStorageClient> client;
+    ret = mRemoteStorageManager->getClient(RemoteStorageManager::ClientType::Oss, client);
+    CHECK_ERROR(ret);
+
+    auto proofOssClient = std::static_pointer_cast<ProofOssClient>(client);
+    if(proofOssClient == nullptr) {
+        CHECK_ERROR(ErrCode::NotFoundError);
+    }
+
+    auto ossAuth = std::make_shared<ProofOssClient::OssAuth>();
+    *ossAuth = {
+            .user = user,
+            .password = password,
+            .token = token,
+            .disk = disk,
+            .partition = partition,
+            .rootdir = rootdir,
+    };
+
+    std::shared_ptr<UserInfo> userInfo;
+    ret = mUserManager->getUserInfo(userInfo);
+    CHECK_ERROR(ret);
+    std::string ossHash;
+    ret = userInfo->getIdentifyCode(UserInfo::Type::RemoteStorage, ossHash);
+    CHECK_ERROR(ret);
+
+    ret = proofOssClient->restoreOssAuth(ossAuth, ossHash);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactV1::syncInfoDownload(int fromClient)
 {
     if(isStarted() == true) {
         CHECK_ERROR(ErrCode::ExpectedBeforeStartedError);
@@ -211,64 +264,69 @@ int ContactV1::syncInfoDownload(int fromLocation)
     int ret = initGlobal();
     CHECK_ERROR(ret);
 
-    if((fromLocation & SyncInfoLocation::DidChain) != 0) {
-        Log::W(Log::TAG, "ContactV1::syncInfoDownload() download from didchain.");
+    std::vector<RemoteStorageManager::ClientType> fromClientType;
+    if((fromClient & SyncInfoClient::DidChain) != 0) {
+        fromClientType.push_back(RemoteStorageManager::ClientType::DidChain);
     }
-    if((fromLocation & SyncInfoLocation::Oss) != 0) {
-        std::shared_ptr<UserInfo> userInfo;
-        std::vector<std::shared_ptr<FriendInfo>> friendInfoList;
-
-        std::string userDataDir;
-        ret = getUserDataDir(userDataDir);
-        CHECK_ERROR(ret);
-        std::string currDevId;
-        ret = Platform::GetCurrentDevId(currDevId);
-        CHECK_ERROR(ret);
-        std::string carrierDataPath = userDataDir + "/" + currDevId + "/carrier.data";
-        Log::I(Log::TAG, "%s CarrierDataPath=%s", FORMAT_METHOD, carrierDataPath.c_str());
-        auto carrierData = std::make_shared<std::fstream>(carrierDataPath, std::ios::out | std::ios::binary);
-
-        ret = mRemoteStorageManager->downloadData(userInfo, friendInfoList, carrierData);
-        carrierData->close();
-        CHECK_ERROR(ret);
-
+    if((fromClient & SyncInfoClient::Oss) != 0) {
+        fromClientType.push_back(RemoteStorageManager::ClientType::Oss);
     }
+
+    std::shared_ptr<UserInfo> userInfo;
+    std::vector<std::shared_ptr<FriendInfo>> friendInfoList;
+
+    std::string userDataDir;
+    ret = getUserDataDir(userDataDir);
+    CHECK_ERROR(ret);
+    std::string currDevId;
+    ret = Platform::GetCurrentDevId(currDevId);
+    CHECK_ERROR(ret);
+    std::string carrierDataPath = userDataDir + "/" + currDevId + "/carrier.data";
+    Log::I(Log::TAG, "%s CarrierDataPath=%s", FORMAT_METHOD, carrierDataPath.c_str());
+    auto carrierData = std::make_shared<std::fstream>(carrierDataPath, std::ios::out | std::ios::binary);
+
+    ret = mRemoteStorageManager->downloadData(fromClientType, userInfo, friendInfoList, carrierData);
+    carrierData->close();
+    CHECK_ERROR(ret);
 
     return 0;
 }
 
-int ContactV1::syncInfoUpload(int toLocation)
+int ContactV1::syncInfoUpload(int toClient)
 {
     if(isStarted() == false) {
         CHECK_ERROR(ErrCode::ExpectedAfterStartedError);
     }
 
-    if((toLocation & SyncInfoLocation::DidChain) != 0) {
-        Log::W(Log::TAG, "ContactV1::syncInfoUpload() upload to didchain.");
+    std::vector<RemoteStorageManager::ClientType> toClientType;
+    if((toClient & SyncInfoClient::DidChain) != 0) {
+        toClientType.push_back(RemoteStorageManager::ClientType::DidChain);
     }
-    if((toLocation & SyncInfoLocation::Oss) != 0) {
-        std::shared_ptr<UserInfo> userInfo;
-        int ret = mUserManager->getUserInfo(userInfo);
-        CHECK_ERROR(ret);
-        std::vector<std::shared_ptr<FriendInfo>> friendInfoList;
-        ret = mFriendManager->getFriendInfoList(friendInfoList);
-        CHECK_ERROR(ret);
-
-        std::string userDataDir;
-        ret = getUserDataDir(userDataDir);
-        CHECK_ERROR(ret);
-        std::string currDevId;
-        ret = Platform::GetCurrentDevId(currDevId);
-        CHECK_ERROR(ret);
-        std::string carrierDataPath = userDataDir + "/" + currDevId + "/carrier.data";
-        Log::I(Log::TAG, "%s CarrierDataPath=%s", FORMAT_METHOD, carrierDataPath.c_str());
-        auto carrierData = std::make_shared<std::fstream>(carrierDataPath, std::ios::in | std::ios::binary);
-
-        ret = mRemoteStorageManager->uploadData(userInfo, friendInfoList, carrierData);
-        CHECK_ERROR(ret);
-
-        carrierData->close();
+    if((toClient & SyncInfoClient::Oss) != 0) {
+        toClientType.push_back(RemoteStorageManager::ClientType::Oss);
     }
+
+    std::shared_ptr<UserInfo> userInfo;
+    int ret = mUserManager->getUserInfo(userInfo);
+    CHECK_ERROR(ret);
+    std::vector<std::shared_ptr<FriendInfo>> friendInfoList;
+    ret = mFriendManager->getFriendInfoList(friendInfoList);
+    CHECK_ERROR(ret);
+
+    std::string userDataDir;
+    ret = getUserDataDir(userDataDir);
+    CHECK_ERROR(ret);
+    std::string currDevId;
+    ret = Platform::GetCurrentDevId(currDevId);
+    CHECK_ERROR(ret);
+    std::string carrierDataPath = userDataDir + "/" + currDevId + "/carrier.data";
+    Log::I(Log::TAG, "%s CarrierDataPath=%s", FORMAT_METHOD, carrierDataPath.c_str());
+    auto carrierData = std::make_shared<std::fstream>(carrierDataPath, std::ios::in | std::ios::binary);
+
+    ret = mRemoteStorageManager->uploadData(toClientType, userInfo, friendInfoList, carrierData);
+    CHECK_ERROR(ret);
+
+    carrierData->close();
 
     return 0;
 }
@@ -476,6 +534,8 @@ int ContactV1::initGlobal()
 
     ret = mRemoteStorageManager->setConfig(mConfig, mSecurityManager);
     CHECK_ERROR(ret);
+    auto didChainClient = std::make_shared<DidChainClient>(mConfig, mSecurityManager);
+    mRemoteStorageManager->addClient(RemoteStorageManager::ClientType::DidChain, didChainClient);
     auto proofOssClient = std::make_shared<ProofOssClient>(mConfig, mSecurityManager);
     mRemoteStorageManager->addClient(RemoteStorageManager::ClientType::Oss, proofOssClient);
 

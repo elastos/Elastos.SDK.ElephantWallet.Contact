@@ -44,7 +44,7 @@ public:
         virtual ~Listener() = default;
     }; // class ContactListener
 
-    struct SyncInfoLocation {
+    struct SyncInfoClient {
         static constexpr const int DidChain = 1;
         static constexpr const int Oss = 2;
     };
@@ -69,10 +69,12 @@ public:
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
 
+    int syncInfoMigrateOss(const std::string& user, const std::string& password, const std::string& token,
+                           const std::string& disk, const std::string& partition, const std::string& rootdir);
     int syncInfoAuthOss(const std::string& user, const std::string& password, const std::string& token,
-                        const std::string& disk, const std::string& partition, const std::string& path);
-    int syncInfoDownload(int fromLocation);
-    int syncInfoUpload(int toLocation);
+                        const std::string& disk, const std::string& partition, const std::string& rootdir);
+    int syncInfoDownload(int fromClient);
+    int syncInfoUpload(int toClient);
 
     int exportUserData(const std::string& toFile);
     int importUserData(const std::string& fromFile);

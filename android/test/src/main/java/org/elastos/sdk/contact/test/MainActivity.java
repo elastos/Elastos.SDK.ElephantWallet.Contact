@@ -969,7 +969,7 @@ public class MainActivity extends Activity {
         }
 
 //        int ret = mContact.syncInfoUploadToDidChain();
-        int ret = mContact.syncInfoUpload(Contact.SyncInfoLocation.DidChain | Contact.SyncInfoLocation.Oss);
+        int ret = mContact.syncInfoUpload(Contact.SyncInfoClient.DidChain | Contact.SyncInfoClient.Oss);
         if(ret < 0) {
             return ErrorPrefix + "Failed to call syncInfoUpload() ret=" + ret;
         }
@@ -983,7 +983,7 @@ public class MainActivity extends Activity {
         }
 
 //        int ret = mContact.syncInfoDownloadFromDidChain();
-        int ret = mContact.syncInfoDownload(Contact.SyncInfoLocation.DidChain | Contact.SyncInfoLocation.Oss);
+        int ret = mContact.syncInfoDownload(Contact.SyncInfoClient.DidChain | Contact.SyncInfoClient.Oss);
         if(ret < 0) {
             return ErrorPrefix + "Failed to call syncInfoDownload() ret=" + ret;
         }

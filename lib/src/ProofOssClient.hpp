@@ -4,9 +4,8 @@
 
 #include <set>
 #include <Config.hpp>
+#include <RemoteStorageManager.hpp>
 #include <SecurityManager.hpp>
-#include <UserInfo.hpp>
-#include "RemoteStorageManager.hpp"
 
 namespace elastos {
 
@@ -18,6 +17,17 @@ class HttpClient;
 class ProofOssClient : public RemoteStorageManager::RemoteStorageClient {
 public:
     /*** type define ***/
+    struct OssAuth {
+        std::string user;
+        std::string password;
+        std::string token;
+        std::string disk;
+        std::string partition;
+        std::string rootdir;
+
+        int64_t expiredTime = 0;
+        bool isDefaultOss = false;
+    };
 
     /*** static function and variable ***/
 
@@ -25,13 +35,16 @@ public:
     explicit ProofOssClient(std::weak_ptr<Config> config, std::weak_ptr<SecurityManager> sectyMgr);
     virtual ~ProofOssClient();
 
-    virtual int uploadProperties(const std::map<std::string, std::string>& changedPropMap,
+    virtual int uploadProperties(const std::multimap<std::string, std::string>& changedPropMap,
                                  const std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap) override;
-    virtual int downloadProperties(std::map<std::string, std::string>& changedPropMap,
+    virtual int downloadProperties(const std::string& fromDid,
+                                   std::multimap<std::string, std::string>& savedPropMap,
                                    std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap) override;
 
-    virtual int setOssAuth(const std::string& user, const std::string& password, const std::string& token,
-                           const std::string& disk, const std::string& partition, const std::string& path);
+    virtual int migrateOss(const std::shared_ptr<OssAuth> from, const std::shared_ptr<OssAuth> to);
+    virtual int restoreOssAuth(const std::shared_ptr<OssAuth> ossAuth, const std::string& expectOssHash);
+    virtual int getOssAuth(std::shared_ptr<OssAuth>& ossAuth);
+    virtual std::string getOssHash(const std::shared_ptr<OssAuth> ossAuth);
 
 protected:
     /*** type define ***/
@@ -42,14 +55,6 @@ protected:
 
 private:
     /*** type define ***/
-    struct OssAuth {
-        std::string mUser;
-        std::string mPassword;
-        std::string mToken;
-        std::string mDisk;
-        std::string mPartition;
-        std::string mPath;
-    };
 
     /*** static function and variable ***/
     static constexpr const char* DataFileName = "oss-cacheddata.dat";
@@ -69,10 +74,8 @@ private:
 
     std::weak_ptr<Config> mConfig;
     std::weak_ptr<SecurityManager> mSecurityManager;
-    std::set<std::string> mFileCache;
     std::shared_ptr<OssAuth> mOssAuth;
     std::shared_ptr<elastos::sdk::CloudPartition> mOssPartition;
-    int64_t mExpiredTime = 0;
 };
 
 /***********************************************/
