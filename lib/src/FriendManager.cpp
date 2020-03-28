@@ -97,9 +97,10 @@ int FriendManager::loadLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData;
     int ret = sectyMgr->loadCryptoFile(dataFilePath.string(), originData);
-    if(ret < 0) {
-        return 0;
+    if(ret == ErrCode::FileNotExistsError) {
+        return ret;
     }
+    CHECK_ERROR(ret);
 
     std::vector<std::shared_ptr<FriendInfo>> friendList;
     std::string friendData {originData.begin(), originData.end()};
@@ -113,7 +114,7 @@ int FriendManager::loadLocalData()
         }
     } catch(const std::exception& ex) {
         Log::E(Log::TAG, "Failed to load local data from: %s.\nex=%s", dataFilePath.c_str(), ex.what());
-        return ErrCode::JsonParseException;
+        CHECK_ERROR(ErrCode::JsonParseException);
     }
 
     mFriendList.swap(friendList);

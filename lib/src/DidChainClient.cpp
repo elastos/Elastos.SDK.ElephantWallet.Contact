@@ -76,12 +76,17 @@ int DidChainClient::downloadProperties(const std::string& fromDid,
                                        std::multimap<std::string, std::string>& savedPropMap,
                                        std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap)
 {
+    Log::I(Log::TAG, "%s Start download data.", FORMAT_METHOD);
+    if(savedPropMap.size() == 0) {
+        Log::W(Log::TAG, "%s No data need to download", FORMAT_METHOD);
+        return 0;
+    }
     std::set<std::string> savedPropKeySet;
     for(const auto& [key, value]: savedPropMap) {
         savedPropKeySet.emplace(key);
     }
-
     savedPropMap.clear();
+    totalPropMap.clear();
 
     std::map<std::string, std::future<int>> futureMap;
     std::map<std::string, std::shared_ptr<std::vector<std::string>>> propMap;

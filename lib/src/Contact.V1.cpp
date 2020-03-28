@@ -92,16 +92,10 @@ int ContactV1::start()
     int ret = initGlobal();
     CHECK_ERROR(ret);
 
-    ret = mUserManager->restoreUserInfo();
-    CHECK_ERROR(ret);
-
     ret = mMessageManager->presetChannels(mConfig);
     CHECK_ERROR(ret);
 
     ret = mUserManager->ensureUserCarrierInfo();
-    CHECK_ERROR(ret);
-
-    ret = mFriendManager->restoreFriendsInfo();
     CHECK_ERROR(ret);
 
     ret = mMessageManager->openChannels();
@@ -274,6 +268,12 @@ int ContactV1::syncInfoDownload(int fromClient)
 
     std::shared_ptr<UserInfo> userInfo;
     std::vector<std::shared_ptr<FriendInfo>> friendInfoList;
+    std::shared_ptr<std::fstream> carrierData;
+
+    ret = mUserManager->getUserInfo(userInfo);
+    CHECK_ERROR(ret);
+    ret = mFriendManager->getFriendInfoList(friendInfoList);
+    CHECK_ERROR(ret);
 
     std::string userDataDir;
     ret = getUserDataDir(userDataDir);
@@ -282,12 +282,25 @@ int ContactV1::syncInfoDownload(int fromClient)
     ret = Platform::GetCurrentDevId(currDevId);
     CHECK_ERROR(ret);
     std::string carrierDataPath = userDataDir + "/" + currDevId + "/carrier.data";
-    Log::I(Log::TAG, "%s CarrierDataPath=%s", FORMAT_METHOD, carrierDataPath.c_str());
-    auto carrierData = std::make_shared<std::fstream>(carrierDataPath, std::ios::out | std::ios::binary);
+    bool exists = elastos::filesystem::exists(carrierDataPath);
+    if(exists == false) {
+        Log::I(Log::TAG, "%s Try download carrier data to %s", FORMAT_METHOD, carrierDataPath.c_str());
+        carrierData = std::make_shared<std::fstream>(carrierDataPath, std::ios::out | std::ios::binary);
+    } else {
+        Log::I(Log::TAG, "%s Ignore to download carrier data, use local at %s", FORMAT_METHOD, carrierDataPath.c_str());
+    }
 
     ret = mRemoteStorageManager->downloadData(fromClientType, userInfo, friendInfoList, carrierData);
-    carrierData->close();
     CHECK_ERROR(ret);
+
+    if(carrierData != nullptr) {
+        carrierData->close();
+    }
+
+    std::string value;
+    userInfo->serialize(value, false);
+    Log::V(Log::TAG, "%s download user info: %s", FORMAT_METHOD, value.c_str());
+
 
     return 0;
 }
@@ -508,8 +521,20 @@ int ContactV1::getUserDataDir(std::string& dir)
         Log::D(Log::TAG, "Failed to set user data dir, errcode: %s", errMsg.c_str());
         return errCode;
     }
-
     dir = userDataDir.string();
+
+    std::string devId;
+    ret = Platform::GetCurrentDevId(devId);
+    CHECK_ERROR(ret);
+    std::string carrierDataDir = dir + "/" + devId;
+    bret = elastos::filesystem::create_directories(carrierDataDir, stdErrCode);
+    if(bret == false
+       || stdErrCode.value() != 0) {
+        int errCode = ErrCode::StdSystemErrorIndex - stdErrCode.value();
+        auto errMsg = ErrCode::ToString(errCode);
+        Log::D(Log::TAG, "Failed to set user carrier data dir, errcode: %s", errMsg.c_str());
+        return errCode;
+    }
 
     return 0;
 }
@@ -541,6 +566,11 @@ int ContactV1::initGlobal()
 
     mUserManager->setConfig(mConfig, mRemoteStorageManager, mMessageManager);
     mFriendManager->setConfig(mConfig, mRemoteStorageManager, mMessageManager);
+
+    ret = mUserManager->restoreUserInfo();
+    CHECK_ERROR(ret);
+    ret = mFriendManager->restoreFriendsInfo();
+    CHECK_ERROR(ret);
 
     ret = ElaChnClient::InitInstance(mConfig, mSecurityManager);
     CHECK_ERROR(ret);

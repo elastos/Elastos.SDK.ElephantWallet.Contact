@@ -54,6 +54,9 @@ public:
 		errRet += (__LINE__ * elastos::ErrCode::SourceLineSection); \
 	}                                                               \
 
+#define GET_ERRCODE(errRet) \
+	(errRet - errRet / elastos::ErrCode::SourceLineSection * elastos::ErrCode::SourceLineSection)
+
     /*** static function and variable ***/
     constexpr static const int UnknownError = -1;
     constexpr static const int UnimplementedError = -2;

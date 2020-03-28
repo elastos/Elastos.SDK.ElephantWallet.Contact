@@ -69,10 +69,17 @@ int ProofOssClient::downloadProperties(const std::string& fromDid,
         return 0;
     }
 
+    std::set<std::string> totalPropKeySet;
+    for(const auto& [path, value]: totalPropMap) {
+        totalPropKeySet.emplace(path);
+    }
+    savedPropMap.clear();
+    totalPropMap.clear();
+
     int ret = ossLogin();
     CHECK_ERROR(ret);
 
-    for(auto& [path, placeholder]: totalPropMap) {
+    for(const auto& path: totalPropKeySet) {
         auto content = std::make_shared<std::stringstream>();
         ret = ossRead(path, content);
         if(ret < 0) {

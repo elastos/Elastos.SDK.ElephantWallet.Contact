@@ -455,7 +455,7 @@ int HumanInfo::mergeHumanInfo(const HumanInfo& value, const Status status)
 
 //    Log::D(Log::TAG, " ============ 0   %s mBoundCarrierArray:%d", FORMAT_METHOD, value.mBoundCarrierArray.size());
     for(const auto& it: value.mBoundCarrierArray) {
-        int ret = addCarrierInfo(it, status);
+        int ret = HumanInfo::addCarrierInfo(it, status);
         if(ret == ErrCode::IgnoreMergeOldInfo) {
             Log::W(Log::TAG, "HumanInfo::mergeHumanInfo() Ignore to sync CarrierId: %s", it.mUsrId.c_str());
             continue;

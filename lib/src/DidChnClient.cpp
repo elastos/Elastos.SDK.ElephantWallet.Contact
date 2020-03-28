@@ -753,6 +753,9 @@ int DidChnClient::loadLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData;
     int ret = sectyMgr->loadCryptoFile(dataFilePath.string(), originData);
+    if(ret == ErrCode::FileNotExistsError) {
+        return ret;
+    }
     CHECK_ERROR(ret);
 
     std::string cacheData {originData.begin(), originData.end()};

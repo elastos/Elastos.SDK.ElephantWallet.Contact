@@ -56,11 +56,11 @@ public:
     int getClient(ClientType type, std::shared_ptr<RemoteStorageClient>& client);
 
     int cacheProperty(const std::string& did, const char* key);
-    int uploadData(const std::vector<ClientType>& toClient,
+    int uploadData(const std::vector<ClientType>& toClientList,
                    const std::shared_ptr<UserInfo> userInfo,
                    const std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
                    const std::shared_ptr<std::fstream> carrierData);
-    int downloadData(const std::vector<ClientType>& fromClient,
+    int downloadData(const std::vector<ClientType>& fromClientList,
                      std::shared_ptr<UserInfo>& userInfo,
                      std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
                      std::shared_ptr<std::fstream>& carrierData);
@@ -75,17 +75,29 @@ private:
     int loadLocalData();
     int saveLocalData();
 
+    int downloadData(ClientType fromClient,
+                     std::shared_ptr<UserInfo>& userInfo,
+                     std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
+                     std::shared_ptr<std::iostream>& carrierData);
+
     int packUserSegment(const std::shared_ptr<UserInfo> userInfo,
                         const std::string& propKey,
                         std::string& segment);
-    int packFriendSegment(const std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
-                          const std::string& friendCode,
+    int unpackUserSegment(const std::string& segment,
+                          const std::string& propKey,
+                          std::shared_ptr<UserInfo>& userInfo);
+    int packFriendSegment(const std::string& friendCode,
+                          const std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
                           std::string& segment);
+    int unpackFriendSegment(const std::string& segment,
+                            std::vector<std::shared_ptr<FriendInfo>>& friendInfoList);
 
     int unpackUserData(const std::string& data,
                        std::shared_ptr<UserInfo>& userInfo);
     int unpackFriendData(const std::string& data,
                          std::vector<std::shared_ptr<FriendInfo>>& friendInfoList);
+
+    int mergeUserInfo(const std::shared_ptr<UserInfo>& from, const std::shared_ptr<UserInfo>& to);
 
     std::recursive_mutex mMutex;
     std::weak_ptr<Config> mConfig;
