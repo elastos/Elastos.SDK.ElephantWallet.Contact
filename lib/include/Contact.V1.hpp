@@ -16,6 +16,7 @@
 #include "MessageManager.hpp"
 #include "SecurityManager.hpp"
 #include "UserManager.hpp"
+#include "RemoteStorageManager.hpp"
 
 namespace elastos {
 
@@ -43,6 +44,11 @@ public:
         virtual ~Listener() = default;
     }; // class ContactListener
 
+    struct SyncInfoClient {
+        static constexpr const int DidChain = 1;
+        static constexpr const int Oss = 2;
+    };
+
     /*** static function and variable ***/
 
     /*** class function and variable ***/
@@ -62,6 +68,13 @@ public:
 
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
+
+    int syncInfoMigrateOss(const std::string& user, const std::string& password, const std::string& token,
+                           const std::string& disk, const std::string& partition, const std::string& rootdir);
+    int syncInfoAuthOss(const std::string& user, const std::string& password, const std::string& token,
+                        const std::string& disk, const std::string& partition, const std::string& rootdir);
+    int syncInfoDownload(int fromClient);
+    int syncInfoUpload(int toClient);
 
     int exportUserData(const std::string& toFile);
     int importUserData(const std::string& fromFile);
@@ -83,8 +96,10 @@ private:
     std::shared_ptr<UserManager> mUserManager;
     std::shared_ptr<FriendManager> mFriendManager;
     std::shared_ptr<MessageManager> mMessageManager;
+    std::shared_ptr<RemoteStorageManager> mRemoteStorageManager;
     std::shared_ptr<Config> mConfig;
     bool mHasListener;
+    bool mGlobalInited;
     bool mStarted;
 }; // class ContactV1
 

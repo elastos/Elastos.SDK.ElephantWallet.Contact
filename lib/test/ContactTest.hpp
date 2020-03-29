@@ -33,7 +33,12 @@ public:
 
     int showGetUserInfo();
     int showGetUserBrief();
+    int doSyncMigrate(const std::string& user, const std::string& password, const std::string& token,
+                      const std::string& disk, const std::string& partition, const std::string& path);
+    int doSyncAuth(const std::string& user, const std::string& password, const std::string& token,
+                   const std::string& disk, const std::string& partition, const std::string& path);
     int doSyncUpload();
+    int doSyncDownload();
     int doLoopMessage();
 
     int listFriendInfo();

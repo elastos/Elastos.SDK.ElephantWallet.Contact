@@ -81,14 +81,14 @@ int ChannelImplCarrier::preset(const std::string& profile,
                                std::shared_ptr<ChannelDataListener> dataListener)
 {
     int ret = MessageChannelStrategy::preset(profile, chListener, dataListener);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     if(mCarrier != nullptr) {
         return ErrCode::ChannelFailedMultiOpen;
     }
 
     ret = initCarrier();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = ela_set_self_nospam(mCarrier.get(), 0);
     if(ret != 0) {
@@ -102,7 +102,7 @@ int ChannelImplCarrier::preset(const std::string& profile,
 
     std::string address;
     ret = ChannelImplCarrier::getAddress(address);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     Log::I(Log::TAG, "ChannelImplCarrier::preset() Success preset carrier on address: %s.", address.c_str());
 
 
@@ -175,7 +175,7 @@ int ChannelImplCarrier::requestFriend(const std::string& friendCode,
     if(remoteRequest == true) {
         std::string usrId;
         ret = GetCarrierUsrIdByAddress(friendCode, usrId);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
 
         const char* hello = (summary.empty() ? " " : summary.c_str());
         bool isAdded = ela_is_friend(mCarrier.get(), usrId.c_str());
@@ -311,7 +311,7 @@ int ChannelImplCarrier::sendMessage(const std::string& friendCode,
 int ChannelImplCarrier::sendData(const std::string& friendCode,
                                  const std::string& dataId)
 {
-    Log::I(Log::TAG, "%s friendCode=%s dataId=%s", __PRETTY_FUNCTION__, friendCode.c_str(), dataId.c_str());
+    Log::I(Log::TAG, "%s friendCode=%s dataId=%s", FORMAT_METHOD, friendCode.c_str(), dataId.c_str());
     mCarrierDataTrans = std::make_unique<ChannelImplCarrierDataTrans>(mChannelType, mCarrier, mChannelDataListener);
     int ret = mCarrierDataTrans->start(ChannelImplCarrierDataTrans::Direction::Sender, friendCode, dataId);
     CHECK_ERROR(ret);
@@ -322,7 +322,7 @@ int ChannelImplCarrier::sendData(const std::string& friendCode,
 int ChannelImplCarrier::cancelSendData(const std::string& friendCode,
                                        const std::string& dataId)
 {
-    Log::I(Log::TAG, "%s friendCode=%s dataId=%s", __PRETTY_FUNCTION__, friendCode.c_str(), dataId.c_str());
+    Log::I(Log::TAG, "%s friendCode=%s dataId=%s", FORMAT_METHOD, friendCode.c_str(), dataId.c_str());
     mCarrierDataTrans.reset();
     return 0;
 }
@@ -344,8 +344,13 @@ int ChannelImplCarrier::initCarrier()
     carrierCallbacks.friend_connection = OnCarrierFriendConnection;
     carrierCallbacks.friend_message = OnCarrierFriendMessage;
 
+    std::string devId;
+    int ret = Platform::GetCurrentDevId(devId);
+    CHECK_ERROR(ret);
+    std::string userDataDir = config->mUserDataDir + "/" + devId;
+
     carrierOpts.udp_enabled = config->mCarrierConfig->mEnableUdp;
-    carrierOpts.persistent_location = config->mUserDataDir.c_str();
+    carrierOpts.persistent_location = userDataDir.c_str();
 //    Log::W(Log::TAG, "========= Recover carrier by secret key: %s", profile.c_str());
 //    if(profile.empty() == false) {
 //        carrierOpts.secret_key = profile.c_str();
@@ -395,7 +400,7 @@ int ChannelImplCarrier::initCarrier()
         return ErrCode::ChannelFailedCarrier;
     }
 
-    int ret = ela_filetransfer_init(mCarrier.get(), OnCarrierFileTransConnect, this);
+    ret = ela_filetransfer_init(mCarrier.get(), OnCarrierFileTransConnect, this);
     if (ret < 0) {
         Log::E(Log::TAG, "Failed to init filetransfer!");
         return ErrCode::ChannelFailedCarrier;
@@ -541,7 +546,7 @@ void ChannelImplCarrier::OnCarrierFileTransConnect(ElaCarrier *carrier,
                                                    const ElaFileTransferInfo *fileinfo,
                                                    void *context)
 {
-    Log::I(Log::TAG, "%s from=%s fileinfo=%p", __PRETTY_FUNCTION__, from, fileinfo);
+    Log::I(Log::TAG, "%s from=%s fileinfo=%p", FORMAT_METHOD, from, fileinfo);
     if(fileinfo != nullptr) {
         Log::I(Log::TAG, "filename=%s", fileinfo->filename);
     }

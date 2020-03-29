@@ -8,6 +8,8 @@
 class Log {
 public:
   /*** type define ***/
+#define FORMAT_METHOD Log::GetFormatMethod(__PRETTY_FUNCTION__).c_str()
+
   enum Level {
     Warn = 0,
     Info,
@@ -29,6 +31,7 @@ public:
   static uint64_t MilliNow();
   static uint64_t MicroNow();
   static uint64_t NanoNow();
+  static std::string GetFormatMethod(const std::string& prettyFunction);
 
   static constexpr const char *TAG = "elastos";
 

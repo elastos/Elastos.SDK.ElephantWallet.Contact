@@ -49,8 +49,8 @@ public:
     static bool IsValidDid(const std::string& code);
 
     /*** class function and variable ***/
-    explicit SecurityManager();
-    virtual ~SecurityManager();
+    explicit SecurityManager() = default;
+    virtual ~SecurityManager() = default;
 
     void setSecurityListener(std::shared_ptr<SecurityListener> listener);
 
@@ -58,13 +58,21 @@ public:
     int getElaAddress(std::string& elaAddr);
     int getDid(std::string& did);
 
-    int encryptData(const std::string& pubKey, const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
-    int decryptData(const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
+    int encryptData(const std::string& pubKey, const std::string& cryptoAlgorithm,
+                    const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
+    int decryptData(const std::string& cryptoAlgorithm,
+                    const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
+
+    int encryptString(const std::string& pubKey, const std::string& cryptoAlgorithm,
+                      const std::string& src, std::string& dest);
+    int decryptString(const std::string& cryptoAlgorithm,
+                      const std::string& src, std::string& dest);
 
     int saveCryptoFile(const std::string& filePath, const std::vector<uint8_t>& originData);
     int loadCryptoFile(const std::string& filePath, std::vector<uint8_t>& originData);
 
     int signData(const std::vector<uint8_t>& src, std::vector<uint8_t>& dest);
+    int signDataSelfVerifiable(const std::vector<uint8_t>& src, std::string& dest);
 
     int getDidPropAppId(std::string& appId);
     int getDidAgentAuthHeader(std::string& authHeader);
@@ -78,6 +86,8 @@ private:
 
     /*** class function and variable ***/
     std::shared_ptr<SecurityListener> mSecurityListener;
+    std::string mPublicKey;
+    std::string mDid;
 
 }; // class SecurityManager
 

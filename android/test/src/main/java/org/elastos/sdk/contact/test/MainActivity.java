@@ -968,9 +968,10 @@ public class MainActivity extends Activity {
             return ErrorPrefix + "Contact is null.";
         }
 
-        int ret = mContact.syncInfoUploadToDidChain();
+//        int ret = mContact.syncInfoUploadToDidChain();
+        int ret = mContact.syncInfoUpload(Contact.SyncInfoClient.DidChain | Contact.SyncInfoClient.Oss);
         if(ret < 0) {
-            return ErrorPrefix + "Failed to call syncInfoUploadToDidChain() ret=" + ret;
+            return ErrorPrefix + "Failed to call syncInfoUpload() ret=" + ret;
         }
 
         return "Success to syncInfoUploadToDidChain.";
@@ -981,9 +982,10 @@ public class MainActivity extends Activity {
             return ErrorPrefix + "Contact is null.";
         }
 
-        int ret = mContact.syncInfoDownloadFromDidChain();
+//        int ret = mContact.syncInfoDownloadFromDidChain();
+        int ret = mContact.syncInfoDownload(Contact.SyncInfoClient.DidChain | Contact.SyncInfoClient.Oss);
         if(ret < 0) {
-            return ErrorPrefix + "Failed to call syncInfoDownloadToDidChain() ret=" + ret;
+            return ErrorPrefix + "Failed to call syncInfoDownload() ret=" + ret;
         }
 
         return "Success to syncInfoDownloadToDidChain.";

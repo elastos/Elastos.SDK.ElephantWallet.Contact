@@ -36,6 +36,8 @@ public:
 
 	/*** static function and variable ***/
 	static int InitGlobal();
+	static std::vector<int> MultiGet(std::vector<std::shared_ptr<HttpClient>>& httpClientList);
+	static std::vector<int> MultiPost(std::map<std::shared_ptr<HttpClient>, std::shared_ptr<std::string>>& httpClientList);
 
   /*** class function and variable ***/
 	explicit HttpClient();

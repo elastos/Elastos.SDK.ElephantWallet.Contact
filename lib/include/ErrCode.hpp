@@ -9,35 +9,53 @@ namespace elastos {
 class ErrCode {
 public:
     /*** type define ***/
-#define CHECK_ERROR(ret) \
-	if(ret < 0) { \
-		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", __PRETTY_FUNCTION__, __LINE__, ret); \
-		return ret; \
+#define CHECK_ERROR(errCode) \
+	if((errCode) < 0) { \
+	    int errRet = (errCode); \
+		APPEND_SRCLINE(errRet); \
+		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", FORMAT_METHOD, __LINE__, errRet); \
+		return errRet; \
 	}
 
-#define CHECK_RETVAL(ret) \
-	if(ret < 0) { \
-		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", __PRETTY_FUNCTION__, __LINE__, ret); \
+#define CHECK_RETVAL(errCode) \
+	if(errCode < 0) { \
+	    int errRet = errCode; \
+		APPEND_SRCLINE(errRet); \
+		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", FORMAT_METHOD, __LINE__, errRet); \
         return; \
 	}
 
-#define CHECK_AND_RETDEF(ret, def) \
-	if(ret < 0) { \
-		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", __PRETTY_FUNCTION__, __LINE__, ret); \
+#define CHECK_AND_RETDEF(errCode, def) \
+	if(errCode < 0) { \
+	    int errRet = errCode; \
+		APPEND_SRCLINE(errRet); \
+		Log::E(Log::TAG, "Failed to call %s in line %d, return %d.", FORMAT_METHOD, __LINE__, errRet); \
 		return def; \
 	}
 
-#define CHECK_AND_NOTIFY_ERROR(ret) \
-	if(ret < 0) { \
-		elastos::ErrCode::SetError(ret, std::string(__PRETTY_FUNCTION__) + " line:" + std::to_string(__LINE__)); \
+#define CHECK_AND_NOTIFY_ERROR(errCode) \
+	if(errCode < 0) { \
+	    int errRet = errCode; \
+		APPEND_SRCLINE(errRet); \
+		elastos::ErrCode::SetError(errRet, std::string(FORMAT_METHOD) + " line:" + std::to_string(__LINE__)); \
 	} \
-    CHECK_ERROR(ret) \
+    CHECK_ERROR(errCode) \
 
-#define CHECK_AND_NOTIFY_RETVAL(ret) \
-	if(ret < 0) { \
-		elastos::ErrCode::SetError(ret, std::string(__PRETTY_FUNCTION__) + " line:" + std::to_string(__LINE__)); \
+#define CHECK_AND_NOTIFY_RETVAL(errCode) \
+	if(errCode < 0) { \
+	    int errRet = errCode; \
+		APPEND_SRCLINE(errRet); \
+		elastos::ErrCode::SetError(errRet, std::string(FORMAT_METHOD) + " line:" + std::to_string(__LINE__)); \
 	} \
-    CHECK_RETVAL(ret) \
+    CHECK_RETVAL(errCode) \
+
+#define APPEND_SRCLINE(errRet) \
+	if(errRet > elastos::ErrCode::SourceLineSection) {              \
+		errRet += (__LINE__ * elastos::ErrCode::SourceLineSection); \
+	}                                                               \
+
+#define GET_ERRCODE(errRet) \
+	(errRet - errRet / elastos::ErrCode::SourceLineSection * elastos::ErrCode::SourceLineSection)
 
     /*** static function and variable ***/
     constexpr static const int UnknownError = -1;
@@ -59,7 +77,9 @@ public:
     constexpr static const int RepeatOperationError = -17;
 	constexpr static const int CreateDirectoryError = -18;
     constexpr static const int ExpectedBeforeStartedError = -19;
-    constexpr static const int SizeOverflowError = -20;
+	constexpr static const int ExpectedAfterStartedError = -20;
+	constexpr static const int SizeOverflowError = -21;
+	constexpr static const int NotExpectedReachedError = -22;
 
     constexpr static const int InvalidLocalDataDir = -50;
     constexpr static const int NoSecurityListener = -51;
@@ -93,10 +113,16 @@ public:
     constexpr static const int BlkChnMonStoppedError = -306;
 	constexpr static const int BlkChnIgnoreCacheProp = -307;
 
+	constexpr static const int ProofApiSetPropError = -320;
+	constexpr static const int ProofApiGetPropError = -321;
+	constexpr static const int ProofApiEmptyPropError = -322;
 
-    constexpr static const int HttpClientError = -500;
+	constexpr static const int AdditivityIndex = -1000;
+	constexpr static const int StdSystemErrorIndex = -1000;
+	constexpr static const int HttpClientErrorIndex = -2000;
+	constexpr static const int RemoteStorageClientErrorIndex = -3000;
 
-    constexpr static const int StdSystemErrorIndex = -1000;
+	constexpr static const int SourceLineSection = -100000;
 
 	static void SetErrorListener(std::function<void(int, const std::string&, const std::string&)> listener);
 	static void SetError(int errCode, const std::string& ext);

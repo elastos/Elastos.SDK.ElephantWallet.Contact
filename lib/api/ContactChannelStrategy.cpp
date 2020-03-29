@@ -71,7 +71,7 @@ int ContactChannelStrategy::receivedMessage(const std::string& humanCode,
                                             ChannelType chType,
                                             ConstBytesPtr data)
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
     LOCK_PTR(mMutex, mChannelStrategy, elastos::ErrCode::PointerReleasedError);
 
 #ifdef WITH_CROSSPL
@@ -109,44 +109,44 @@ std::shared_ptr<elastos::MessageChannelStrategy> ContactChannelStrategy::makeCha
         virtual int preset(const std::string& profile,
                            std::shared_ptr<ChannelListener> chListener,
                            std::shared_ptr<ChannelDataListener> dataListener) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             return MessageChannelStrategy::preset(profile, chListener, dataListener);
         };
         virtual int open() override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             LOCK_PTR(mMutex, mHelperPtr, elastos::ErrCode::PointerReleasedError);
             int ret = mHelperPtr->onOpen();
             return ret;
         };
         virtual int close() override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             LOCK_PTR(mMutex, mHelperPtr, elastos::ErrCode::PointerReleasedError);
             int ret = mHelperPtr->onClose();
             return ret;
         };
         virtual int getAddress(std::string& address) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             return elastos::ErrCode::UnimplementedError;
         };
         virtual bool isReady() override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             return true;
         };
         virtual int requestFriend(const std::string& friendAddr,
                                   const std::string& summary,
                                   bool remoteRequest = true,
                                   bool forceRequest = false) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             return elastos::ErrCode::UnimplementedError;
         };
         virtual int removeFriend(const std::string& friendAddr) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             return elastos::ErrCode::UnimplementedError;
         };
         virtual int sendMessage(const std::string& friendCode,
                                 const std::vector<uint8_t>& msgContent,
                                 bool ignorePackData = false) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             LOCK_PTR(mMutex, mHelperPtr, elastos::ErrCode::PointerReleasedError);
 #ifdef WITH_CROSSPL
             auto data = std::span<uint8_t>(const_cast<uint8_t*>(msgContent.data()), msgContent.size());

@@ -18,6 +18,7 @@
 #include <Log.hpp>
 #include <JsonDefine.hpp>
 #include <MessageManager.hpp>
+#include <RemoteStorageManager.hpp>
 #include <SafePtr.hpp>
 
 namespace elastos {
@@ -37,6 +38,7 @@ namespace elastos {
 FriendManager::FriendManager(std::weak_ptr<SecurityManager> sectyMgr)
     : mSecurityManager(sectyMgr)
     , mMessageManager()
+    , mRemoteStorageManager()
     , mConfig()
     , mMutex()
     , mFriendListener()
@@ -78,9 +80,12 @@ void FriendManager::setFriendListener(std::shared_ptr<FriendListener> listener)
     mFriendListener = listener;
 }
 
-void FriendManager::setConfig(std::weak_ptr<Config> config, std::weak_ptr<MessageManager> msgMgr)
+void FriendManager::setConfig(std::weak_ptr<Config> config,
+                              std::weak_ptr<RemoteStorageManager> rsMgr,
+                              std::weak_ptr<MessageManager> msgMgr)
 {
     mConfig = config;
+    mRemoteStorageManager = rsMgr;
     mMessageManager = msgMgr;
 }
 
@@ -92,9 +97,10 @@ int FriendManager::loadLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData;
     int ret = sectyMgr->loadCryptoFile(dataFilePath.string(), originData);
-    if(ret < 0) {
-        return 0;
+    if(ret == ErrCode::FileNotExistsError) {
+        return ret;
     }
+    CHECK_ERROR(ret);
 
     std::vector<std::shared_ptr<FriendInfo>> friendList;
     std::string friendData {originData.begin(), originData.end()};
@@ -103,12 +109,12 @@ int FriendManager::loadLocalData()
         for(const auto& it: jsonFriend) {
             auto info = std::make_shared<FriendInfo>(weak_from_this());
             ret = info->deserialize(it);
-            CHECK_ERROR(ret)
+            CHECK_ERROR(ret);
             friendList.push_back(info);
         }
     } catch(const std::exception& ex) {
         Log::E(Log::TAG, "Failed to load local data from: %s.\nex=%s", dataFilePath.c_str(), ex.what());
-        return ErrCode::JsonParseException;
+        CHECK_ERROR(ErrCode::JsonParseException);
     }
 
     mFriendList.swap(friendList);
@@ -120,7 +126,7 @@ int FriendManager::saveLocalData()
 {
     std::string friendData;
     int ret = serialize(friendData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto config = SAFE_GET_PTR(mConfig);
     auto dataFilePath = elastos::filesystem::path(config->mUserDataDir) / DataFileName;
@@ -128,7 +134,7 @@ int FriendManager::saveLocalData()
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::vector<uint8_t> originData {friendData.begin(), friendData.end()};
     ret = sectyMgr->saveCryptoFile(dataFilePath.string(), originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     Log::D(Log::TAG, "Save local data to: %s, data: %s", dataFilePath.c_str(), friendData.c_str());
 
@@ -141,7 +147,7 @@ int FriendManager::serialize(std::string& value) const
     for(const auto& it: mFriendList) {
         std::string data;
         int ret = it->serialize(data);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
         jsonFriend.push_back(data);
     }
 
@@ -180,7 +186,7 @@ int FriendManager::restoreFriendsInfo()
 
 int FriendManager::ensureFriendsCarrierInfo(int64_t currCarrierUpdateTime)
 {
-    Log::V(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::V(Log::TAG, FORMAT_METHOD);
 
     for(auto& friendInfo: mFriendList) {
         auto status = friendInfo->getHumanStatus();
@@ -226,7 +232,7 @@ int FriendManager::tryAddFriend(const std::string& friendCode, const std::string
     }
 
     int ret = addFriend(kind, friendCode, summary, remoteRequest, forceRequest);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -235,10 +241,10 @@ int FriendManager::tryAcceptFriend(const std::string& friendCode)
 {
     std::shared_ptr<FriendInfo> friendInfo;
     int ret = tryGetFriendInfo(friendCode, friendInfo);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = acceptFriend(friendInfo);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -251,7 +257,7 @@ int FriendManager::tryRemoveFriend(const std::string& friendCode)
     }
 
     int ret = removeFriend(kind, friendCode);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -264,7 +270,7 @@ int FriendManager::tryGetFriendInfo(const std::string& friendCode, std::shared_p
     }
 
     int ret = getFriendInfo(kind, friendCode, friendInfo);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -286,6 +292,13 @@ int FriendManager::addFriend(FriendInfo::HumanKind friendKind, const std::string
     } else if(friendKind == FriendInfo::HumanKind::Carrier) {
         ret = addFriendByCarrier(friendCode, summary, remoteRequest, forceRequest);
     }
+    CHECK_ERROR(ret);
+
+//    std::shared_ptr<FriendInfo> friendInfo;
+//    ret = tryGetFriendInfo(friendCode, friendInfo);
+//    CHECK_ERROR(ret);
+//    ret = cacheFriendToDidChain(friendInfo);
+//    CHECK_ERROR(ret);
 
     return ret;
 }
@@ -301,6 +314,13 @@ int FriendManager::removeFriend(FriendInfo::HumanKind friendKind, const std::str
     } else if(friendKind == FriendInfo::HumanKind::Carrier) {
         ret = removeFriendByCarrier(friendCode);
     }
+    CHECK_ERROR(ret);
+
+    std::shared_ptr<FriendInfo> friendInfo;
+    ret = tryGetFriendInfo(friendCode, friendInfo);
+    CHECK_ERROR(ret);
+    ret = cacheFriendToDidChain(friendInfo);
+    CHECK_ERROR(ret);
 
     return ret;
 }
@@ -335,7 +355,7 @@ int FriendManager::getFriendInfoList(std::vector<std::shared_ptr<FriendInfo>>& f
 
 std::vector<FriendInfo> FriendManager::filterFriends(std::string regex)
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 //int FriendManager::syncDownloadDidChainData()
@@ -343,7 +363,7 @@ std::vector<FriendInfo> FriendManager::filterFriends(std::string regex)
 //    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
 //    std::string did;
 //    int ret = sectyMgr->getDid(did);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    auto bcClient = BlkChnClient::GetInstance();
 //
@@ -374,12 +394,12 @@ std::vector<FriendInfo> FriendManager::filterFriends(std::string regex)
 //
 //        virtual void onError(const std::string& did, const std::string& key,
 //                             int errcode) override {
-//            Log::I(Log::TAG, "%s did=%s, key=%s errcode=%d", __PRETTY_FUNCTION__, did.c_str(), key.c_str(), errcode);
+//            Log::I(Log::TAG, "%s did=%s, key=%s errcode=%d", FORMAT_METHOD, did.c_str(), key.c_str(), errcode);
 //        }
 //
 //        virtual int onChanged(const std::string& did, const std::string& key,
 //                              const std::vector<std::string>& didProps) override {
-//            Log::I(Log::TAG, "%s did=%s, key=%s", __PRETTY_FUNCTION__, did.c_str(), key.c_str());
+//            Log::I(Log::TAG, "%s did=%s, key=%s", FORMAT_METHOD, did.c_str(), key.c_str());
 //
 //            auto friendMgr = SAFE_GET_PTR(mFriendManager);
 //
@@ -391,7 +411,7 @@ std::vector<FriendInfo> FriendManager::filterFriends(std::string regex)
 //
 //                    std::shared_ptr<FriendInfo> friendInfo;
 //                    ret = friendMgr->tryGetFriendInfo(did, friendInfo);
-//                    CHECK_ERROR(ret)
+//                    CHECK_ERROR(ret);
 //
 //                    ret = friendInfo->addCarrierInfo(carrierInfo, HumanInfo::Status::WaitForAccept);
 //                    if(ret == ErrCode::IgnoreMergeOldInfo) {
@@ -420,7 +440,7 @@ std::vector<FriendInfo> FriendManager::filterFriends(std::string regex)
 //        }
 //
 //        ret = dcClient->appendMoniter(did, callback, true);
-//        CHECK_ERROR(ret)
+//        CHECK_ERROR(ret);
 //    }
 //
 //    return 0;
@@ -438,11 +458,11 @@ std::vector<FriendInfo> FriendManager::filterFriends(std::string regex)
 //        }
 //
 //        ret = msgMgr->monitorDidChainCarrierID(did);
-//        CHECK_ERROR(ret)
+//        CHECK_ERROR(ret);
 //    }
 //
 ////    int ret = monitorDidChainFriendID();
-////    CHECK_ERROR(ret)
+////    CHECK_ERROR(ret);
 //
 //    return 0;
 //}
@@ -464,17 +484,17 @@ std::vector<FriendInfo> FriendManager::filterFriends(std::string regex)
 //    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
 //    std::string did;
 //    int ret = sectyMgr->getDid(did);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    auto bcClient = BlkChnClient::GetInstance();
 //
 //    std::string keyPath;
 //    ret = bcClient->getDidPropHistoryPath(did, "FriendID", keyPath);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    Log::I(Log::TAG, "FriendManager::monitorDidChainFriendID() keyPath=%s", keyPath.c_str());
 //    ret = bcClient->appendMoniter(keyPath, callback);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    return 0;
 //}
@@ -514,32 +534,32 @@ std::vector<FriendInfo> FriendManager::filterFriends(std::string regex)
 
 int FriendManager::acceptFriend(std::shared_ptr<FriendInfo> friendInfo)
 {
-    Log::I(Log::TAG, "==== %s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, "==== %s", FORMAT_METHOD);
     FriendInfo::Status oldStatus = friendInfo->getHumanStatus();
 
     std::vector<FriendInfo::CarrierInfo> carrierInfoArray;
     int ret = friendInfo->getAllCarrierInfo(carrierInfoArray);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     for(const auto& info: carrierInfoArray) {
         FriendInfo::Status status;
         ret = friendInfo->getCarrierStatus(info.mUsrId, status);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
 
         if(status != FriendInfo::Status::WaitForAccept) {
             continue;
         }
 
         ret = addFriendByCarrier(info.mUsrId, "", false);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
 
         ret = friendInfo->setCarrierStatus(info.mUsrId, FriendInfo::Status::Offline);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     if(oldStatus == FriendInfo::Status::WaitForAccept) {
         ret = cacheFriendToDidChain(friendInfo);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     return 0;
@@ -565,6 +585,10 @@ int FriendManager::cacheFriendToDidChain(std::shared_ptr<FriendInfo> friendInfo)
     if (ret < 0) {
         return ret;
     }
+
+    auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
+    ret = rsMgr->cacheProperty(humanCode, RemoteStorageManager::PropKey::FriendKey);
+    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -631,19 +655,19 @@ int FriendManager::addFriendByDid(const std::string& did, const std::string& sum
     auto dcDataListener = DidChnDataListener::GetInstance();
     for (auto& [key, values]: didProps) {
         ret = dcDataListener->mergeHumanInfo(friendInfo, key, values);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     std::vector<FriendInfo::CarrierInfo> carrierInfoArray;
     ret = friendInfo->getAllCarrierInfo(carrierInfoArray);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     for(const auto& info: carrierInfoArray) {
         ret = addFriendByCarrier(info.mUsrAddr, summary, true, forceRequest);
         if(ret == ErrCode::ChannelFailedFriendExists) {
             Log::I(Log::TAG, "Ignore to add friend %s, is already exists.", info.mUsrAddr.c_str());
             ret = 0;
         }
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     Log::I(Log::TAG, "FriendManager::addFriendByDid() Add friend did: %s.", did.c_str());
@@ -655,7 +679,7 @@ int FriendManager::addFriendByCarrier(const std::string& carrierAddress, const s
 {
     auto msgMgr = SAFE_GET_PTR(mMessageManager);
     int ret = msgMgr->requestFriend(carrierAddress, MessageManager::ChannelType::Carrier, summary, remoteRequest, forceRequest);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::shared_ptr<FriendInfo> friendInfo;
     ret = tryGetFriendInfo(carrierAddress, friendInfo);
@@ -665,11 +689,11 @@ int FriendManager::addFriendByCarrier(const std::string& carrierAddress, const s
         FriendInfo::CarrierInfo carrierInfo;
         carrierInfo.mUsrAddr = carrierAddress;
         ret = friendInfo->addCarrierInfo(carrierInfo, FriendInfo::Status::WaitForAccept);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     } else {
         // change removed friend to WaitForAccept
         ret = friendInfo->setHumanStatus(FriendInfo::Status::Removed, FriendInfo::Status::WaitForAccept);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     return 0;
@@ -703,10 +727,10 @@ int FriendManager::addFriendByEla(const std::string& elaAddress, const std::stri
 //
 //    auto friendInfo = std::make_shared<FriendInfo>(weak_from_this());
 //    int ret = friendInfo->setHumanInfo(HumanInfo::Item::ElaAddress, elaAddress);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    ret = friendInfo->setHumanStatus(HumanInfo::HumanKind ::Ela, HumanInfo::Status::Offline);
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    mFriendList.push_back(friendInfo);
 
@@ -721,17 +745,14 @@ int FriendManager::removeFriendByDid(const std::string& did)
 
     std::vector<FriendInfo::CarrierInfo> carrierInfoArray;
     ret = friendInfo->getAllCarrierInfo(carrierInfoArray);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     for(const auto& info: carrierInfoArray) {
         ret = removeFriendByCarrier(info.mUsrId);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     ret = friendInfo->setHumanStatus(HumanInfo::HumanKind::Did, HumanInfo::Status::Removed);
-    CHECK_ERROR(ret)
-
-    ret = cacheFriendToDidChain(friendInfo);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     Log::I(Log::TAG, "FriendManager::removeFriendByDid() Remove friend did: %s.", did.c_str());
 
@@ -742,21 +763,21 @@ int FriendManager::removeFriendByCarrier(const std::string& carrierUsrId)
 {
     auto msgMgr = SAFE_GET_PTR(mMessageManager);
     int ret = msgMgr->removeFriend(carrierUsrId, MessageManager::ChannelType::Carrier);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::shared_ptr<FriendInfo> friendInfo;
     ret = tryGetFriendInfo(carrierUsrId, friendInfo);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = friendInfo->delCarrierInfo(carrierUsrId);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     return 0;
 }
 
 int FriendManager::removeFriendByEla(const std::string& elaAddress)
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 int FriendManager::getFriendInfoByDid(const std::string& did, std::shared_ptr<FriendInfo>& friendInfo)
@@ -782,7 +803,7 @@ int FriendManager::getFriendInfoByCarrier(const std::string& carrierUsrId, std::
         auto info = mFriendList[idx];
         std::vector<FriendInfo::CarrierInfo> carrierInfoArray;
         int ret = info->getAllCarrierInfo(carrierInfoArray);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
 
         for(const auto& carrierInfo: carrierInfoArray) {
             if(carrierInfo.mUsrAddr == carrierUsrId
@@ -798,7 +819,7 @@ int FriendManager::getFriendInfoByCarrier(const std::string& carrierUsrId, std::
 
 int FriendManager::getFriendInfoByEla(const std::string& elaAddress, std::shared_ptr<FriendInfo>& friendInfo)
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 int FriendManager::mergeFriendInfoFromJsonArray(const std::string& jsonArray)

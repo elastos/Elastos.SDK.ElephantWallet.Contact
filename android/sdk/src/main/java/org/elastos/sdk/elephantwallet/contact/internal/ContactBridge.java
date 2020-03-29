@@ -19,6 +19,11 @@ import java.util.List;
 
 @CrossClass
 class ContactBridge extends CrossBase {
+    public class SyncInfoClient {
+        public static final int DidChain = 1;
+        public static final int Oss = 2;
+    }
+
     public static final String TAG = "elastos";
 
     protected ContactBridge() {
@@ -283,6 +288,20 @@ class ContactBridge extends CrossBase {
 
     @CrossInterface
     public native int syncInfoUploadToDidChain();
+
+    @CrossInterface
+    public native int syncInfoMigrateOss(String user, String password, String token,
+                                         String disk, String partition, String rootdir);
+
+    @CrossInterface
+    public native int syncInfoAuthOss(String user, String password, String token,
+                                      String disk, String partition, String rootdir);
+
+    @CrossInterface
+    public native int syncInfoDownload(int fromClient);
+
+    @CrossInterface
+    public native int syncInfoUpload(int toClient);
 
     @CrossInterface
     public native int exportUserData(String toFile);

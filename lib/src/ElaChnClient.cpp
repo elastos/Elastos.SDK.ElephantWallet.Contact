@@ -65,7 +65,7 @@ int ElaChnClient::downloadPublicKey(const std::string& elaAddr, std::string& pub
     auto path = config->mElaChainConfig->mApi.mGetPubKey + elaAddr;
     std::string result;
     int ret = downloadElaChnData(httpClient, path, result);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     if(result.find(' ') != std::string::npos) {
         Log::W(Log::TAG, "Failed to download pubkey for ela addr: %s, result=%s", elaAddr.c_str(), result.c_str());
@@ -89,13 +89,13 @@ ElaChnClient::ElaChnClient(std::weak_ptr<Config> config, std::weak_ptr<SecurityM
     , mSecurityManager(sectyMgr)
     , mConnectTimeoutMS(10000)
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 
 }
 
 ElaChnClient::~ElaChnClient()
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 }
 
 int ElaChnClient::downloadElaChnData(std::shared_ptr<HttpClient>& httpClient,
@@ -110,13 +110,13 @@ int ElaChnClient::downloadElaChnData(std::shared_ptr<HttpClient>& httpClient,
     httpClient->url(agentUrl);
     int ret = httpClient->syncGet();
     if(ret < 0) {
-        return ErrCode::HttpClientError + ret;
+        return ErrCode::HttpClientErrorIndex + ret;
     }
 
     std::string respBody;
     ret = httpClient->getResponseBody(respBody);
     if(ret < 0) {
-        return ErrCode::HttpClientError + ret;
+        return ErrCode::HttpClientErrorIndex + ret;
     }
     Log::I(Log::TAG, "respBody=%s", respBody.c_str());
 

@@ -58,6 +58,15 @@ public:
         AgentApi mAgentApi;
     };
 
+    struct ProofConfig {
+        struct Api {
+            std::string mGetVerifyCode;
+            std::string mOssInfo;
+        };
+        std::string mUrl;
+        Api mApi;
+    };
+
     /*** static function and variable ***/
 
     /*** class function and variable ***/
@@ -71,8 +80,8 @@ public:
 
     std::unique_ptr<CarrierConfig> mCarrierConfig;
     std::unique_ptr<ElaChainConfig> mElaChainConfig;
-
     std::unique_ptr<DidChainConfig> mDidChainConfig;
+    std::unique_ptr<ProofConfig> mProofConfig;
 private:
     /*** type define ***/
 

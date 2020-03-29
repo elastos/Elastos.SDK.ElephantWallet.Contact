@@ -75,7 +75,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
         virtual ~SecurityListener() = default;
 
         std::string onAcquirePublicKey() override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             if(mCachedPublicKey.empty() == false) {
                 return mCachedPublicKey;
             }
@@ -96,8 +96,9 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
         }
 
         std::vector<uint8_t> onEncryptData(const std::string& pubKey,
-                                           const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+                                           const std::string& cryptoAlgorithm,
+                                           const std::vector<uint8_t>& src) override {
+            Log::I(Log::TAG, FORMAT_METHOD);
             LOCK_PTR(mMutex, mHelperPtr, std::vector<uint8_t>());
 #ifdef WITH_CROSSPL
             const std::span<uint8_t> data(const_cast<uint8_t*>(src.data()), src.size());
@@ -112,8 +113,9 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
             std::vector<uint8_t> cryptoData(ret->data(), ret->data() + ret->size());
             return cryptoData;
         }
-        std::vector<uint8_t> onDecryptData(const std::string& cryptoAlgorithm, const std::vector<uint8_t>& src) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+        std::vector<uint8_t> onDecryptData(const std::string& cryptoAlgorithm,
+                                           const std::vector<uint8_t>& src) override {
+            Log::I(Log::TAG, FORMAT_METHOD);
             LOCK_PTR(mMutex, mHelperPtr, std::vector<uint8_t>());
 #ifdef WITH_CROSSPL
             const std::span<uint8_t> data(const_cast<uint8_t*>(src.data()), src.size());
@@ -131,7 +133,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
         }
 
         std::string onAcquireDidPropAppId() override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             if(mCachedDidPropAppId.empty() == false) {
                 return mCachedDidPropAppId;
             }
@@ -153,7 +155,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
         }
 
         std::string onAcquireDidAgentAuthHeader() override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             LOCK_PTR(mMutex, mHelperPtr, "");
 #ifdef WITH_CROSSPL
             auto ret = mHelperPtr->onAcquire(AcquireType::DidAgentAuthHeader, nullptr, nullptr, nullptr);
@@ -171,7 +173,7 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> ContactListener::mak
         }
 
         std::vector<uint8_t> onSignData(const std::vector<uint8_t>& originData) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             LOCK_PTR(mMutex, mHelperPtr, std::vector<uint8_t>());
 #ifdef WITH_CROSSPL
             const std::span<uint8_t> data(const_cast<uint8_t*>(originData.data()), originData.size());
@@ -212,7 +214,7 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
         virtual void onStatusChanged(std::shared_ptr<elastos::UserInfo> userInfo,
                                      elastos::MessageManager::ChannelType channelType,
                                      elastos::UserInfo::Status status) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             std::string humanCode;
             int ret = userInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
@@ -233,7 +235,7 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
         virtual void onReceivedMessage(std::shared_ptr<elastos::HumanInfo> humanInfo,
                                        elastos::MessageManager::ChannelType channelType,
                                        const std::shared_ptr<elastos::MessageManager::MessageInfo> msgInfo) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             std::string humanCode;
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
@@ -245,7 +247,7 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
         virtual void onSentMessage(std::shared_ptr<elastos::HumanInfo> humanInfo,
                                    elastos::MessageManager::ChannelType channelType,
                                    const std::shared_ptr<elastos::MessageManager::MessageAckInfo> msgAckInfo) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
 
             std::string humanCode;
             int ret = humanInfo->getHumanCode(humanCode);
@@ -270,7 +272,7 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
         virtual void onFriendRequest(std::shared_ptr<elastos::FriendInfo> friendInfo,
                                      elastos::MessageManager::ChannelType channelType,
                                      const std::string& summary) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             std::string humanCode;
             int ret = friendInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
@@ -292,7 +294,7 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
         virtual void onFriendStatusChanged(std::shared_ptr<elastos::FriendInfo> friendInfo,
                                            elastos::MessageManager::ChannelType channelType,
                                            elastos::FriendInfo::Status status) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             std::string humanCode;
             int ret = friendInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);
@@ -312,7 +314,7 @@ std::shared_ptr<elastos::MessageManager::MessageListener> ContactListener::makeM
 
         virtual void onHumanInfoChanged(std::shared_ptr<elastos::HumanInfo> humanInfo,
                                         elastos::MessageManager::ChannelType channelType) override {
-            Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+            Log::I(Log::TAG, FORMAT_METHOD);
             std::string humanCode;
             int ret = humanInfo->getHumanCode(humanCode);
             CHECK_AND_NOTIFY_RETVAL(ret);

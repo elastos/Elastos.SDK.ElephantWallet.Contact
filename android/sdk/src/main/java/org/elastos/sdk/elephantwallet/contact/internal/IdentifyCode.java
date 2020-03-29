@@ -18,6 +18,7 @@ class IdentifyCode implements IdentifyCodeInterface {
     public String phoneNumber;
     public String emailAddress;
     public String wechatId;
+    public String remoteStorage;
 
     protected int fromJsonObj(IdentifyCode json) {
         this.idCodeMap = null;
@@ -26,11 +27,13 @@ class IdentifyCode implements IdentifyCodeInterface {
         this.phoneNumber = json.phoneNumber;
         this.emailAddress = json.emailAddress;
         this.wechatId = json.wechatId;
+        this.remoteStorage = json.remoteStorage;
 
         if(json.idCodeMap != null) {
             this.phoneNumber = json.idCodeMap.get(Type.PhoneNumber.id());
             this.emailAddress = json.idCodeMap.get(Type.EmailAddress.id());
             this.wechatId = json.idCodeMap.get(Type.WechatId.id());
+            this.remoteStorage = json.idCodeMap.get(Type.RemoteStorage.id());
         }
 
         return 0;
@@ -43,11 +46,13 @@ class IdentifyCode implements IdentifyCodeInterface {
         json.phoneNumber = this.phoneNumber;
         json.emailAddress = this.emailAddress;
         json.wechatId = this.wechatId;
+        json.remoteStorage = this.remoteStorage;
 
         if(this.idCodeMap != null) {
             json.phoneNumber = this.idCodeMap.get(Type.PhoneNumber.id());
             json.emailAddress = this.idCodeMap.get(Type.EmailAddress.id());
             json.wechatId = this.idCodeMap.get(Type.WechatId.id());
+            json.remoteStorage = this.idCodeMap.get(Type.RemoteStorage.id());
         }
 
         return 0;

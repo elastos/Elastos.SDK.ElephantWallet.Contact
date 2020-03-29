@@ -18,7 +18,8 @@
 #include "Platform.hpp"
 #include "SafePtr.hpp"
 #include "JsonDefine.hpp"
-
+#include "DidChainClient.hpp"
+#include "ProofOssClient.hpp"
 
 namespace elastos {
 
@@ -71,9 +72,9 @@ std::shared_ptr<ContactV1> ContactV1::Factory::Create()
 /***** class public function implement  ********/
 /***********************************************/
 void ContactV1::setListener(std::shared_ptr<SecurityManager::SecurityListener> sectyListener,
-                          std::shared_ptr<UserManager::UserListener> userListener,
-                          std::shared_ptr<FriendManager::FriendListener> friendListener,
-                          std::shared_ptr<MessageManager::MessageListener> msgListener)
+                            std::shared_ptr<UserManager::UserListener> userListener,
+                            std::shared_ptr<FriendManager::FriendListener> friendListener,
+                            std::shared_ptr<MessageManager::MessageListener> msgListener)
 {
     mSecurityManager->setSecurityListener(sectyListener);
     mUserManager->setUserListener(userListener);
@@ -89,35 +90,29 @@ int ContactV1::start()
     }
 
     int ret = initGlobal();
-    CHECK_ERROR(ret)
-
-    ret = mUserManager->restoreUserInfo();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = mMessageManager->presetChannels(mConfig);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = mUserManager->ensureUserCarrierInfo();
-    CHECK_ERROR(ret)
-
-    ret = mFriendManager->restoreFriendsInfo();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = mMessageManager->openChannels();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
 //    ret = mUserManager->monitorDidChainData();
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 //
 //    ret = mFriendManager->monitorDidChainData();
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 
 //    auto dcClient = DidChnClient::GetInstance();
 //    ret = dcClient->startMonitor();
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 
 //    ret = monitorDidChainData();
-//    CHECK_ERROR(ret)
+//    CHECK_ERROR(ret);
 
     mStarted = true;
     return 0;
@@ -130,13 +125,13 @@ int ContactV1::stop()
     }
 
     int ret = mMessageManager->closeChannels();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     mConfig.reset();
 
     auto dcClient = DidChnClient::GetInstance();
     ret = dcClient->stopMonitor();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     mStarted = false;
     return 0;
@@ -151,7 +146,7 @@ int ContactV1::syncInfoDownloadFromDidChain()
 {
     std::string did;
     int ret = mSecurityManager->getDid(did);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     auto dcClient = DidChnClient::GetInstance();
 
@@ -176,7 +171,175 @@ int ContactV1::syncInfoUploadToDidChain()
     }
 
     int ret = dcClient->uploadCachedDidProp();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactV1::syncInfoMigrateOss(const std::string& user, const std::string& password, const std::string& token,
+                               const std::string& disk, const std::string& partition, const std::string& rootdir)
+{
+    int ret = initGlobal();
+    CHECK_ERROR(ret);
+
+    std::shared_ptr<RemoteStorageManager::RemoteStorageClient> client;
+    ret = mRemoteStorageManager->getClient(RemoteStorageManager::ClientType::Oss, client);
+    CHECK_ERROR(ret);
+
+    auto proofOssClient = std::static_pointer_cast<ProofOssClient>(client);
+    if(proofOssClient == nullptr) {
+        CHECK_ERROR(ErrCode::NotFoundError);
+    }
+
+    std::shared_ptr<ProofOssClient::OssAuth> ossAuthFrom;
+    ret = proofOssClient->getOssAuth(ossAuthFrom);
+    CHECK_ERROR(ret);
+
+    auto ossAuthTo = std::make_shared<ProofOssClient::OssAuth>();
+    *ossAuthTo = {
+            .user = user,
+            .password = password,
+            .token = token,
+            .disk = disk,
+            .partition = partition,
+            .rootdir = rootdir,
+    };
+
+    ret = proofOssClient->migrateOss(ossAuthFrom, ossAuthTo);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactV1::syncInfoAuthOss(const std::string& user, const std::string& password, const std::string& token,
+                               const std::string& disk, const std::string& partition, const std::string& rootdir)
+{
+    int ret = initGlobal();
+    CHECK_ERROR(ret);
+
+    std::shared_ptr<RemoteStorageManager::RemoteStorageClient> client;
+    ret = mRemoteStorageManager->getClient(RemoteStorageManager::ClientType::Oss, client);
+    CHECK_ERROR(ret);
+
+    auto proofOssClient = std::static_pointer_cast<ProofOssClient>(client);
+    if(proofOssClient == nullptr) {
+        CHECK_ERROR(ErrCode::NotFoundError);
+    }
+
+    auto ossAuth = std::make_shared<ProofOssClient::OssAuth>();
+    *ossAuth = {
+            .user = user,
+            .password = password,
+            .token = token,
+            .disk = disk,
+            .partition = partition,
+            .rootdir = rootdir,
+    };
+
+    std::shared_ptr<UserInfo> userInfo;
+    ret = mUserManager->getUserInfo(userInfo);
+    CHECK_ERROR(ret);
+    std::string ossHash;
+    ret = userInfo->getIdentifyCode(UserInfo::Type::RemoteStorage, ossHash);
+    CHECK_ERROR(ret);
+
+    ret = proofOssClient->restoreOssAuth(ossAuth, ossHash);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactV1::syncInfoDownload(int fromClient)
+{
+    if(isStarted() == true) {
+        CHECK_ERROR(ErrCode::ExpectedBeforeStartedError);
+    }
+
+    int ret = initGlobal();
+    CHECK_ERROR(ret);
+
+    std::vector<RemoteStorageManager::ClientType> fromClientType;
+    if((fromClient & SyncInfoClient::DidChain) != 0) {
+        fromClientType.push_back(RemoteStorageManager::ClientType::DidChain);
+    }
+    if((fromClient & SyncInfoClient::Oss) != 0) {
+        fromClientType.push_back(RemoteStorageManager::ClientType::Oss);
+    }
+
+    std::shared_ptr<UserInfo> userInfo;
+    std::vector<std::shared_ptr<FriendInfo>> friendInfoList;
+    std::shared_ptr<std::fstream> carrierData;
+
+    ret = mUserManager->getUserInfo(userInfo);
+    CHECK_ERROR(ret);
+    ret = mFriendManager->getFriendInfoList(friendInfoList);
+    CHECK_ERROR(ret);
+
+    std::string userDataDir;
+    ret = getUserDataDir(userDataDir);
+    CHECK_ERROR(ret);
+    std::string currDevId;
+    ret = Platform::GetCurrentDevId(currDevId);
+    CHECK_ERROR(ret);
+    std::string carrierDataPath = userDataDir + "/" + currDevId + "/carrier.data";
+    bool exists = elastos::filesystem::exists(carrierDataPath);
+    if(exists == false) {
+        Log::I(Log::TAG, "%s Try download carrier data to %s", FORMAT_METHOD, carrierDataPath.c_str());
+        carrierData = std::make_shared<std::fstream>(carrierDataPath, std::ios::out | std::ios::binary);
+    } else {
+        Log::I(Log::TAG, "%s Ignore to download carrier data, use local at %s", FORMAT_METHOD, carrierDataPath.c_str());
+    }
+
+    ret = mRemoteStorageManager->downloadData(fromClientType, userInfo, friendInfoList, carrierData);
+    CHECK_ERROR(ret);
+
+    if(carrierData != nullptr) {
+        carrierData->close();
+    }
+
+    std::string value;
+    userInfo->serialize(value, false);
+    Log::V(Log::TAG, "%s download user info: %s", FORMAT_METHOD, value.c_str());
+
+
+    return 0;
+}
+
+int ContactV1::syncInfoUpload(int toClient)
+{
+    if(isStarted() == false) {
+        CHECK_ERROR(ErrCode::ExpectedAfterStartedError);
+    }
+
+    std::vector<RemoteStorageManager::ClientType> toClientType;
+    if((toClient & SyncInfoClient::DidChain) != 0) {
+        toClientType.push_back(RemoteStorageManager::ClientType::DidChain);
+    }
+    if((toClient & SyncInfoClient::Oss) != 0) {
+        toClientType.push_back(RemoteStorageManager::ClientType::Oss);
+    }
+
+    std::shared_ptr<UserInfo> userInfo;
+    int ret = mUserManager->getUserInfo(userInfo);
+    CHECK_ERROR(ret);
+    std::vector<std::shared_ptr<FriendInfo>> friendInfoList;
+    ret = mFriendManager->getFriendInfoList(friendInfoList);
+    CHECK_ERROR(ret);
+
+    std::string userDataDir;
+    ret = getUserDataDir(userDataDir);
+    CHECK_ERROR(ret);
+    std::string currDevId;
+    ret = Platform::GetCurrentDevId(currDevId);
+    CHECK_ERROR(ret);
+    std::string carrierDataPath = userDataDir + "/" + currDevId + "/carrier.data";
+    Log::I(Log::TAG, "%s CarrierDataPath=%s", FORMAT_METHOD, carrierDataPath.c_str());
+    auto carrierData = std::make_shared<std::fstream>(carrierDataPath, std::ios::in | std::ios::binary);
+
+    ret = mRemoteStorageManager->uploadData(toClientType, userInfo, friendInfoList, carrierData);
+    CHECK_ERROR(ret);
+
+    carrierData->close();
 
     return 0;
 }
@@ -197,7 +360,7 @@ int ContactV1::exportUserData(const std::string& toFile)
     if(ret == ErrCode::FileNotExistsError) {
         Log::W(Log::TAG, "Ignore to export user, data is not exists.");
     } else {
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
     std::string userData {originData.begin(), originData.end()};
 
@@ -207,7 +370,7 @@ int ContactV1::exportUserData(const std::string& toFile)
     if(ret == ErrCode::FileNotExistsError) {
         Log::W(Log::TAG, "Ignore to export friend, data is not exists.");
     } else {
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
     std::string friendData {originData.begin(), originData.end()};
 
@@ -224,7 +387,7 @@ int ContactV1::exportUserData(const std::string& toFile)
 
     originData = std::vector<uint8_t> {bundledData.begin(), bundledData.end()};
     ret = mSecurityManager->saveCryptoFile(toFile, originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     Log::D(Log::TAG, "Success to export local data to: %s", toFile.c_str());
     return 0;
@@ -242,7 +405,7 @@ int ContactV1::importUserData(const std::string& fromFile)
 
     std::vector<uint8_t> originData;
     int ret = mSecurityManager->loadCryptoFile(fromFile, originData);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
     std::string bundledData {originData.begin(), originData.end()};
 
     std::string userData;
@@ -266,7 +429,7 @@ int ContactV1::importUserData(const std::string& fromFile)
     if(userData.empty() == false) {
         originData = std::vector<uint8_t>{userData.begin(), userData.end()};
         ret = mSecurityManager->saveCryptoFile(userDataFilePath, originData);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     auto friendDataFilePath = elastos::filesystem::path(userDataDir) / FriendManager::DataFileName;
@@ -274,7 +437,7 @@ int ContactV1::importUserData(const std::string& fromFile)
     if(friendData.empty() == false) {
         originData = std::vector<uint8_t>{friendData.begin(), friendData.end()};
         ret = mSecurityManager->saveCryptoFile(friendDataFilePath, originData);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     Log::D(Log::TAG, "Success to import local data from: %s", fromFile.c_str());
@@ -314,8 +477,10 @@ ContactV1::ContactV1()
     , mUserManager(std::make_shared<UserManager>(mSecurityManager))
     , mFriendManager(std::make_shared<FriendManager>(mSecurityManager))
     , mMessageManager(std::make_shared<MessageManager>(mSecurityManager, mUserManager, mFriendManager))
+    , mRemoteStorageManager(std::make_shared<RemoteStorageManager>())
     , mConfig()
     , mHasListener(false)
+    , mGlobalInited(false)
     , mStarted(false)
 {
 }
@@ -357,36 +522,67 @@ int ContactV1::getUserDataDir(std::string& dir)
         Log::D(Log::TAG, "Failed to set user data dir, errcode: %s", errMsg.c_str());
         return errCode;
     }
-
     dir = userDataDir.string();
+
+    std::string devId;
+    ret = Platform::GetCurrentDevId(devId);
+    CHECK_ERROR(ret);
+    std::string carrierDataDir = dir + "/" + devId;
+    bret = elastos::filesystem::create_directories(carrierDataDir, stdErrCode);
+    if(bret == false
+       || stdErrCode.value() != 0) {
+        int errCode = ErrCode::StdSystemErrorIndex - stdErrCode.value();
+        auto errMsg = ErrCode::ToString(errCode);
+        Log::D(Log::TAG, "Failed to set user carrier data dir, errcode: %s", errMsg.c_str());
+        return errCode;
+    }
 
     return 0;
 }
 
 int ContactV1::initGlobal()
 {
+    if(mGlobalInited == true) {
+        return 0;
+    }
+    Log::I(Log::TAG, FORMAT_METHOD);
+
     int ret;
 
     std::string userDataDir;
     ret = getUserDataDir(userDataDir);
-    CHECK_ERROR(ret)
-    Log::D(Log::TAG, "%s userdatadir:%s", __PRETTY_FUNCTION__, userDataDir.c_str());
+    CHECK_ERROR(ret);
+    Log::D(Log::TAG, "%s userdatadir:%s", FORMAT_METHOD, userDataDir.c_str());
 
     mConfig = std::make_shared<Config>(userDataDir);
     ret = mConfig->load();
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
-    mUserManager->setConfig(mConfig, mMessageManager);
-    mFriendManager->setConfig(mConfig, mMessageManager);
+    ret = mRemoteStorageManager->setConfig(mConfig, mSecurityManager);
+    CHECK_ERROR(ret);
+    auto didChainClient = std::make_shared<DidChainClient>(mConfig, mSecurityManager);
+    mRemoteStorageManager->addClient(RemoteStorageManager::ClientType::DidChain, didChainClient);
+    auto proofOssClient = std::make_shared<ProofOssClient>(mConfig, mSecurityManager);
+    mRemoteStorageManager->addClient(RemoteStorageManager::ClientType::Oss, proofOssClient);
+
+    mUserManager->setConfig(mConfig, mRemoteStorageManager, mMessageManager);
+    mFriendManager->setConfig(mConfig, mRemoteStorageManager, mMessageManager);
+
+    ret = mUserManager->restoreUserInfo();
+    CHECK_ERROR(ret);
+    ret = mFriendManager->restoreFriendsInfo();
+    CHECK_ERROR(ret);
 
     ret = ElaChnClient::InitInstance(mConfig, mSecurityManager);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = DidChnClient::InitInstance(mConfig, mSecurityManager);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = DidChnDataListener::InitInstance(mUserManager, mFriendManager, mMessageManager);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
+
+    mGlobalInited = true;
 
     return 0;
 }
@@ -398,14 +594,14 @@ int ContactV1::monitorDidChainData()
 
     std::string did;
     int ret = mSecurityManager->getDid(did);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     ret = dcClient->appendMoniter(did, listener, false);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     std::vector<std::shared_ptr<FriendInfo>> friendList;
     ret = mFriendManager->getFriendInfoList(friendList);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     for(const auto& it: friendList) {
         ret = it->getHumanInfo(HumanInfo::Item::Did, did);
@@ -415,7 +611,7 @@ int ContactV1::monitorDidChainData()
         }
 
         ret = dcClient->appendMoniter(did, listener, false);
-        CHECK_ERROR(ret)
+        CHECK_ERROR(ret);
     }
 
     return 0;

@@ -97,7 +97,7 @@ private:
 
     /*** static function and variable ***/
     static std::shared_ptr<DidChnClient> gDidChnClient;
-    static constexpr const char* DataFileName = "cacheddata.dat";
+    static constexpr const char* DataFileName = "didchn-cacheddata.dat";
 
     /*** class function and variable ***/
     explicit DidChnClient(std::weak_ptr<Config> config, std::weak_ptr<SecurityManager> sectyMgr);

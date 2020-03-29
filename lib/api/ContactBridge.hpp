@@ -60,6 +60,12 @@ public:
 
     int syncInfoDownloadFromDidChain();
     int syncInfoUploadToDidChain();
+    int syncInfoMigrateOss(ConstStringPtr user, ConstStringPtr password, ConstStringPtr token,
+                           ConstStringPtr disk, ConstStringPtr partition, ConstStringPtr rootdir);
+    int syncInfoAuthOss(ConstStringPtr user, ConstStringPtr password, ConstStringPtr token,
+                        ConstStringPtr disk, ConstStringPtr partition, ConstStringPtr rootdir);
+    int syncInfoDownload(int fromClient);
+    int syncInfoUpload(int toClient);
     int exportUserData(ConstStringPtr toFile);
     int importUserData(ConstStringPtr fromFile);
 

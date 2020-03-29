@@ -6,6 +6,10 @@ pkg_search_module(pkg-curl REQUIRED libcurl)
 message(STATUS "curl include path: ${pkg-curl_INCLUDE_DIRS}")
 message(STATUS "curl library path: ${pkg-curl_STATIC_LDFLAGS}")
 
+pkg_search_module(pkg-oss REQUIRED PersonalStorage.SDK.OSS)
+message(STATUS "PersonalStorage.SDK.OSS include path: ${pkg-oss_INCLUDE_DIRS}")
+message(STATUS "PersonalStorage.SDK.OSS library path: ${pkg-oss_STATIC_LDFLAGS}")
+
 set(pkg-Elastos.NET.Carrier_STATIC_LDFLAGS
     elacarrier
     elafiletrans
@@ -31,7 +35,8 @@ else()
 endif()
 target_include_directories(src PRIVATE
     "${pkg-Elastos.SDK.Keypair.C_INCLUDE_DIRS}"
-    "${pkg-curl_INCLUDE_DIRS}")
+    "${pkg-curl_INCLUDE_DIRS}"
+    "${pkg-oss_INCLUDE_DIRS}")
 target_include_directories(src PUBLIC
     "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(src PRIVATE
@@ -39,6 +44,7 @@ target_link_libraries(src PRIVATE
     json)
 target_link_libraries(src PUBLIC
     ${pkg-curl_STATIC_LDFLAGS}
+    ${pkg-oss_STATIC_LDFLAGS}
     ${pkg-Elastos.SDK.Keypair.C_STATIC_LDFLAGS}
     ${pkg-Elastos.NET.Carrier_STATIC_LDFLAGS}
     crypto

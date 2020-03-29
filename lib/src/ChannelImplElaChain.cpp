@@ -7,6 +7,8 @@
 
 #include <ChannelImplElaChain.hpp>
 
+#include <Log.hpp>
+
 namespace elastos {
 
 /***********************************************/
@@ -36,27 +38,27 @@ int ChannelImplElaChain::preset(const std::string& profile,
                                 std::shared_ptr<ChannelListener> chListener,
                                 std::shared_ptr<ChannelDataListener> dataListener)
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 int ChannelImplElaChain::open()
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 int ChannelImplElaChain::close()
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 int ChannelImplElaChain::getAddress(std::string& address)
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 bool ChannelImplElaChain::isReady()
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 int ChannelImplElaChain::requestFriend(const std::string& friendAddr,
@@ -64,19 +66,19 @@ int ChannelImplElaChain::requestFriend(const std::string& friendAddr,
                                        bool remoteRequest,
                                        bool forceRequest)
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 int ChannelImplElaChain::removeFriend(const std::string& friendAddr)
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 int ChannelImplElaChain::sendMessage(const std::string& friendCode,
                                      const std::vector<uint8_t>& msgContent,
                                      bool ignorePackData)
 {
-    throw std::runtime_error(std::string(__PRETTY_FUNCTION__) + " Unimplemented!!!");
+    throw std::runtime_error(std::string(FORMAT_METHOD) + " Unimplemented!!!");
 }
 
 /***********************************************/

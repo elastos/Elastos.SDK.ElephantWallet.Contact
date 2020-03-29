@@ -5,20 +5,6 @@
 #include <mutex>
 #include <chrono>
 
-#if defined(LOGT_PRINT_ALL)
-#define LOGT_OPAQUE_DEFAULT() Log::T("JSIOpaque", __PRETTY_FUNCTION__, __LINE__, nullptr)
-#define LOGT_JSC(fmt, args...) Log::T("JSIJSC", __PRETTY_FUNCTION__, __LINE__, fmt, args)
-#define LOGT_OPAQUE(fmt, args...) Log::T("JSIOpaque", __PRETTY_FUNCTION__, __LINE__, fmt, ##args)
-#define LOGT_WORKER(fmt, args...) Log::T("JSIWorker", __PRETTY_FUNCTION__, __LINE__, fmt, ##args)
-#define LOGT_EXTRA(fmt, args...) Log::T("JSIExtra", __PRETTY_FUNCTION__, __LINE__, fmt, ##args)
-#else // defined(LOGT_PRINT_ALL)
-#define LOGT_OPAQUE_DEFAULT()
-#define LOGT_JSC(fmt, args...) Log::T("JSIJSC", __PRETTY_FUNCTION__, __LINE__, fmt, args)
-#define LOGT_OPAQUE(fmt, args...)
-#define LOGT_WORKER(fmt, args...)
-#define LOGT_EXTRA(fmt, args...)
-#endif // defined(LOGT_PRINT_ALL)
-
 class Log {
 public:
   /*** type define ***/

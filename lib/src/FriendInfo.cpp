@@ -25,8 +25,15 @@ namespace elastos {
 /***********************************************/
 FriendInfo::FriendInfo(std::weak_ptr<FriendManager> friendMgr)
     : HumanInfo()
-    , mFriendManager(friendMgr)
     , mAlias()
+    , mFriendManager(friendMgr)
+{
+}
+
+FriendInfo::FriendInfo()
+    : HumanInfo()
+    , mAlias()
+    , mFriendManager()
 {
 }
 
@@ -97,7 +104,7 @@ int FriendInfo::toJson(std::shared_ptr<Json>& value) const
     }
 
     int ret = HumanInfo::toJson(value);
-    CHECK_ERROR(ret)
+    CHECK_ERROR(ret);
 
     (*value)[JsonKey::Alias] = mAlias;
     (*value)[JsonKey::IsFriend] = true;
@@ -140,7 +147,7 @@ int FriendInfo::delCarrierInfo(const std::string& carrierUsrId)
 int FriendInfo::setHumanInfo(Item item, const std::string& value)
 {
     int ret = HumanInfo::setHumanInfo(item, value);
-    Log::D(Log::TAG, "%s ret=%d", __PRETTY_FUNCTION__, ret);
+    Log::D(Log::TAG, "%s ret=%d", FORMAT_METHOD, ret);
     if(ret <= 0) { // error or not changed
         return ret;
     }
@@ -157,7 +164,7 @@ int FriendInfo::setHumanInfo(Item item, const std::string& value)
 int FriendInfo::mergeHumanInfo(const HumanInfo& value, const Status status)
 {
     int ret = HumanInfo::mergeHumanInfo(value, status);
-    Log::D(Log::TAG, "%s ret=%d", __PRETTY_FUNCTION__, ret);
+    Log::D(Log::TAG, "%s ret=%d", FORMAT_METHOD, ret);
     if(ret < 0) { // error or not changed
         return ret;
     }

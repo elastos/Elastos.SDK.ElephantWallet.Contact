@@ -5,6 +5,10 @@ import org.elastos.sdk.elephantwallet.contact.Utils;
 import java.io.File;
 
 public interface ContactInterface {
+    public static class Config extends ContactConfig {
+        static { Utils.EnsureNativeLibrary(); }
+    } // class Config
+
     public static class Factory extends ContactFactory {
         static { Utils.EnsureNativeLibrary(); }
     } // class Factory

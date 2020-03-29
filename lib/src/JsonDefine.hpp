@@ -62,7 +62,8 @@ struct JsonKey {
     static constexpr const char* Size            = "Size";
     static constexpr const char* Md5             = "Md5";
 
-    static constexpr const char* DidPropCache       = "DidPropCache";
+    static constexpr const char* DidPropCache    = "DidPropCache";
+    static constexpr const char* PropCache       = "PropCache";
 
     static constexpr const char* UserData       = "UserData";
     static constexpr const char* FriendData     = "FriendData";

@@ -1,27 +1,32 @@
-#if 0
 #include <iostream>
 #include <signal.h>
 
-#include <DidChnClient.hpp>
+#include <RemoteStorageManager.hpp>
+#include <ProofOssClient.hpp>
 #include <DateTime.hpp>
 #include <Contact.V1.hpp>
 #include <Elastos.SDK.Keypair.C/Elastos.Wallet.Utility.h>
 #include <Platform.hpp>
 #include <Log.hpp>
 #include <MD5.hpp>
+#include <ErrCode.hpp>
 
 std::string gCachedMnemonic = "reopen mechanic feed suspect bus session write spoon indoor raw apology acquire";
 const char* gKeypairLanguage = "english";
 const char* gKeypairWords = "";
 
+
 void signalHandler(int sig);
 std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener();
-int testMonitor(std::shared_ptr<elastos::DidChnClient> bcClient);
+int testProofClient(std::shared_ptr<elastos::ProofOssClient> paClient);
+std::string getDid();
+std::string getPublicKey();
 
 int main(int argc, char **argv)
 {
     signal(SIGSEGV, signalHandler);
 
+    auto rsMgr = std::make_shared<elastos::RemoteStorageManager>();
     auto config = std::make_shared<elastos::Config>("/tmp/elastos.sdk.contact/test");
     auto sectyMgr = std::make_shared<elastos::SecurityManager>();
 
@@ -29,25 +34,23 @@ int main(int argc, char **argv)
     auto sectyListener = getSecurityListener();
     sectyMgr->setSecurityListener(sectyListener);
 
-    int ret = elastos::DidChnClient::InitInstance(config, sectyMgr);
-    if(ret < 0) {
-        throw std::runtime_error(std::string("Failed to init instance! ret=") + std::to_string(ret));
-    }
+    auto proofOssClient = std::make_shared<elastos::ProofOssClient>(config, sectyMgr);
+    rsMgr->addClient(elastos::RemoteStorageManager::ClientType::Oss, proofOssClient);
 
-    auto bcClient = elastos::DidChnClient::GetInstance();;
+    Log::W(Log::TAG, "UserDataDir: %s", config->mUserDataDir.c_str());
+    std::filesystem::create_directories(config->mUserDataDir);
+    auto dataFileName = "RemoteStorageTest";
+    auto dataFilePath = std::fstream();
+    dataFilePath.open(config->mUserDataDir + "/" + dataFileName, std::ios::out | std::ios::binary);
+    dataFilePath.write((char[]){0, 1, 2, 3}, 4);
+    dataFilePath.close();
+    int ret = rsMgr->cacheProperty(getDid(), elastos::RemoteStorageManager::PropKey::PublicKey);
+    CHECK_ERROR(ret);
 
-    ret = testMonitor(bcClient);
-    if(ret < 0) {
-        throw std::runtime_error(std::string("Failed to test monitor! ret=") + std::to_string(ret));
-    }
+//    ret = rsMgr->uploadCachedProp();
+//    CHECK_ERROR(ret);
 
-    // std::map<std::string, std::string> propMap;
-    // propMap["key1"] = "value1";
-    // propMap["key2"] = "value2";
-    // ret = bcClient->uploadAllDidProps(propMap);
-    // if(ret < 0) {
-    //     throw std::runtime_error(std::string("Failed to upload did props! ret=") + std::to_string(ret));
-    // }
+    Log::W(Log::TAG, "XXX to upload data.");
 
     while (true) {
         std::string input;
@@ -66,6 +69,17 @@ void signalHandler(int sig) {
     std::cerr << backtrace << std::endl;
 
     exit(0);
+}
+
+std::string getDid()
+{
+    auto pubKey = getPublicKey();
+
+    auto did = ::getDid(pubKey.c_str());
+    std::string retval = did;
+    freeBuf(did);
+
+    return retval;
 }
 
 std::string getPublicKey()
@@ -98,18 +112,6 @@ std::string getPrivateKey()
 
 }
 
-std::string getDid()
-{
-    std::string pubKey = getPublicKey();
-
-    auto did = ::getDid(pubKey.data());
-    std::string retval = did;
-    freeBuf(did);
-
-    return retval;
-}
-
-
 std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener()
 {
     class SecurityListener final : public elastos::SecurityManager::SecurityListener {
@@ -119,16 +121,19 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener(
 
         std::string onAcquirePublicKey() override {
             auto pubKey = getPublicKey();
-            //std::cout << FORMAT_METHOD << " pubKey:" << pubKey << std::endl;
+            Log::W(Log::TAG, "Did: %s", ::getDid(pubKey.c_str()));
             return pubKey;
         };
 
-        std::vector<uint8_t> onEncryptData(const std::string& pubKey, const std::vector<uint8_t>& src) override {
+        std::vector<uint8_t> onEncryptData(const std::string& pubKey,
+                                           const std::string& cryptoAlgorithm,
+                                           const std::vector<uint8_t>& src) override {
             //auto dest = std::vector<uint8_t> {src.rbegin(), src.rend()};
             auto dest = src;
             return dest;
         }
-        std::vector<uint8_t> onDecryptData(const std::vector<uint8_t>& src) override {
+        std::vector<uint8_t> onDecryptData(const std::string& cryptoAlgorithm,
+                                           const std::vector<uint8_t>& src) override {
             //auto dest = std::vector<uint8_t> {src.rbegin(), src.rend()};
             auto dest = src;
             return dest;
@@ -170,39 +175,13 @@ std::shared_ptr<elastos::SecurityManager::SecurityListener> getSecurityListener(
     return std::make_shared<SecurityListener>();
 }
 
-int testMonitor(std::shared_ptr<elastos::DidChnClient> bcClient)
-{
-    //std::string did = getDid();
+//int testProofClient(std::shared_ptr<elastos::ProofOssClient> paClient)
+//{
+//    elastos::ProofOssClient::OssInfo ossInfo;
+//    int ret = paClient->getOssInfo(ossInfo);
+//    CHECK_ERROR(ret);
+//
+//    return 0;
+//}
 
-    //std::string carrierIdHistoryPath;
-    //int ret = bcClient->getDidPropHistoryPath(did, elastos::DidChnClient::NameCarrierId, carrierIdHistoryPath);
-    //if(ret < 0) {
-        //return ret;
-    //}
 
-    //// remove keypath which not exists.
-    //ret = bcClient->removeMoniter(carrierIdHistoryPath);
-    //if(ret < 0) {
-        //return ret;
-    //}
-
-    //auto monitorCallback = [](int errcode, const std::string& keyPath, const std::string& result) {
-        //std::cout << FORMAT_METHOD << std::endl;
-        //std::cout << " errcode=" << errcode << std::endl;
-        //std::cout << " keyPath=" << keyPath << std::endl;
-        //std::cout << " result=" << result << std::endl;
-    //};
-
-    //ret = bcClient->appendMoniter(carrierIdHistoryPath, monitorCallback);
-    //if(ret < 0) {
-        //return ret;
-    //}
-
-    return 0;
-}
-#else // 0
-int main(int argc, char **argv)
-{
-}
-
-#endif // 0

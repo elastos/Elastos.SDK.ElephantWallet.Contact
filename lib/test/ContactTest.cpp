@@ -60,6 +60,7 @@ int ContactTest::newAndSaveMnemonic(const std::string& newMnemonic)
         mSavedMnemonic = generateMnemonic(KeypairLanguage, KeypairWords);
     }
 
+    std::filesystem::create_directories(gCacheDir);
     std::ofstream mnemStream(gCacheDir + MnemonicFileName);
     mnemStream << mSavedMnemonic;
     mnemStream.close();
@@ -282,6 +283,32 @@ int ContactTest::showGetUserBrief()
     return 0;
 }
 
+int ContactTest::doSyncMigrate(const std::string& user, const std::string& password, const std::string& token,
+                            const std::string& disk, const std::string& partition, const std::string& path)
+{
+    if (mContact == nullptr) {
+        testNewContact();
+    }
+
+    int ret = mContact->syncInfoMigrateOss(user, password, token, disk, partition, path);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactTest::doSyncAuth(const std::string& user, const std::string& password, const std::string& token,
+                            const std::string& disk, const std::string& partition, const std::string& path)
+{
+    if (mContact == nullptr) {
+        testNewContact();
+    }
+
+    int ret = mContact->syncInfoAuthOss(user, password, token, disk, partition, path);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
 int ContactTest::doSyncUpload()
 {
     if (mContact == nullptr) {
@@ -289,7 +316,21 @@ int ContactTest::doSyncUpload()
         return -1;
     }
 
-    int ret = mContact->syncInfoUploadToDidChain();
+    int ret = mContact->syncInfoUpload( elastos::sdk::Contact::SyncInfoClient::DidChain
+                                      | elastos::sdk::Contact::SyncInfoClient::Oss);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactTest::doSyncDownload()
+{
+    if (mContact == nullptr) {
+        testNewContact();
+    }
+
+    int ret = mContact->syncInfoDownload( elastos::sdk::Contact::SyncInfoClient::DidChain
+                                        | elastos::sdk::Contact::SyncInfoClient::Oss);
     CHECK_ERROR(ret);
 
     return 0;
@@ -508,7 +549,7 @@ std::string ContactTest::getPublicKey()
     freeBuf(pubKey);
 
     //retval = "0220f01b9a715acf02b3d45be2a29138be8f2f8c328da118c617ac11305cdf44fa";
-    Log::D(Log::TAG, "%s %d, pubkey=%s", __PRETTY_FUNCTION__, __LINE__, retval.c_str());
+    Log::D(Log::TAG, "%s %d, pubkey=%s", FORMAT_METHOD, __LINE__, retval.c_str());
     return retval;
 
 }
@@ -559,7 +600,7 @@ std::string ContactTest::GetMd5Sum(const std::string& data)
 
 std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const elastos::sdk::Contact::Listener::AcquireArgs& request)
 {
-    Log::D(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::D(Log::TAG, FORMAT_METHOD);
     std::shared_ptr<std::vector<uint8_t>> response;
 
     switch(request.type) {
@@ -604,7 +645,6 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const elastos:
         std::string appId = "DC92DEC59082610D1D4698F42965381EBBC4EF7DBDA08E4B3894D530608A64AA"
                             "A65BB82A170FBE16F04B2AF7B25D88350F86F58A7C1F55CC29993B4C4C29E405";
         response = std::make_shared<std::vector<uint8_t>>(appId.begin(), appId.end());
-        response.reset(); // return null will use `DidFriend`
         break;
     }
     case elastos::sdk::Contact::Listener::AcquireType::DidAgentAuthHeader:

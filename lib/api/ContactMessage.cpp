@@ -29,11 +29,11 @@ namespace native {
 ContactMessage::ContactMessage()
     : mMessageInfo()
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 }
 ContactMessage::~ContactMessage()
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 }
 
 int ContactMessage::syncMessageToNative(int type,

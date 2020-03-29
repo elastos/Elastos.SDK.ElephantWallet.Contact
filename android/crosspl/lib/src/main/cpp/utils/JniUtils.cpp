@@ -6,7 +6,7 @@
 #define ENSURE_RUNON_THREAD(expect_thread_id) { \
     std::thread::id curr_thread_id = std::this_thread::get_id(); \
     if(curr_thread_id != expect_thread_id) { \
-        Log::F(Log::TAG, "%s running on incorrect thread!!!", __PRETTY_FUNCTION__); \
+        Log::F(Log::TAG, "%s running on incorrect thread!!!", FORMAT_METHOD); \
         throw std::runtime_error("Running on incorrect thread"); \
     } \
 }
@@ -29,7 +29,7 @@ std::map<const char*, jclass> JniUtils::s_JavaClassMap {};
 /* === static function implement ============= */
 /* =========================================== */
 //JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-//    Log::I(JniUtils::TAG, "%s", __PRETTY_FUNCTION__);
+//    Log::I(JniUtils::TAG, FORMAT_METHOD);
 //
 //    jint version = JNI_VERSION_1_6;
 //
@@ -70,7 +70,7 @@ std::map<const char*, jclass> JniUtils::s_JavaClassMap {};
 //        res = s_JVM->AttachCurrentThread(&env, nullptr);
 ////        Log::W(JniUtils::TAG, "AttachCurrentThread, env = %p", env);
 //        if (res != JNI_OK) {
-//            Log::E(JniUtils::TAG, "%s Failed to AttachCurrentThread, ErrorCode = %d", __PRETTY_FUNCTION__, res);
+//            Log::E(JniUtils::TAG, "%s Failed to AttachCurrentThread, ErrorCode = %d", FORMAT_METHOD, res);
 //            return ret;
 //        }
 //        need_detach = true;
@@ -395,13 +395,13 @@ std::shared_ptr<_jobjectArray> JniUtils::GetObjectArraySafely(JNIEnv* env, jobje
 //    for(int idx = 0; idx < size; idx++) {
 //        const char* class_name = class_name_list[idx];
 //        if(s_JavaClassMap.find(class_name) != s_JavaClassMap.end()) {
-//            Log::I(JniUtils::TAG, "%s [%s] is already cached", __PRETTY_FUNCTION__, class_name);
+//            Log::I(JniUtils::TAG, "%s [%s] is already cached", FORMAT_METHOD, class_name);
 //            continue;
 //        }
 //
 //        jclass clazz = env->FindClass(class_name);
 //        if(clazz == nullptr) {
-//            Log::I(JniUtils::TAG, "%s Failed to find class [%s]", __PRETTY_FUNCTION__, class_name);
+//            Log::I(JniUtils::TAG, "%s Failed to find class [%s]", FORMAT_METHOD, class_name);
 //            continue;
 //        }
 //

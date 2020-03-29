@@ -40,20 +40,20 @@ ContactBridge::ContactBridge()
         , mListener(nullptr)
         , mDataListener(nullptr)
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 
     mContactImpl = elastos::ContactV1::Factory::Create();
 }
 ContactBridge::~ContactBridge()
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 
     elastos::ErrCode::SetErrorListener(nullptr);
 }
 
 int ContactBridge::appendChannelStrategy(ChannelStrategyPtr channelStrategy)
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 
 #ifdef WITH_CROSSPL
     auto channelStrategyPtr = dynamic_cast<ContactChannelStrategy*>(channelStrategy);
@@ -77,7 +77,7 @@ int ContactBridge::appendChannelStrategy(ChannelStrategyPtr channelStrategy)
 
 void ContactBridge::setListener(ListenerPtr listener)
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 
     mListener = listener;
 #ifdef WITH_CROSSPL
@@ -100,7 +100,7 @@ void ContactBridge::setListener(ListenerPtr listener)
 
 void ContactBridge::setDataListener(DataListenerPtr listener)
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 
     mDataListener = listener;
 #ifdef WITH_CROSSPL
@@ -121,7 +121,7 @@ void ContactBridge::setDataListener(DataListenerPtr listener)
 
 int ContactBridge::start()
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 
     int ret = mContactImpl->start();
 
@@ -130,7 +130,7 @@ int ContactBridge::start()
 
 int ContactBridge::stop()
 {
-    Log::I(Log::TAG, "%s", __PRETTY_FUNCTION__);
+    Log::I(Log::TAG, FORMAT_METHOD);
 
     int ret = mContactImpl->stop();
 
@@ -546,6 +546,50 @@ int ContactBridge::syncInfoUploadToDidChain()
     }
 
     int ret = mContactImpl->syncInfoUploadToDidChain();
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactBridge::syncInfoMigrateOss(ConstStringPtr user, ConstStringPtr password, ConstStringPtr token,
+                                      ConstStringPtr disk, ConstStringPtr partition, ConstStringPtr rootdir)
+{
+    int ret = mContactImpl->syncInfoMigrateOss(user, password, token,
+                                               disk, partition, rootdir);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactBridge::syncInfoAuthOss(ConstStringPtr user, ConstStringPtr password, ConstStringPtr token,
+                                   ConstStringPtr disk, ConstStringPtr partition, ConstStringPtr rootdir)
+{
+    int ret = mContactImpl->syncInfoAuthOss(user, password, token,
+                                            disk, partition, rootdir);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int ContactBridge::syncInfoDownload(int fromClient)
+{
+//    if(mContactImpl->isStarted() == false) {
+//        return elastos::ErrCode::NotReadyError;
+//    }
+
+    int ret = mContactImpl->syncInfoDownload(fromClient);
+    CHECK_ERROR(ret);
+
+    return 0;
+}
+
+int  ContactBridge::syncInfoUpload(int toClient)
+{
+//    if(mContactImpl->isStarted() == false) {
+//        return elastos::ErrCode::NotReadyError;
+//    }
+
+    int ret = mContactImpl->syncInfoUpload(toClient);
     CHECK_ERROR(ret);
 
     return 0;
