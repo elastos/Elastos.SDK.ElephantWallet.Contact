@@ -634,6 +634,7 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const elastos:
                 response = std::make_shared<std::vector<uint8_t>>(plainData);
                 ::freeBuf((void*)plainBuf);
             } else {
+                Log::W(Log::TAG, "Failed to decrypt data. use origin data. datasize=%d, privkey=%s", request.data.size(), privKey.c_str());
                 response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore decrypt
             }
         } else {

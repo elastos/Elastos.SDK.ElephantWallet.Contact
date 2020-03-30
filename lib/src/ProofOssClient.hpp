@@ -46,8 +46,8 @@ public:
                                    std::multimap<std::string, std::string>& savedPropMap,
                                    std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap) override;
 
-    virtual int migrateOss(const std::shared_ptr<OssAuth> from, const std::shared_ptr<OssAuth> to);
-    virtual int restoreOssAuth(const std::shared_ptr<OssAuth> ossAuth, const std::string& expectAuthHash);
+    virtual int migrateTo(const std::shared_ptr<OssAuth> to);
+    virtual int restoreOssAuth(const std::shared_ptr<OssAuth> ossAuth);
     virtual int getOssAuth(std::shared_ptr<OssAuth>& ossAuth);
 
 protected:
@@ -72,6 +72,7 @@ private:
     int ossList(std::vector<std::string>& pathList);
     int ossWrite(const std::string& path, std::shared_ptr<std::iostream> content);
     int ossRead(const std::string& path, std::shared_ptr<std::iostream> content);
+    int ossDelete(const std::string& path);
 
 //    int loadLocalData();
 //    int saveLocalData();

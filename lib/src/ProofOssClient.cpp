@@ -57,10 +57,9 @@ ProofOssClient::~ProofOssClient()
 
 int ProofOssClient::genAuthHash()
 {
-    if(mOssAuth == nullptr) {
-        int ret = getDefaultOssAuth(mOssAuth);
-        CHECK_ERROR(ret);
-    }
+    Log::I(Log::TAG, FORMAT_METHOD);
+    int ret = ossLogin();
+    CHECK_ERROR(ret);
 
     mAuthHash = CalculateAuthHash(mOssAuth);
 
@@ -69,11 +68,13 @@ int ProofOssClient::genAuthHash()
 
 std::string ProofOssClient::getAuthHash()
 {
+    Log::I(Log::TAG, FORMAT_METHOD);
     return mAuthHash;
 }
 
 void ProofOssClient::setAuthHash(const std::string& authHash)
 {
+    Log::I(Log::TAG, FORMAT_METHOD);
     mAuthHash = authHash;
 }
 
@@ -141,17 +142,63 @@ int ProofOssClient::downloadProperties(const std::string& fromDid,
     return 0;
 }
 
-int ProofOssClient::migrateOss(const std::shared_ptr<OssAuth> from, const std::shared_ptr<OssAuth> to)
+int ProofOssClient::migrateTo(const std::shared_ptr<OssAuth> to)
 {
+    Log::I(Log::TAG, "%s", FORMAT_METHOD);
+
+    auto authHash = CalculateAuthHash(mOssAuth);
+    if(authHash != mAuthHash) {
+        CHECK_ERROR(ErrCode::ProofApiCheckAuthHashError);
+    }
+
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+    std::string did;
+    int ret = sectyMgr->getDid(did);
+    CHECK_ERROR(ret);
+
+    auto config = SAFE_GET_PTR(mConfig);
+    std::multimap<std::string, std::string> changedPropMap;
+    std::map<std::string, std::shared_ptr<std::iostream>> totalPropMap;
+    for (const auto & entry : std::filesystem::recursive_directory_iterator(config->mUserDataDir)) {
+        if(entry.is_directory() == true) {
+            continue;
+        }
+
+        auto path = entry.path().string().substr(config->mUserDataDir.size());
+        auto content = std::make_shared<std::fstream>(entry.path());
+        totalPropMap[did + "/" + path] = content;
+    }
+
+    auto newOssClient = std::make_shared<ProofOssClient>(mConfig, mSecurityManager);
+    auto newAuthHash = ProofOssClient::CalculateAuthHash(to);
+    newOssClient->setAuthHash(newAuthHash);
+    ret = newOssClient->restoreOssAuth(to);
+    CHECK_ERROR(ret);
+
+    ret = newOssClient->uploadProperties(changedPropMap, totalPropMap);
+    CHECK_ERROR(ret);
+
+    if(mOssAuth->isDefaultOss == true) {
+        ret = ossDelete("/");
+        if(ret < 0) {
+            Log::W(Log::TAG, "%s Failed to delete user data from default oss.", FORMAT_METHOD);
+        }
+    }
+
+    this->setAuthHash(newAuthHash);
+    ret = this->restoreOssAuth(to);
+    CHECK_ERROR(ret);
+
     return 0;
 
 }
 
-int ProofOssClient::restoreOssAuth(const std::shared_ptr<OssAuth> ossAuth, const std::string& expectAuthHash)
+int ProofOssClient::restoreOssAuth(const std::shared_ptr<OssAuth> ossAuth)
 {
-    auto newAuthHash = CalculateAuthHash(ossAuth);
-    if(expectAuthHash.empty() == false
-    && newAuthHash != expectAuthHash) {
+    Log::I(Log::TAG, FORMAT_METHOD);
+    auto newAuthHash = ProofOssClient::CalculateAuthHash(ossAuth);
+    if(newAuthHash.empty() == true
+    || newAuthHash != mAuthHash) {
         CHECK_ERROR(ErrCode::ConflictWithExpectedError);
     }
 
@@ -166,6 +213,7 @@ int ProofOssClient::restoreOssAuth(const std::shared_ptr<OssAuth> ossAuth, const
 
 int ProofOssClient::getOssAuth(std::shared_ptr<OssAuth>& ossAuth)
 {
+    Log::I(Log::TAG, FORMAT_METHOD);
     ossAuth = mOssAuth;
 
     return 0;
@@ -297,19 +345,14 @@ int ProofOssClient::ossLogin()
 {
     Log::D(Log::TAG, FORMAT_METHOD);
 
-    bool needMount = true;
-    if(mOssAuth == nullptr) {
-        int ret = getDefaultOssAuth(mOssAuth);
-        CHECK_ERROR(ret);
-        needMount = false;
-    }
-
-    if(mOssAuth->expiredTime > DateTime::CurrentMS()) {
+    if(mOssAuth != nullptr
+    && mOssAuth->expiredTime > DateTime::CurrentMS()) {
         Log::I(Log::TAG, "%s Expired time not reached, ignore to login.", FORMAT_METHOD);
         return 0;
     }
 
-    if(mOssAuth->isDefaultOss == true) { // apply for a new access key
+    bool needMount = true;
+    if(mOssAuth == nullptr) {
         int ret = getDefaultOssAuth(mOssAuth);
         CHECK_ERROR(ret);
         needMount = false;
@@ -327,6 +370,7 @@ int ProofOssClient::ossLogin()
     }
 
     mOssAuth->expiredTime = DateTime::CurrentMS() + 30 * 60 * 1000; // half of hour
+    Log::D(Log::TAG, "%s Success to login to partition=%s", FORMAT_METHOD, mOssAuth->partition.c_str());
 
     return 0;
 }
@@ -335,12 +379,13 @@ int ProofOssClient::ossList(std::vector<std::string>& pathList)
 {
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
 
+    Log::D(Log::TAG, "%s partition=%s, filepath=%s", FORMAT_METHOD, mOssAuth->partition.c_str(), (mOssAuth->rootdir + "/").c_str());
+
     auto ossFile = std::make_shared<elastos::sdk::CloudFile>();
     int ret = ossFile->open(mOssPartition, mOssAuth->rootdir + "/", elastos::sdk::CloudMode::UserAll);
     CHECK_ERROR(ret);
     ret = ossFile->list(pathList);
-    CHECK_ERROR(ret);
-    ret = ossFile->close();
+    ossFile->close();
     CHECK_ERROR(ret);
 
     return ret;
@@ -351,14 +396,13 @@ int ProofOssClient::ossWrite(const std::string& path, std::shared_ptr<std::iostr
     auto config = SAFE_GET_PTR(mConfig);
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
 
-    Log::D(Log::TAG, "%s filepath=%s", FORMAT_METHOD, (mOssAuth->rootdir + "/" + path).c_str());
+    Log::D(Log::TAG, "%s partition=%s, filepath=%s", FORMAT_METHOD, mOssAuth->partition.c_str(), (mOssAuth->rootdir + "/" + path).c_str());
 
     auto ossFile = std::make_shared<elastos::sdk::CloudFile>();
     int ret = ossFile->open(mOssPartition, mOssAuth->rootdir + "/" + path, elastos::sdk::CloudMode::UserAll);
     CHECK_ERROR(ret);
     ret = ossFile->write(content);
-    CHECK_ERROR(ret);
-    ret = ossFile->close();
+    ossFile->close();
     CHECK_ERROR(ret);
 
     return ret;
@@ -369,14 +413,30 @@ int ProofOssClient::ossRead(const std::string& path, std::shared_ptr<std::iostre
     auto config = SAFE_GET_PTR(mConfig);
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
 
-    Log::D(Log::TAG, "%s filepath=%s", FORMAT_METHOD, (mOssAuth->rootdir + "/" + path).c_str());
+    Log::D(Log::TAG, "%s partition=%s, filepath=%s", FORMAT_METHOD, mOssAuth->partition.c_str(), (mOssAuth->rootdir + "/" + path).c_str());
 
     auto ossFile = std::make_shared<elastos::sdk::CloudFile>();
     int ret = ossFile->open(mOssPartition, mOssAuth->rootdir + "/" + path, elastos::sdk::CloudMode::UserAll);
     CHECK_ERROR(ret);
     ret = ossFile->read(content);
+    ossFile->close();
     CHECK_ERROR(ret);
-    ret = ossFile->close();
+
+    return ret;
+}
+
+int ProofOssClient::ossDelete(const std::string& path)
+{
+    auto config = SAFE_GET_PTR(mConfig);
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+
+    Log::D(Log::TAG, "%s partition=%s, filepath=%s", FORMAT_METHOD, mOssAuth->partition.c_str(), (mOssAuth->rootdir + "/" + path).c_str());
+
+    auto ossFile = std::make_shared<elastos::sdk::CloudFile>();
+    int ret = ossFile->open(mOssPartition, mOssAuth->rootdir + "/" + path, elastos::sdk::CloudMode::UserAll);
+    CHECK_ERROR(ret);
+    ret = ossFile->remove();
+    ossFile->close();
     CHECK_ERROR(ret);
 
     return ret;

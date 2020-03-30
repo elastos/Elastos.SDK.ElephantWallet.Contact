@@ -138,6 +138,10 @@ int RemoteStorageManager::uploadData(const std::vector<ClientType>& toClientList
     CHECK_ERROR(ret);
 
     auto config = SAFE_GET_PTR(mConfig);
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+    std::string did;
+    ret = sectyMgr->getDid(did);
+    CHECK_ERROR(ret);
 
     std::multimap<std::string, std::string> changedPropMap;
     std::map<std::string, std::shared_ptr<std::iostream>> totalPropMap;
@@ -147,7 +151,7 @@ int RemoteStorageManager::uploadData(const std::vector<ClientType>& toClientList
             std::string segment;
             std::string path;
             if (propKey == PropKey::FriendKey) {
-                int ret = packFriendSegment(did, friendInfoList, segment);
+                ret = packFriendSegment(did, friendInfoList, segment);
                 CHECK_ERROR(ret);
                 path = FriendManager::DataFileName;
             } else if (propKey == PropKey::PublicKey
@@ -162,7 +166,7 @@ int RemoteStorageManager::uploadData(const std::vector<ClientType>& toClientList
             }
 
             changedPropMap.emplace(propKey, segment);
-            totalPropMap[path] = std::make_shared<std::fstream>(config->mUserDataDir + "/" + path);
+            totalPropMap[did + "/" + path] = std::make_shared<std::fstream>(config->mUserDataDir + "/" + path);
 
             if (propKey == PropKey::CarrierInfo) {
                 if(carrierData.get() == nullptr) {
@@ -173,7 +177,7 @@ int RemoteStorageManager::uploadData(const std::vector<ClientType>& toClientList
                 int ret = Platform::GetCurrentDevId(currDevId);
                 CHECK_ERROR(ret);
                 path = currDevId + "/carrier.data";
-                totalPropMap[path] = carrierData;
+                totalPropMap[did + "/" + path] = carrierData;
             }
         }
     }
@@ -316,8 +320,13 @@ int RemoteStorageManager::downloadData(ClientType fromClient,
     }
     auto client = it->second;
 
+    auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
+    std::string did;
+    int ret = sectyMgr->getDid(did);
+    CHECK_ERROR(ret);
+
     std::string currDevId;
-    int ret = Platform::GetCurrentDevId(currDevId);
+    ret = Platform::GetCurrentDevId(currDevId);
     CHECK_ERROR(ret);
     std::string carrierDataPath = currDevId + "/carrier.data";
 
@@ -329,11 +338,11 @@ int RemoteStorageManager::downloadData(ClientType fromClient,
             PropKey::FriendKey,
     };
     std::vector<std::string> totalPropFileList {
-            UserManager::DataFileName,
-            FriendManager::DataFileName,
+            did + "/" + UserManager::DataFileName,
+            did + "/" + FriendManager::DataFileName,
     };
     if(carrierData.get() != nullptr) {
-        totalPropFileList.push_back(carrierDataPath);
+        totalPropFileList.push_back(did + "/" + carrierDataPath);
     }
 
     Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
