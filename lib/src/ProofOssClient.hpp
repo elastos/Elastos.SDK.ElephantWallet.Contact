@@ -30,10 +30,15 @@ public:
     };
 
     /*** static function and variable ***/
+    std::string CalculateAuthHash(const std::shared_ptr<OssAuth> ossAuth);
 
     /*** class function and variable ***/
     explicit ProofOssClient(std::weak_ptr<Config> config, std::weak_ptr<SecurityManager> sectyMgr);
     virtual ~ProofOssClient();
+
+    virtual int genAuthHash() override;
+    virtual std::string getAuthHash() override;
+    virtual void setAuthHash(const std::string& authHash) override;
 
     virtual int uploadProperties(const std::multimap<std::string, std::string>& changedPropMap,
                                  const std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap) override;
@@ -42,9 +47,8 @@ public:
                                    std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap) override;
 
     virtual int migrateOss(const std::shared_ptr<OssAuth> from, const std::shared_ptr<OssAuth> to);
-    virtual int restoreOssAuth(const std::shared_ptr<OssAuth> ossAuth, const std::string& expectOssHash);
+    virtual int restoreOssAuth(const std::shared_ptr<OssAuth> ossAuth, const std::string& expectAuthHash);
     virtual int getOssAuth(std::shared_ptr<OssAuth>& ossAuth);
-    virtual std::string getOssHash(const std::shared_ptr<OssAuth> ossAuth);
 
 protected:
     /*** type define ***/
@@ -60,9 +64,9 @@ private:
     static constexpr const char* DataFileName = "oss-cacheddata.dat";
 
     /*** class function and variable ***/
-    int getOssAuthByDefault(std::shared_ptr<OssAuth>& ossAuth);
-    int getVerifyCode(std::shared_ptr<HttpClient> httpClient, std::string& verifyCode);
-    int getOssAuthByDefault(std::shared_ptr<HttpClient> httpClient, const std::string signedVerifyCode,
+    int getDefaultOssAuth(std::shared_ptr<OssAuth>& ossAuth);
+    int getDefaultVerifyCode(std::shared_ptr<HttpClient> httpClient, std::string& verifyCode);
+    int getDefaultOssAuth(std::shared_ptr<HttpClient> httpClient, const std::string signedVerifyCode,
                             std::shared_ptr<OssAuth>& ossAuth);
     int ossLogin();
     int ossList(std::vector<std::string>& pathList);
@@ -74,6 +78,7 @@ private:
 
     std::weak_ptr<Config> mConfig;
     std::weak_ptr<SecurityManager> mSecurityManager;
+    std::string mAuthHash;
     std::shared_ptr<OssAuth> mOssAuth;
     std::shared_ptr<elastos::sdk::CloudPartition> mOssPartition;
 };

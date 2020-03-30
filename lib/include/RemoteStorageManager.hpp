@@ -31,6 +31,10 @@ public:
 
     class RemoteStorageClient {
     public:
+        virtual int genAuthHash() { return 0; };
+        virtual std::string getAuthHash() { return "DefaultAuthHash"; };
+        virtual void setAuthHash(const std::string& authHash) {};
+
         virtual int uploadProperties(const std::multimap<std::string, std::string>& changedPropMap,
                                      const std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap) = 0;
         virtual int downloadProperties(const std::string& fromDid,
@@ -51,6 +55,7 @@ public:
 
     int setConfig(std::weak_ptr<Config> config,
                   std::weak_ptr<SecurityManager> sectyMgr);
+    int ensureRemoteStorageHash();
 
     void addClient(ClientType type, std::shared_ptr<RemoteStorageClient> client);
     int getClient(ClientType type, std::shared_ptr<RemoteStorageClient>& client);
@@ -76,6 +81,12 @@ private:
     int saveLocalData();
 
     int downloadData(ClientType fromClient,
+                     std::shared_ptr<UserInfo>& userInfo,
+                     std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
+                     std::shared_ptr<std::iostream>& carrierData);
+    int downloadData(ClientType fromClient,
+                     const std::vector<std::string>& propKeyList,
+                     const std::vector<std::string>& propFileList,
                      std::shared_ptr<UserInfo>& userInfo,
                      std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
                      std::shared_ptr<std::iostream>& carrierData);

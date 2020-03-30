@@ -116,6 +116,7 @@ public:
 	constexpr static const int ProofApiSetPropError = -320;
 	constexpr static const int ProofApiGetPropError = -321;
 	constexpr static const int ProofApiEmptyPropError = -322;
+	constexpr static const int ProofApiCheckAuthHashError = -323;
 
 	constexpr static const int AdditivityIndex = -1000;
 	constexpr static const int StdSystemErrorIndex = -1000;

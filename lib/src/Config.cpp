@@ -89,7 +89,7 @@ int Config::loadDefaultValues()
     mProofConfig = std::make_unique<ProofConfig>();
     mProofConfig->mUrl = "https://api-proof.elaphant.net/api/1";
     mProofConfig->mApi.mGetVerifyCode = "/microservices/ram/request";
-    mProofConfig->mApi.mOssInfo = "/microservices/ram/geneosssts";
+    mProofConfig->mApi.mGenOssAuth = "/microservices/ram/geneosssts";
 
     return 0;
 }

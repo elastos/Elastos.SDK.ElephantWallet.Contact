@@ -23,6 +23,19 @@ namespace elastos {
 /* =========================================== */
 /* === static function implement ============= */
 /* =========================================== */
+std::string ProofOssClient::CalculateAuthHash(const std::shared_ptr<OssAuth> ossAuth)
+{
+    if(ossAuth == nullptr) {
+        return "";
+    }
+
+    auto fullpath = ossAuth->disk + "/" + ossAuth->partition + "/" + ossAuth->rootdir;
+    fullpath = elastos::sdk::CloudFileSystem::FormatPath(fullpath);
+
+    auto ret = elastos::MD5::Get(fullpath);
+    return ret;
+}
+
 
 /* =========================================== */
 /* === class public function implement  ====== */
@@ -30,6 +43,9 @@ namespace elastos {
 ProofOssClient::ProofOssClient(std::weak_ptr<Config> config, std::weak_ptr<SecurityManager> sectyMgr)
         : mConfig(config)
         , mSecurityManager(sectyMgr)
+        , mAuthHash()
+        , mOssAuth()
+        , mOssPartition()
 {
     Log::I(Log::TAG, FORMAT_METHOD);
 }
@@ -39,6 +55,28 @@ ProofOssClient::~ProofOssClient()
     Log::I(Log::TAG, FORMAT_METHOD);
 }
 
+int ProofOssClient::genAuthHash()
+{
+    if(mOssAuth == nullptr) {
+        int ret = getDefaultOssAuth(mOssAuth);
+        CHECK_ERROR(ret);
+    }
+
+    mAuthHash = CalculateAuthHash(mOssAuth);
+
+    return 0;
+}
+
+std::string ProofOssClient::getAuthHash()
+{
+    return mAuthHash;
+}
+
+void ProofOssClient::setAuthHash(const std::string& authHash)
+{
+    mAuthHash = authHash;
+}
+
 int ProofOssClient::uploadProperties(const std::multimap<std::string, std::string>& changedPropMap,
                                      const std::map<std::string, std::shared_ptr<std::iostream>>& totalPropMap)
 {
@@ -46,6 +84,11 @@ int ProofOssClient::uploadProperties(const std::multimap<std::string, std::strin
     if(totalPropMap.size() == 0) {
         Log::W(Log::TAG, "%s No data need to upload", FORMAT_METHOD);
         return 0;
+    }
+
+    auto authHash = CalculateAuthHash(mOssAuth);
+    if(authHash != mAuthHash) {
+        CHECK_ERROR(ErrCode::ProofApiCheckAuthHashError);
     }
 
     int ret = ossLogin();
@@ -67,6 +110,11 @@ int ProofOssClient::downloadProperties(const std::string& fromDid,
     if(totalPropMap.size() == 0) {
         Log::W(Log::TAG, "%s No data need to download", FORMAT_METHOD);
         return 0;
+    }
+
+    auto authHash = CalculateAuthHash(mOssAuth);
+    if(authHash != mAuthHash) {
+        CHECK_ERROR(ErrCode::ProofApiCheckAuthHashError);
     }
 
     std::set<std::string> totalPropKeySet;
@@ -99,11 +147,11 @@ int ProofOssClient::migrateOss(const std::shared_ptr<OssAuth> from, const std::s
 
 }
 
-int ProofOssClient::restoreOssAuth(const std::shared_ptr<OssAuth> ossAuth, const std::string& expectOssHash)
+int ProofOssClient::restoreOssAuth(const std::shared_ptr<OssAuth> ossAuth, const std::string& expectAuthHash)
 {
-    auto newOssHash = getOssHash(ossAuth);
-    if(expectOssHash.empty() == false
-    && newOssHash != expectOssHash) {
+    auto newAuthHash = CalculateAuthHash(ossAuth);
+    if(expectAuthHash.empty() == false
+    && newAuthHash != expectAuthHash) {
         CHECK_ERROR(ErrCode::ConflictWithExpectedError);
     }
 
@@ -123,15 +171,6 @@ int ProofOssClient::getOssAuth(std::shared_ptr<OssAuth>& ossAuth)
     return 0;
 }
 
-std::string ProofOssClient::getOssHash(const std::shared_ptr<OssAuth> ossAuth)
-{
-    auto fullpath = ossAuth->disk + "/" + ossAuth->partition + "/" + ossAuth->rootdir;
-    fullpath = elastos::sdk::CloudFileSystem::FormatPath(fullpath);
-
-    auto ret = elastos::MD5::Get(fullpath);
-    return ret;
-}
-
 /* =========================================== */
 /* === class protected function implement  === */
 /* =========================================== */
@@ -140,13 +179,13 @@ std::string ProofOssClient::getOssHash(const std::shared_ptr<OssAuth> ossAuth)
 /* =========================================== */
 /* === class private function implement  ===== */
 /* =========================================== */
-int ProofOssClient::getOssAuthByDefault(std::shared_ptr<OssAuth>& ossAuth)
+int ProofOssClient::getDefaultOssAuth(std::shared_ptr<OssAuth>& ossAuth)
 {
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     auto httpClient = std::make_shared<HttpClient>();
 
     std::string verifyCode;
-    int ret = getVerifyCode(httpClient, verifyCode);
+    int ret = getDefaultVerifyCode(httpClient, verifyCode);
     CHECK_ERROR(ret);
 
     std::string signedVerifyCode;
@@ -155,13 +194,13 @@ int ProofOssClient::getOssAuthByDefault(std::shared_ptr<OssAuth>& ossAuth)
     CHECK_ERROR(ret);
     Log::I(Log::TAG, "%s %s", FORMAT_METHOD, signedVerifyCode.c_str());
 
-    ret = getOssAuthByDefault(httpClient, signedVerifyCode, ossAuth);
+    ret = getDefaultOssAuth(httpClient, signedVerifyCode, ossAuth);
     CHECK_ERROR(ret);
 
     return 0;
 }
 
-int ProofOssClient::getVerifyCode(std::shared_ptr<HttpClient> httpClient, std::string& verifyCode)
+int ProofOssClient::getDefaultVerifyCode(std::shared_ptr<HttpClient> httpClient, std::string& verifyCode)
 {
     auto config = SAFE_GET_PTR(mConfig);
 
@@ -203,12 +242,12 @@ int ProofOssClient::getVerifyCode(std::shared_ptr<HttpClient> httpClient, std::s
     return 0;
 }
 
-int ProofOssClient::getOssAuthByDefault(std::shared_ptr<HttpClient> httpClient, const std::string signedVerifyCode,
-                                        std::shared_ptr<OssAuth>& ossAuth)
+int ProofOssClient::getDefaultOssAuth(std::shared_ptr<HttpClient> httpClient, const std::string signedVerifyCode,
+                                      std::shared_ptr<OssAuth>& ossAuth)
 {
     auto config = SAFE_GET_PTR(mConfig);
 
-    std::string ossInfoUrl = config->mProofConfig->mUrl + config->mProofConfig->mApi.mOssInfo;
+    std::string ossInfoUrl = config->mProofConfig->mUrl + config->mProofConfig->mApi.mGenOssAuth;
     httpClient->url(ossInfoUrl);
     httpClient->setHeader("Content-Type", "application/json");
 
@@ -260,7 +299,7 @@ int ProofOssClient::ossLogin()
 
     bool needMount = true;
     if(mOssAuth == nullptr) {
-        int ret = getOssAuthByDefault(mOssAuth);
+        int ret = getDefaultOssAuth(mOssAuth);
         CHECK_ERROR(ret);
         needMount = false;
     }
@@ -271,7 +310,7 @@ int ProofOssClient::ossLogin()
     }
 
     if(mOssAuth->isDefaultOss == true) { // apply for a new access key
-        int ret = getOssAuthByDefault(mOssAuth);
+        int ret = getDefaultOssAuth(mOssAuth);
         CHECK_ERROR(ret);
         needMount = false;
     }

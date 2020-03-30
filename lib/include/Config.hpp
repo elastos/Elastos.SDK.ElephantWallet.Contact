@@ -61,7 +61,7 @@ public:
     struct ProofConfig {
         struct Api {
             std::string mGetVerifyCode;
-            std::string mOssInfo;
+            std::string mGenOssAuth;
         };
         std::string mUrl;
         Api mApi;

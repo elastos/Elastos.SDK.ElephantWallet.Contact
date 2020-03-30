@@ -236,15 +236,15 @@ int ContactV1::syncInfoAuthOss(const std::string& user, const std::string& passw
             .rootdir = rootdir,
     };
 
-    std::shared_ptr<UserInfo> userInfo;
-    ret = mUserManager->getUserInfo(userInfo);
-    CHECK_ERROR(ret);
-    std::string ossHash;
-    ret = userInfo->getIdentifyCode(UserInfo::Type::RemoteStorage, ossHash);
-    CHECK_ERROR(ret);
-
-    ret = proofOssClient->restoreOssAuth(ossAuth, ossHash);
-    CHECK_ERROR(ret);
+//    std::shared_ptr<UserInfo> userInfo;
+//    ret = mUserManager->getUserInfo(userInfo);
+//    CHECK_ERROR(ret);
+//    std::string ossHash;
+//    ret = userInfo->getIdentifyCode(UserInfo::Type::RemoteStorage, ossHash);
+//    CHECK_ERROR(ret);
+//
+//    ret = proofOssClient->restoreOssAuth(ossAuth, ossHash);
+//    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -257,14 +257,6 @@ int ContactV1::syncInfoDownload(int fromClient)
 
     int ret = initGlobal();
     CHECK_ERROR(ret);
-
-    std::vector<RemoteStorageManager::ClientType> fromClientType;
-    if((fromClient & SyncInfoClient::DidChain) != 0) {
-        fromClientType.push_back(RemoteStorageManager::ClientType::DidChain);
-    }
-    if((fromClient & SyncInfoClient::Oss) != 0) {
-        fromClientType.push_back(RemoteStorageManager::ClientType::Oss);
-    }
 
     std::shared_ptr<UserInfo> userInfo;
     std::vector<std::shared_ptr<FriendInfo>> friendInfoList;
@@ -290,6 +282,34 @@ int ContactV1::syncInfoDownload(int fromClient)
         Log::I(Log::TAG, "%s Ignore to download carrier data, use local at %s", FORMAT_METHOD, carrierDataPath.c_str());
     }
 
+    std::vector<RemoteStorageManager::ClientType> fromClientType;
+//    if((fromClient & SyncInfoClient::DidChain) != 0) {
+//        fromClientType.push_back(RemoteStorageManager::ClientType::DidChain);
+//    }
+//    ret = mRemoteStorageManager->downloadData(fromClientType, userInfo, friendInfoList, carrierData);
+//    CHECK_ERROR(ret);
+//
+//    std::string ossHash;
+//    ret = userInfo->getIdentifyCode(UserInfo::Type::RemoteStorage, ossHash);
+//    if(ret == 0) {
+//        std::shared_ptr<RemoteStorageManager::RemoteStorageClient> client;
+//        ret = mRemoteStorageManager->getClient(RemoteStorageManager::ClientType::Oss, client);
+//        CHECK_ERROR(ret);
+//
+//        auto proofOssClient = std::static_pointer_cast<ProofOssClient>(client);
+//        if(proofOssClient == nullptr) {
+//            CHECK_ERROR(ErrCode::NotFoundError);
+//        }
+//        proofOssClient->setOssHash(ossHash);
+//    }
+
+    fromClientType.clear();
+    if((fromClient & SyncInfoClient::Oss) != 0) {
+        fromClientType.push_back(RemoteStorageManager::ClientType::DidChain);
+    }
+    if((fromClient & SyncInfoClient::Oss) != 0) {
+        fromClientType.push_back(RemoteStorageManager::ClientType::Oss);
+    }
     ret = mRemoteStorageManager->downloadData(fromClientType, userInfo, friendInfoList, carrierData);
     CHECK_ERROR(ret);
 

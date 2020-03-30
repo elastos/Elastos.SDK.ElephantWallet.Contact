@@ -42,6 +42,52 @@ int RemoteStorageManager::setConfig(std::weak_ptr<Config> config,
     return 0;
 }
 
+int RemoteStorageManager::ensureRemoteStorageHash()
+{
+    Log::I(Log::TAG, "%s ensure oss auth hash...", FORMAT_METHOD);
+    std::shared_ptr<RemoteStorageClient> client;
+    int ret = RemoteStorageManager::getClient(ClientType::Oss, client);
+    CHECK_ERROR(ret);
+
+    auto hash = client->getAuthHash();
+    if(hash.empty() == false) {
+        Log::I(Log::TAG, "%s oss auth hash has been set in local.", FORMAT_METHOD);
+        return 0;
+    }
+
+    // if auth hash is empty, try to get it from did chain.
+    std::vector<std::string> savedPropKeyList { PropKey::IdentifyKey };
+    std::vector<std::string> totalPropFileList;
+    std::shared_ptr<UserInfo> remoteUserInfo = std::make_shared<UserInfo>();
+    std::vector <std::shared_ptr<FriendInfo>> remoteFriendInfoList;
+    std::shared_ptr<std::iostream> remoteCarrierData;
+    ret = downloadData(ClientType::DidChain,
+                       savedPropKeyList, totalPropFileList,
+                       remoteUserInfo, remoteFriendInfoList, remoteCarrierData);
+    CHECK_ERROR(ret);
+
+    std::string authHash;
+    ret = remoteUserInfo->getIdentifyCode(UserInfo::Type::RemoteStorage, authHash);
+    if(ret == ErrCode::NotFoundError) { // ignore not found
+        ret = 0;
+    }
+    CHECK_ERROR(ret);
+    if(authHash.empty() == false) {
+        Log::I(Log::TAG, "%s oss auth hash is updated from did chain.", FORMAT_METHOD);
+        client->setAuthHash(authHash);
+        return 0;
+    }
+
+    // if auth hash on didchain is empty, try to generate it from default elaphant oss.
+    ret = client->genAuthHash();
+    if(ret == 0) {
+        Log::I(Log::TAG, "%s oss auth hash is updated from default settings.", FORMAT_METHOD);
+        return 0;
+    }
+
+    CHECK_ERROR(ErrCode::NotExpectedReachedError);
+}
+
 void RemoteStorageManager::addClient(ClientType type, std::shared_ptr<RemoteStorageClient> client)
 {
     Log::I(Log::TAG, FORMAT_METHOD);
@@ -87,6 +133,9 @@ int RemoteStorageManager::uploadData(const std::vector<ClientType>& toClientList
                                      const std::shared_ptr<std::fstream> carrierData)
 {
     Log::I(Log::TAG, FORMAT_METHOD);
+
+    int ret = ensureRemoteStorageHash();
+    CHECK_ERROR(ret);
 
     auto config = SAFE_GET_PTR(mConfig);
 
@@ -159,6 +208,9 @@ int RemoteStorageManager::downloadData(const std::vector<ClientType>& fromClient
                                        std::shared_ptr<std::fstream>& carrierData)
 {
     Log::I(Log::TAG, FORMAT_METHOD);
+
+    int ret = ensureRemoteStorageHash();
+    CHECK_ERROR(ret);
 
     for (const auto& type : fromClientList) {
         std::shared_ptr<UserInfo> remoteUserInfo = std::make_shared<UserInfo>();
@@ -257,7 +309,7 @@ int RemoteStorageManager::downloadData(ClientType fromClient,
                                        std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
                                        std::shared_ptr<std::iostream>& carrierData)
 {
-    Log::I(Log::TAG, FORMAT_METHOD);
+    Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
     auto it = mRemoteStorageClientMap.find(fromClient);
     if(it == mRemoteStorageClientMap.end()) {
         CHECK_ERROR(ErrCode::InvalidArgument);
@@ -269,20 +321,57 @@ int RemoteStorageManager::downloadData(ClientType fromClient,
     CHECK_ERROR(ret);
     std::string carrierDataPath = currDevId + "/carrier.data";
 
-    std::multimap<std::string, std::string> savedPropMap {
-            {PropKey::PublicKey, ""},
-            {PropKey::CarrierInfo, ""},
-            {PropKey::DetailKey, ""},
-            {PropKey::IdentifyKey, ""},
-            {PropKey::FriendKey, ""},
+    std::vector<std::string> savedPropKeyList {
+            PropKey::PublicKey,
+            PropKey::CarrierInfo,
+            PropKey::DetailKey,
+            PropKey::IdentifyKey,
+            PropKey::FriendKey,
     };
-    std::map<std::string, std::shared_ptr<std::iostream>> totalPropMap {
-            {UserManager::DataFileName, nullptr},
-            {FriendManager::DataFileName, nullptr},
+    std::vector<std::string> totalPropFileList {
+            UserManager::DataFileName,
+            FriendManager::DataFileName,
     };
     if(carrierData.get() != nullptr) {
-        totalPropMap[carrierDataPath] = nullptr;
+        totalPropFileList.push_back(carrierDataPath);
     }
+
+    Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
+    ret = downloadData(fromClient, savedPropKeyList, totalPropFileList, userInfo, friendInfoList, carrierData);
+    CHECK_ERROR(ret);
+    Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
+
+    return 0;
+}
+
+int RemoteStorageManager::downloadData(ClientType fromClient,
+                                       const std::vector<std::string>& propKeyList,
+                                       const std::vector<std::string>& propFileList,
+                                       std::shared_ptr<UserInfo>& userInfo,
+                                       std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
+                                       std::shared_ptr<std::iostream>& carrierData)
+{
+    Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
+    auto it = mRemoteStorageClientMap.find(fromClient);
+    if(it == mRemoteStorageClientMap.end()) {
+        CHECK_ERROR(ErrCode::InvalidArgument);
+    }
+    auto client = it->second;
+
+    std::string currDevId;
+    int ret = Platform::GetCurrentDevId(currDevId);
+    CHECK_ERROR(ret);
+    std::string carrierDataPath = currDevId + "/carrier.data";
+
+    std::multimap<std::string, std::string> savedPropMap;
+    for(const auto& key: propKeyList) {
+        savedPropMap.emplace(key, "");
+    }
+    std::map<std::string, std::shared_ptr<std::iostream>> totalPropMap;
+    for(const auto& file: propFileList) {
+        totalPropMap.emplace(file, nullptr);
+    }
+    Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::string did;
@@ -303,9 +392,9 @@ int RemoteStorageManager::downloadData(ClientType fromClient,
             int ret = unpackFriendSegment(segment, friendInfoList);
             CHECK_ERROR(ret);
         } else if (propKey == PropKey::PublicKey
-        || propKey == PropKey::DetailKey
-        || propKey == PropKey::IdentifyKey
-        || propKey == PropKey::CarrierInfo){
+                   || propKey == PropKey::DetailKey
+                   || propKey == PropKey::IdentifyKey
+                   || propKey == PropKey::CarrierInfo){
             auto newUserInfo = std::make_shared<UserInfo>();
             int ret = unpackUserSegment(segment, propKey, newUserInfo);
             if(GET_ERRCODE(ret) == ErrCode::IgnoreMergeOldInfo) {
