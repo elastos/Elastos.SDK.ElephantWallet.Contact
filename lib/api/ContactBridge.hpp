@@ -36,7 +36,7 @@ public:
     /*** class function and variable ***/
 
     int appendChannelStrategy(ChannelStrategyPtr channelStrategy);
-    void setListener(ListenerPtr listener);
+    int setListener(ListenerPtr listener);
     void setDataListener(DataListenerPtr listener);
     int start();
     int stop();

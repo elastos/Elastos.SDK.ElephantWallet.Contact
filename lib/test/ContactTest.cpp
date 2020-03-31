@@ -146,7 +146,11 @@ int ContactTest::testNewContact()
         }
     };
     mContactListener = std::make_shared<Listener>();
-    mContact->setListener(mContactListener);
+    ret = mContact->setListener(mContactListener);
+    if(ret < 0) {
+        ShowError("Failed to set listener. ret=" + std::to_string(ret));
+        return ret;
+    }
 
     class DataListener: public elastos::sdk::Contact::DataListener {
         virtual void onNotify(const std::string& humanCode,

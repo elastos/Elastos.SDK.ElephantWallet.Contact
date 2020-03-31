@@ -75,7 +75,7 @@ int ContactBridge::appendChannelStrategy(ChannelStrategyPtr channelStrategy)
     return 0;
 }
 
-void ContactBridge::setListener(ListenerPtr listener)
+int ContactBridge::setListener(ListenerPtr listener)
 {
     Log::I(Log::TAG, FORMAT_METHOD);
 
@@ -93,9 +93,10 @@ void ContactBridge::setListener(ListenerPtr listener)
 
     auto sectyListener = listenerPtr->getSecurityListener();
     auto msgListener = listenerPtr->getMessageListener();
-    mContactImpl->setListener(sectyListener, nullptr, nullptr, msgListener);
+    int ret = mContactImpl->setListener(sectyListener, nullptr, nullptr, msgListener);
+    CHECK_ERROR(ret);
 
-    return;
+    return ret;
 }
 
 void ContactBridge::setDataListener(DataListenerPtr listener)

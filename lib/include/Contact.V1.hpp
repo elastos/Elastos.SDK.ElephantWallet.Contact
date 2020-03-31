@@ -52,10 +52,10 @@ public:
     /*** static function and variable ***/
 
     /*** class function and variable ***/
-    void setListener(std::shared_ptr<SecurityManager::SecurityListener> sectyListener,
-                     std::shared_ptr<UserManager::UserListener> userListener = nullptr,
-                     std::shared_ptr<FriendManager::FriendListener> friendListener = nullptr,
-                     std::shared_ptr<MessageManager::MessageListener> msgListener = nullptr);
+    int setListener(std::shared_ptr<SecurityManager::SecurityListener> sectyListener,
+                    std::shared_ptr<UserManager::UserListener> userListener = nullptr,
+                    std::shared_ptr<FriendManager::FriendListener> friendListener = nullptr,
+                    std::shared_ptr<MessageManager::MessageListener> msgListener = nullptr);
 
     std::weak_ptr<SecurityManager> getSecurityManager();
     std::weak_ptr<UserManager> getUserManager();

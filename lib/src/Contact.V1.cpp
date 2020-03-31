@@ -71,16 +71,21 @@ std::shared_ptr<ContactV1> ContactV1::Factory::Create()
 /***********************************************/
 /***** class public function implement  ********/
 /***********************************************/
-void ContactV1::setListener(std::shared_ptr<SecurityManager::SecurityListener> sectyListener,
-                            std::shared_ptr<UserManager::UserListener> userListener,
-                            std::shared_ptr<FriendManager::FriendListener> friendListener,
-                            std::shared_ptr<MessageManager::MessageListener> msgListener)
+int ContactV1::setListener(std::shared_ptr<SecurityManager::SecurityListener> sectyListener,
+                           std::shared_ptr<UserManager::UserListener> userListener,
+                           std::shared_ptr<FriendManager::FriendListener> friendListener,
+                           std::shared_ptr<MessageManager::MessageListener> msgListener)
 {
     mSecurityManager->setSecurityListener(sectyListener);
     mUserManager->setUserListener(userListener);
     mFriendManager->setFriendListener(friendListener);
     mMessageManager->setMessageListener(msgListener);
     mHasListener = true;
+
+    int ret = initGlobal();
+    CHECK_ERROR(ret);
+
+    return 0;
 }
 
 int ContactV1::start()
@@ -306,7 +311,6 @@ int ContactV1::syncInfoDownload(int fromClient)
     std::string value;
     userInfo->serialize(value, false);
     Log::V(Log::TAG, "%s download user info: %s", FORMAT_METHOD, value.c_str());
-
 
     return 0;
 }

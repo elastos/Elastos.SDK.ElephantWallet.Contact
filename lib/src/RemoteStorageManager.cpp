@@ -51,11 +51,12 @@ int RemoteStorageManager::ensureRemoteStorageHash()
 
     auto hash = client->getAuthHash();
     if(hash.empty() == false) {
-        Log::I(Log::TAG, "%s oss auth hash has been set in local.", FORMAT_METHOD);
+        Log::I(Log::TAG, "%s oss auth hash has been set, use it directly.", FORMAT_METHOD);
         return 0;
     }
 
     // if auth hash is empty, try to get it from did chain.
+    Log::W(Log::TAG, "%s search oss auth hash from did chain ...", FORMAT_METHOD);
     std::vector<std::string> savedPropKeyList { PropKey::IdentifyKey };
     std::vector<std::string> totalPropFileList;
     std::shared_ptr<UserInfo> remoteUserInfo = std::make_shared<UserInfo>();
@@ -79,6 +80,7 @@ int RemoteStorageManager::ensureRemoteStorageHash()
     }
 
     // if auth hash on didchain is empty, try to generate it from default elaphant oss.
+    Log::W(Log::TAG, "%s generate oss auth hash from defalut elaphant oss ...", FORMAT_METHOD);
     ret = client->genAuthHash();
     if(ret == 0) {
         Log::I(Log::TAG, "%s oss auth hash is updated from default settings.", FORMAT_METHOD);
@@ -345,10 +347,10 @@ int RemoteStorageManager::downloadData(ClientType fromClient,
         totalPropFileList.push_back(did + "/" + carrierDataPath);
     }
 
-    Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
+//    Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
     ret = downloadData(fromClient, savedPropKeyList, totalPropFileList, userInfo, friendInfoList, carrierData);
     CHECK_ERROR(ret);
-    Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
+//    Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
 
     return 0;
 }
@@ -380,7 +382,7 @@ int RemoteStorageManager::downloadData(ClientType fromClient,
     for(const auto& file: propFileList) {
         totalPropMap.emplace(file, nullptr);
     }
-    Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
+//    Log::I(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     std::string did;
@@ -482,7 +484,7 @@ int RemoteStorageManager::unpackUserSegment(const std::string& segment,
                                             const std::string& propKey,
                                             std::shared_ptr<UserInfo>& userInfo)
 {
-    Log::W(Log::TAG, "%s %d %s:%s", FORMAT_METHOD, __LINE__, propKey.c_str(), segment.c_str());
+    Log::I(Log::TAG, "%s %d %s:%s", FORMAT_METHOD, __LINE__, propKey.c_str(), segment.c_str());
 
     if(propKey == PropKey::PublicKey) {
         int ret = userInfo->HumanInfo::setHumanInfo(HumanInfo::Item::ChainPubKey, segment);
@@ -623,21 +625,24 @@ int RemoteStorageManager::unpackFriendData(const std::string& data,
 }
 
 int RemoteStorageManager::mergeUserInfo(const std::shared_ptr<UserInfo>& from,
-                                        const std::shared_ptr<UserInfo>& to)
-{
+                                        const std::shared_ptr<UserInfo>& to) {
     auto status = to->getHumanStatus();
 
     int ret = to->HumanInfo::mergeHumanInfo(*from, status);
-    if(GET_ERRCODE(ret) == ErrCode::IgnoreMergeOldInfo) {
+    if (GET_ERRCODE(ret) == 0) {
+        Log::I(Log::TAG, "%s Success to merge human info.", FORMAT_METHOD);
+    } else if(GET_ERRCODE(ret) == ErrCode::IgnoreMergeOldInfo) {
         Log::I(Log::TAG, "%s Ignore to merge old human info.", FORMAT_METHOD);
-        return 0;
+        ret = 0;
     }
     CHECK_ERROR(ret);
 
     ret = to->mergeIdentifyCode(*from);
-    if(GET_ERRCODE(ret) == ErrCode::IgnoreMergeOldInfo) {
+    if (GET_ERRCODE(ret) == 0) {
+        Log::I(Log::TAG, "%s Success to merge indentify info.", FORMAT_METHOD);
+    } else if(GET_ERRCODE(ret) == ErrCode::IgnoreMergeOldInfo) {
         Log::I(Log::TAG, "%s Ignore to merge old indentify code.", FORMAT_METHOD);
-        return 0;
+        ret = 0;
     }
     CHECK_ERROR(ret);
 

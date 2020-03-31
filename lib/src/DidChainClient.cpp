@@ -106,7 +106,7 @@ int DidChainClient::downloadProperties(const std::string& fromDid,
     for(auto& [key, future]: futureMap) {
         int ret = future.get();
         if (ret == ErrCode::BlkChnEmptyPropError) {
-            Log::V(Log::TAG, "%s Ignore to process empty key: %s.", FORMAT_METHOD, key.c_str());
+            Log::V(Log::TAG, "%s Ignore to add empty key: %s.", FORMAT_METHOD, key.c_str());
             continue;
         }
         CHECK_ERROR(ret);
@@ -114,8 +114,8 @@ int DidChainClient::downloadProperties(const std::string& fromDid,
         auto propList = propMap[key];
         for(const auto& prop: *propList) {
             savedPropMap.emplace(key, prop);
+            Log::I(Log::TAG, "%s Success to add %s:%s.", FORMAT_METHOD, key.c_str(), prop.c_str());
         }
-        Log::I(Log::TAG, "%s Success to process empty key: %s.", FORMAT_METHOD, key.c_str());
     }
 
     return 0;
