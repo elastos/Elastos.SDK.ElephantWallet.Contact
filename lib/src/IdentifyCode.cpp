@@ -7,6 +7,7 @@
 
 #include <IdentifyCode.hpp>
 
+#include <DateTime.hpp>
 #include <JsonDefine.hpp>
 #include <Log.hpp>
 #include <Platform.hpp>
@@ -43,6 +44,7 @@ int IdentifyCode::setIdentifyCode(Type type, const std::string& value)
     }
 
     mIdCodeMap[type] = value;
+    mUpdateTime = DateTime::CurrentMS();
 
     return static_cast<int>(type);
 }
@@ -65,9 +67,9 @@ int IdentifyCode::mergeIdentifyCode(const IdentifyCode& value)
     }
 
     for(const auto& it: value.mIdCodeMap) {
-        int ret = setIdentifyCode(it.first, it.second);
+        int ret = IdentifyCode::setIdentifyCode(it.first, it.second);
         if(ret < 0) {
-            Log::W(Log::TAG, "IdentifyCode::mergeIdentifyCode() Failed to merge %d: %s", it.first, it.second.c_str());
+            Log::W(Log::TAG, "IdentifyCode::mergeIdentifyCode() Failed to merge %d:%s", it.first, it.second.c_str());
         }
     }
 

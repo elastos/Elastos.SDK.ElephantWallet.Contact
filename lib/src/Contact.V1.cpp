@@ -206,6 +206,13 @@ int ContactV1::syncInfoMigrateOss(const std::string& user, const std::string& pa
     ret = proofOssClient->migrateTo(ossAuthTo);
     CHECK_ERROR(ret);
 
+    std::string authHash = proofOssClient->getAuthHash();
+    ret = mUserManager->setIdentifyCode(UserInfo::Type::RemoteStorage, authHash);
+    CHECK_ERROR(ret);
+
+    ret = syncInfoUpload(SyncInfoClient::DidChain);
+    CHECK_ERROR(ret);
+
     return 0;
 }
 
@@ -221,7 +228,6 @@ int ContactV1::syncInfoAuthOss(const std::string& user, const std::string& passw
     std::shared_ptr<RemoteStorageManager::RemoteStorageClient> client;
     ret = mRemoteStorageManager->getClient(RemoteStorageManager::ClientType::Oss, client);
     CHECK_ERROR(ret);
-
     auto proofOssClient = std::static_pointer_cast<ProofOssClient>(client);
     if(proofOssClient == nullptr) {
         CHECK_ERROR(ErrCode::NotFoundError);
@@ -276,15 +282,22 @@ int ContactV1::syncInfoDownload(int fromClient)
         Log::I(Log::TAG, "%s Ignore to download carrier data, use local at %s", FORMAT_METHOD, carrierDataPath.c_str());
     }
 
-    std::vector<RemoteStorageManager::ClientType> fromClientType;
-    if((fromClient & SyncInfoClient::Oss) != 0) {
+    if((fromClient & SyncInfoClient::DidChain) != 0) {
+        std::vector<RemoteStorageManager::ClientType> fromClientType;
         fromClientType.push_back(RemoteStorageManager::ClientType::DidChain);
+        ret = mRemoteStorageManager->downloadData(fromClientType, userInfo, friendInfoList, carrierData);
+        CHECK_ERROR(ret);
     }
-    if((fromClient & SyncInfoClient::Oss) != 0) {
-        fromClientType.push_back(RemoteStorageManager::ClientType::Oss);
-    }
-    ret = mRemoteStorageManager->downloadData(fromClientType, userInfo, friendInfoList, carrierData);
+
+    ret = updateRemoteManager();
     CHECK_ERROR(ret);
+
+    if((fromClient & SyncInfoClient::Oss) != 0) {
+        std::vector<RemoteStorageManager::ClientType> fromClientType;
+        fromClientType.push_back(RemoteStorageManager::ClientType::Oss);
+        ret = mRemoteStorageManager->downloadData(fromClientType, userInfo, friendInfoList, carrierData);
+        CHECK_ERROR(ret);
+    }
 
     if(carrierData != nullptr) {
         carrierData->close();
@@ -300,9 +313,8 @@ int ContactV1::syncInfoDownload(int fromClient)
 
 int ContactV1::syncInfoUpload(int toClient)
 {
-    if(isStarted() == false) {
-        CHECK_ERROR(ErrCode::ExpectedAfterStartedError);
-    }
+    int ret = initGlobal();
+    CHECK_ERROR(ret);
 
     std::vector<RemoteStorageManager::ClientType> toClientType;
     if((toClient & SyncInfoClient::DidChain) != 0) {
@@ -313,7 +325,7 @@ int ContactV1::syncInfoUpload(int toClient)
     }
 
     std::shared_ptr<UserInfo> userInfo;
-    int ret = mUserManager->getUserInfo(userInfo);
+    ret = mUserManager->getUserInfo(userInfo);
     CHECK_ERROR(ret);
     std::vector<std::shared_ptr<FriendInfo>> friendInfoList;
     ret = mFriendManager->getFriendInfoList(friendInfoList);
@@ -564,19 +576,8 @@ int ContactV1::initGlobal()
     mRemoteStorageManager->addClient(RemoteStorageManager::ClientType::DidChain, didChainClient);
     auto proofOssClient = std::make_shared<ProofOssClient>(mConfig, mSecurityManager);
     mRemoteStorageManager->addClient(RemoteStorageManager::ClientType::Oss, proofOssClient);
-
-    std::shared_ptr<UserInfo> userInfo;
-    ret = mUserManager->getUserInfo(userInfo);
+    ret = updateRemoteManager();
     CHECK_ERROR(ret);
-    std::string authHash;
-    ret = userInfo->getIdentifyCode(UserInfo::Type::RemoteStorage, authHash);
-    if(ret == ErrCode::NotFoundError) { // ignore not found
-        ret = 0;
-    }
-    CHECK_ERROR(ret);
-    if(authHash.empty() == false) {
-        proofOssClient->setAuthHash(authHash);
-    }
 
     ret = ElaChnClient::InitInstance(mConfig, mSecurityManager);
     CHECK_ERROR(ret);
@@ -617,6 +618,31 @@ int ContactV1::monitorDidChainData()
 
         ret = dcClient->appendMoniter(did, listener, false);
         CHECK_ERROR(ret);
+    }
+
+    return 0;
+}
+
+int ContactV1::updateRemoteManager()
+{
+    std::shared_ptr<UserInfo> userInfo;
+    int ret = mUserManager->getUserInfo(userInfo);
+    CHECK_ERROR(ret);
+    std::string authHash;
+    ret = userInfo->getIdentifyCode(UserInfo::Type::RemoteStorage, authHash);
+    if(ret == ErrCode::NotFoundError) { // ignore not found
+        ret = 0;
+    }
+    CHECK_ERROR(ret);
+    if(authHash.empty() == false) {
+        std::shared_ptr<RemoteStorageManager::RemoteStorageClient> client;
+        ret = mRemoteStorageManager->getClient(RemoteStorageManager::ClientType::Oss, client);
+        CHECK_ERROR(ret);
+        auto proofOssClient = std::static_pointer_cast<ProofOssClient>(client);
+        if(proofOssClient == nullptr) {
+            CHECK_ERROR(ErrCode::NotFoundError);
+        }
+        proofOssClient->setAuthHash(authHash);
     }
 
     return 0;

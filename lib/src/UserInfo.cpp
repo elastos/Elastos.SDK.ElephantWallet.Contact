@@ -141,14 +141,16 @@ int UserInfo::setHumanInfo(Item item, const std::string& value)
 
     int ret = HumanInfo::setHumanInfo(item, *itemValue);
     Log::D(Log::TAG, "%s ret=%d", FORMAT_METHOD, ret);
-    if(ret <= 0) { // error or not changed
+    if(ret == 0) { // not changed
         return ret;
     }
+    CHECK_ERROR(ret);
+    int index = ret;
 
     ret = userMgr->saveLocalData();
     CHECK_ERROR(ret);
 
-    return 0;
+    return index;
 }
 
 int UserInfo::mergeHumanInfo(const HumanInfo& value, const Status status)
@@ -237,12 +239,13 @@ int UserInfo::setIdentifyCode(Type type, const std::string& value)
         return ret;
     }
     CHECK_ERROR(ret);
+    int index = ret;
 
     auto userMgr = SAFE_GET_PTR(mUserManager);
     ret = userMgr->saveLocalData();
     CHECK_ERROR(ret);
 
-    return 0;
+    return index;
 }
 
 /***********************************************/

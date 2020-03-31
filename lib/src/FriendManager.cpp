@@ -170,7 +170,8 @@ int FriendManager::restoreFriendsInfo()
 //            Log::I(Log::TAG, "FriendManager::restoreFriendsInfo() Can't find friend info from local or did chain.");
 //            ret = ErrCode::EmptyInfoError;
 //        }
-        ret = 0;
+        ret = saveLocalData();
+        CHECK_ERROR(ret);
     }
     if(ret < 0) {
         Log::W(Log::TAG, "FriendManager::restoreFriendsInfo() Failed to restore friend, ret=%d", ret);

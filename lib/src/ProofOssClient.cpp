@@ -13,6 +13,7 @@
 #include "JsonDefine.hpp"
 #include "ProofOssClient.hpp"
 #include <PersonalStorage.SDK.OSS.hpp>
+#include <CloudErrCode.hpp>
 
 namespace elastos {
 
@@ -68,7 +69,7 @@ int ProofOssClient::genAuthHash()
 
 std::string ProofOssClient::getAuthHash()
 {
-    Log::I(Log::TAG, FORMAT_METHOD);
+    Log::D(Log::TAG, "%s authhash:%s", FORMAT_METHOD, mAuthHash.c_str());
     return mAuthHash;
 }
 
@@ -131,11 +132,11 @@ int ProofOssClient::downloadProperties(const std::string& fromDid,
     for(const auto& path: totalPropKeySet) {
         auto content = std::make_shared<std::stringstream>();
         ret = ossRead(path, content);
-        if(ret < 0) {
-            Log::W(Log::TAG, "%s Failed to read oss content from: %s", FORMAT_METHOD, path.c_str());
+        if(GET_ERRCODE(ret) == elastos::sdk::CloudErrCode::AliOssNoSuchKey) {
+            Log::W(Log::TAG, "%s Failed to read oss no exists content from: %s", FORMAT_METHOD, path.c_str());
             continue;
         }
-//        CHECK_ERROR(ret);
+        CHECK_ERROR(ret);
         totalPropMap[path] = content;
     }
 

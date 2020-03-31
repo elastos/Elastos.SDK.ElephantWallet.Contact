@@ -83,7 +83,6 @@ private:
     /*** type define ***/
 
     /*** static function and variable ***/
-    static constexpr const char* UserDataSeparator = "--------------------------";
 
     /*** class function and variable ***/
     explicit ContactV1();
@@ -91,6 +90,7 @@ private:
     int getUserDataDir(std::string& dir);
     int initGlobal();
     int monitorDidChainData();
+    int updateRemoteManager();
 
     std::shared_ptr<SecurityManager> mSecurityManager;
     std::shared_ptr<UserManager> mUserManager;

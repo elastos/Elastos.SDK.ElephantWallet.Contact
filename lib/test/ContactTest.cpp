@@ -616,6 +616,7 @@ std::shared_ptr<std::vector<uint8_t>> ContactTest::processAcquire(const elastos:
             if(cryptoBuf != nullptr) {
                 std::string cryptoData {cryptoBuf};
                 response = std::make_shared<std::vector<uint8_t>>(cryptoData.begin(), cryptoData.end());
+                response->push_back('\0');
                 ::freeBuf((void*)cryptoBuf);
             } else {
                 response = std::make_shared<std::vector<uint8_t>>(request.data); // ignore encrypt

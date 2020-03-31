@@ -110,7 +110,7 @@ int RemoteStorageManager::getClient(ClientType type, std::shared_ptr<RemoteStora
 
 int RemoteStorageManager::cacheProperty(const std::string& did, const char* key)
 {
-    Log::I(Log::TAG, FORMAT_METHOD);
+    Log::I(Log::TAG, "%s %s:%s", FORMAT_METHOD, did.c_str(), key);
     if(did.empty() == true) {
         CHECK_ERROR(ErrCode::InvalidArgument);
     }
@@ -401,9 +401,9 @@ int RemoteStorageManager::downloadData(ClientType fromClient,
             int ret = unpackFriendSegment(segment, friendInfoList);
             CHECK_ERROR(ret);
         } else if (propKey == PropKey::PublicKey
-                   || propKey == PropKey::DetailKey
-                   || propKey == PropKey::IdentifyKey
-                   || propKey == PropKey::CarrierInfo){
+        || propKey == PropKey::DetailKey
+        || propKey == PropKey::IdentifyKey
+        || propKey == PropKey::CarrierInfo){
             auto newUserInfo = std::make_shared<UserInfo>();
             int ret = unpackUserSegment(segment, propKey, newUserInfo);
             if(GET_ERRCODE(ret) == ErrCode::IgnoreMergeOldInfo) {
@@ -425,7 +425,7 @@ int RemoteStorageManager::downloadData(ClientType fromClient,
             continue;
         }
 
-        if(path == UserManager::DataFileName) {
+        if(path == (did + "/" + UserManager::DataFileName)) {
             std::string data;
             (*content) >> data;
             auto newUserInfo = std::make_shared<UserInfo>();
@@ -433,14 +433,15 @@ int RemoteStorageManager::downloadData(ClientType fromClient,
             CHECK_ERROR(ret);
             ret = mergeUserInfo(newUserInfo, userInfo);
             CHECK_ERROR(ret);
-        } else if(path == UserManager::DataFileName) {
+        } else if(path == (did + "/" + FriendManager::DataFileName)) {
             std::string data;
             (*content) >> data;
             int ret = unpackFriendData(data, friendInfoList);
             CHECK_ERROR(ret);
-        } else if(path == carrierDataPath) {
+        } else if(path == (did + "/" + carrierDataPath)) {
             carrierData = content;
         } else {
+            Log::E(Log::TAG, "%s Failed to process file path: ", path.c_str());
             CHECK_ERROR(ErrCode::NotExpectedReachedError);
         }
     }
@@ -481,7 +482,8 @@ int RemoteStorageManager::unpackUserSegment(const std::string& segment,
                                             const std::string& propKey,
                                             std::shared_ptr<UserInfo>& userInfo)
 {
-    Log::W(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
+    Log::W(Log::TAG, "%s %d %s:%s", FORMAT_METHOD, __LINE__, propKey.c_str(), segment.c_str());
+
     if(propKey == PropKey::PublicKey) {
         int ret = userInfo->HumanInfo::setHumanInfo(HumanInfo::Item::ChainPubKey, segment);
     } else if(propKey == PropKey::CarrierInfo) {
@@ -637,6 +639,7 @@ int RemoteStorageManager::mergeUserInfo(const std::shared_ptr<UserInfo>& from,
         Log::I(Log::TAG, "%s Ignore to merge old indentify code.", FORMAT_METHOD);
         return 0;
     }
+    CHECK_ERROR(ret);
 
     return 0;
 }

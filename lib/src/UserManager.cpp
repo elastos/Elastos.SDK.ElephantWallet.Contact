@@ -235,6 +235,9 @@ int UserManager::setUserInfo(UserInfo::Item item, const std::string& value)
 
     std::string userDetails;
     ret = mUserInfo->serializeDetails(userDetails);
+    if(ret == 0) { // not changed
+        return ret;
+    }
     CHECK_ERROR(ret);
 
     auto dcClient = DidChnClient::GetInstance();
@@ -258,15 +261,19 @@ int UserManager::setUserInfo(UserInfo::Item item, const std::string& value)
 
 int UserManager::setIdentifyCode(elastos::IdentifyCode::Type type, const std::string &value)
 {
+    Log::V(Log::TAG, "%s %d:%s", FORMAT_METHOD, type, value.c_str());
     if(mUserInfo.get() == nullptr) {
-        return ErrCode::NotReadyError;
+        CHECK_ERROR(ErrCode::NotReadyError);
     }
 
     int ret = mUserInfo->setIdentifyCode(type, value);
+    Log::V(Log::TAG, "%s ret=%d", FORMAT_METHOD, ret);
     if(ret == 0) { // not changed
         return ret;
     }
     CHECK_ERROR(ret);
+
+    Log::V(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
 
     std::string userIdentify;
     ret = mUserInfo->IdentifyCode::serialize(userIdentify);
@@ -281,6 +288,7 @@ int UserManager::setIdentifyCode(elastos::IdentifyCode::Type type, const std::st
     std::string did;
     ret = sectyMgr->getDid(did);
     CHECK_ERROR(ret);
+    Log::V(Log::TAG, "%s %d", FORMAT_METHOD, __LINE__);
     ret = rsMgr->cacheProperty(did, RemoteStorageManager::PropKey::IdentifyKey);
     CHECK_ERROR(ret);
 
