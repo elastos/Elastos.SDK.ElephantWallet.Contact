@@ -156,6 +156,12 @@ public class MainActivity extends Activity {
             case R.id.set_wallet_address:
                 message = showSetWalletAddress();
                 break;
+            case R.id.sync_migrateoss:
+                message = testSyncMigrateOss();
+                break;
+            case R.id.sync_authoss:
+                message = testSyncAuthOss();
+                break;
             case R.id.sync_upload:
                 message = testSyncUpload();
                 break;
@@ -963,12 +969,35 @@ public class MainActivity extends Activity {
         return "Success to get cached didprop.";
     }
 
-    private String testSyncUpload() {
-        if(mContact == null) {
-            return ErrorPrefix + "Contact is null.";
+    private String testSyncMigrateOss() {
+        if (mContact == null) {
+            testNewContact();
         }
 
-//        int ret = mContact.syncInfoUploadToDidChain();
+        Helper.showOssAuth(this, (result) -> {
+
+        });
+
+        return "Success to migrate oss.";
+    }
+
+    private String testSyncAuthOss() {
+        if (mContact == null) {
+            testNewContact();
+        }
+
+        Helper.showOssAuth(this, (result) -> {
+
+        });
+
+        return "Success to auth oss.";
+    }
+
+    private String testSyncUpload() {
+        if (mContact == null) {
+            testNewContact();
+        }
+
         int ret = mContact.syncInfoUpload(Contact.SyncInfoClient.DidChain | Contact.SyncInfoClient.Oss);
         if(ret < 0) {
             return ErrorPrefix + "Failed to call syncInfoUpload() ret=" + ret;
@@ -978,11 +1007,10 @@ public class MainActivity extends Activity {
     }
 
     private String testSyncDownload() {
-        if(mContact == null) {
-            return ErrorPrefix + "Contact is null.";
+        if (mContact == null) {
+            testNewContact();
         }
 
-//        int ret = mContact.syncInfoDownloadFromDidChain();
         int ret = mContact.syncInfoDownload(Contact.SyncInfoClient.DidChain | Contact.SyncInfoClient.Oss);
         if(ret < 0) {
             return ErrorPrefix + "Failed to call syncInfoDownload() ret=" + ret;

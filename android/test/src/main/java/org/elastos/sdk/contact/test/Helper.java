@@ -21,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -220,6 +221,50 @@ public class Helper {
             dismissDialog();
         });
         builder.setPositiveButton("Send", (dialog, which) -> {
+            listener.onResult(fileName.getText().toString());
+            dismissDialog();
+        });
+
+        showDialog(builder);
+    }
+
+    public static void showOssAuth(MainActivity activity, OnListener listener) {
+        TextView fileName = new TextView(activity);
+
+        GridView root = new GridView(activity);
+        root.setNumColumns(2);
+
+        TextView userTxtView = new TextView(activity);
+        userTxtView.setText("User:");
+        root.addView(userTxtView);
+
+        TextView passwordTxtView = new TextView(activity);
+        passwordTxtView.setText("Password:");
+        root.addView(passwordTxtView);
+
+        TextView tokenTxtView = new TextView(activity);
+        tokenTxtView.setText("Token:");
+        root.addView(tokenTxtView);
+
+        TextView diskTxtView = new TextView(activity);
+        diskTxtView.setText("Disk:");
+        root.addView(diskTxtView);
+
+        TextView partitionTxtView = new TextView(activity);
+        partitionTxtView.setText("Partition:");
+        root.addView(partitionTxtView);
+
+        TextView rootdirTxtView = new TextView(activity);
+        rootdirTxtView.setText("RootDir:");
+        root.addView(rootdirTxtView);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        builder.setTitle("Oss Auth");
+        builder.setView(root);
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            dismissDialog();
+        });
+        builder.setPositiveButton("Do", (dialog, which) -> {
             listener.onResult(fileName.getText().toString());
             dismissDialog();
         });

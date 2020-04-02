@@ -66,9 +66,6 @@ public:
     int stop();
     bool isStarted();
 
-    int syncInfoDownloadFromDidChain();
-    int syncInfoUploadToDidChain();
-
     int syncInfoMigrateOss(const std::string& user, const std::string& password, const std::string& token,
                            const std::string& disk, const std::string& partition, const std::string& rootdir);
     int syncInfoAuthOss(const std::string& user, const std::string& password, const std::string& token,

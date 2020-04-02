@@ -528,30 +528,6 @@ int ContactBridge::cancelPullData(ConstStringPtr humanCode, ChannelType chType,
     return ret;
 }
 
-int ContactBridge::syncInfoDownloadFromDidChain()
-{
-    if(mContactImpl->isStarted() == false) {
-        return elastos::ErrCode::NotReadyError;
-    }
-
-    int ret = mContactImpl->syncInfoDownloadFromDidChain();
-    CHECK_ERROR(ret);
-
-    return 0;
-}
-
-int ContactBridge::syncInfoUploadToDidChain()
-{
-    if(mContactImpl->isStarted() == false) {
-        return elastos::ErrCode::NotReadyError;
-    }
-
-    int ret = mContactImpl->syncInfoUploadToDidChain();
-    CHECK_ERROR(ret);
-
-    return 0;
-}
-
 int ContactBridge::syncInfoMigrateOss(ConstStringPtr user, ConstStringPtr password, ConstStringPtr token,
                                       ConstStringPtr disk, ConstStringPtr partition, ConstStringPtr rootdir)
 {

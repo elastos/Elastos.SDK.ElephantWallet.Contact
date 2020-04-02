@@ -33,6 +33,12 @@
         android:title="   |- Set User Details" />
     <item android:id="@+id/set_wallet_address"
         android:title="   |- Set Wallet Address" />
+    <item android:id="@+id/sync_migrateoss"
+        android:title="   |- Sync MigrateOss" />
+    <item android:id="@+id/sync_authoss"
+        android:title="   |- Sync AuthOss" />
+    <item android:id="@+id/sync_upload"
+        android:title="   |- Sync Upload" />
     <item android:id="@+id/sync_upload"
         android:title="   |- Sync Upload" />
     <item android:id="@+id/sync_download"

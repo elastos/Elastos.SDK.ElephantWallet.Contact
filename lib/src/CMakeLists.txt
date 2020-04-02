@@ -25,7 +25,7 @@ set(pkg-Elastos.NET.Carrier_STATIC_LDFLAGS
     toxcore
     sodium)
 
-file( GLOB SRC_SOURCES "*.cpp" "*/*.cpp")
+file( GLOB SRC_SOURCES "*.cpp" )
 file( GLOB SRC_HEADERS "*.hpp" )
 
 if(${CMAKE_VERSION} VERSION_LESS "3.12")

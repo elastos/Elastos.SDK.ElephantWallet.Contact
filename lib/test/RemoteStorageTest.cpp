@@ -1,15 +1,16 @@
 #include <iostream>
 #include <signal.h>
 
-#include <RemoteStorageManager.hpp>
-#include <ProofOssClient.hpp>
-#include <DateTime.hpp>
+#include <CompatibleFileSystem.hpp>
 #include <Contact.V1.hpp>
+#include <DateTime.hpp>
 #include <Elastos.SDK.Keypair.C/Elastos.Wallet.Utility.h>
-#include <Platform.hpp>
+#include <ErrCode.hpp>
 #include <Log.hpp>
 #include <MD5.hpp>
-#include <ErrCode.hpp>
+#include <Platform.hpp>
+#include <ProofOssClient.hpp>
+#include <RemoteStorageManager.hpp>
 
 std::string gCachedMnemonic = "reopen mechanic feed suspect bus session write spoon indoor raw apology acquire";
 const char* gKeypairLanguage = "english";
@@ -38,7 +39,7 @@ int main(int argc, char **argv)
     rsMgr->addClient(elastos::RemoteStorageManager::ClientType::Oss, proofOssClient);
 
     Log::W(Log::TAG, "UserDataDir: %s", config->mUserDataDir.c_str());
-    std::filesystem::create_directories(config->mUserDataDir);
+    elastos::filesystem::create_directories(config->mUserDataDir);
     auto dataFileName = "RemoteStorageTest";
     auto dataFilePath = std::fstream();
     dataFilePath.open(config->mUserDataDir + "/" + dataFileName, std::ios::out | std::ios::binary);

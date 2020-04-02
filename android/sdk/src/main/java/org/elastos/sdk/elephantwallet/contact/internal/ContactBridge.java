@@ -284,12 +284,6 @@ class ContactBridge extends CrossBase {
     public native int acceptFriend(String friendCode);
 
     @CrossInterface
-    public native int syncInfoDownloadFromDidChain();
-
-    @CrossInterface
-    public native int syncInfoUploadToDidChain();
-
-    @CrossInterface
     public native int syncInfoMigrateOss(String user, String password, String token,
                                          String disk, String partition, String rootdir);
 

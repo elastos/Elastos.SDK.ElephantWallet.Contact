@@ -147,40 +147,6 @@ bool ContactV1::isStarted()
     return mStarted;
 }
 
-int ContactV1::syncInfoDownloadFromDidChain()
-{
-//    std::string did;
-//    int ret = mSecurityManager->getDid(did);
-//    CHECK_ERROR(ret);
-//
-//    auto dcClient = DidChnClient::GetInstance();
-//
-//    std::map<std::string, std::vector<std::string>> didProps;
-//    ret = dcClient->downloadDidProp(did, false, didProps);
-//    CHECK_ERROR(ret);
-//
-//    auto listener = DidChnDataListener::GetInstance();
-//    for(auto& [key, value]: didProps) {
-//        ret = listener->onChanged(did, key, value);
-//        CHECK_ERROR(ret);
-//    }
-
-    return 0;
-}
-
-int ContactV1::syncInfoUploadToDidChain()
-{
-//    auto dcClient = DidChnClient::GetInstance();
-//    if(dcClient.get() == nullptr) {
-//        return ErrCode::NotReadyError;
-//    }
-//
-//    int ret = dcClient->uploadCachedDidProp();
-//    CHECK_ERROR(ret);
-
-    return 0;
-}
-
 int ContactV1::syncInfoMigrateOss(const std::string& user, const std::string& password, const std::string& token,
                                   const std::string& disk, const std::string& partition, const std::string& rootdir)
 {

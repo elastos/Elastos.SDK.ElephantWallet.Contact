@@ -160,7 +160,7 @@ int ProofOssClient::migrateTo(const std::shared_ptr<OssAuth> to)
     auto config = SAFE_GET_PTR(mConfig);
     std::multimap<std::string, std::string> changedPropMap;
     std::map<std::string, std::shared_ptr<std::iostream>> totalPropMap;
-    for (const auto & entry : std::filesystem::recursive_directory_iterator(config->mUserDataDir)) {
+    for (const auto & entry : elastos::filesystem::recursive_directory_iterator(config->mUserDataDir)) {
         if(entry.is_directory() == true) {
             continue;
         }
