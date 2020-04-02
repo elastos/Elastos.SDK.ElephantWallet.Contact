@@ -89,7 +89,7 @@ private:
     virtual ~ContactV1();
     int getUserDataDir(std::string& dir);
     int initGlobal();
-    int monitorDidChainData();
+//    int monitorDidChainData();
     int updateRemoteManager();
 
     std::shared_ptr<SecurityManager> mSecurityManager;

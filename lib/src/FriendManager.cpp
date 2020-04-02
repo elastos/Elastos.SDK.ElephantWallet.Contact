@@ -9,8 +9,8 @@
 
 #include <algorithm>
 //#include "BlkChnClient.hpp"
-#include "DidChnClient.hpp"
-#include "DidChnDataListener.hpp"
+//#include "DidChnClient.hpp"
+//#include "DidChnDataListener.hpp"
 #include "ElaChnClient.hpp"
 #include <CompatibleFileSystem.hpp>
 #include <DateTime.hpp>
@@ -581,11 +581,11 @@ int FriendManager::cacheFriendToDidChain(std::shared_ptr<FriendInfo> friendInfo)
 
     std::string friendID = jsonInfo.dump();
 
-    auto dcClient = DidChnClient::GetInstance();
-    ret = dcClient->cacheDidProp(DidChnClient::NameFriendKey, friendID);
-    if (ret < 0) {
-        return ret;
-    }
+//    auto dcClient = DidChnClient::GetInstance();
+//    ret = dcClient->cacheDidProp(DidChnClient::NameFriendKey, friendID);
+//    if (ret < 0) {
+//        return ret;
+//    }
 
     auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
     ret = rsMgr->cacheProperty(humanCode, RemoteStorageManager::PropKey::FriendKey);
@@ -637,14 +637,28 @@ int FriendManager::addFriendByBrief(const std::string& brief, const std::string&
 
 int FriendManager::addFriendByDid(const std::string& did, const std::string& summary, bool remoteRequest, bool forceRequest)
 {
-    auto dcClient = DidChnClient::GetInstance();
+//    auto dcClient = DidChnClient::GetInstance();
+//
+//    std::map<std::string, std::vector<std::string>> didProps;
+//    int ret = dcClient->downloadDidProp(did, true, didProps);
+//    if(ret < 0) {
+//        Log::W(Log::TAG, "FriendManager::addFriendByDid() Failed to add friend did: %s.", did.c_str());
+//        return ret;
+//    }
 
-    std::map<std::string, std::vector<std::string>> didProps;
-    int ret = dcClient->downloadDidProp(did, true, didProps);
-    if(ret < 0) {
-        Log::W(Log::TAG, "FriendManager::addFriendByDid() Failed to add friend did: %s.", did.c_str());
-        return ret;
-    }
+    auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
+    std::shared_ptr<RemoteStorageManager::RemoteStorageClient> client;
+    int ret = rsMgr->getClient(RemoteStorageManager::ClientType::DidChain, client);
+    CHECK_ERROR(ret);
+
+    std::multimap<std::string, std::string> didPropMap {
+            {RemoteStorageManager::PropKey::PublicKey, ""},
+            {RemoteStorageManager::PropKey::CarrierInfo, ""},
+            {RemoteStorageManager::PropKey::DetailKey, ""},
+    };
+    std::map<std::string, std::shared_ptr<std::iostream>> totalPropMap;
+    ret = client->downloadProperties(did, didPropMap, totalPropMap);
+    CHECK_ERROR(ret);
 
     std::shared_ptr<FriendInfo> friendInfo;
     ret = tryGetFriendInfo(did, friendInfo);
@@ -653,9 +667,14 @@ int FriendManager::addFriendByDid(const std::string& did, const std::string& sum
         addFriendInfo(friendInfo);
     }
 
-    auto dcDataListener = DidChnDataListener::GetInstance();
-    for (auto& [key, values]: didProps) {
-        ret = dcDataListener->mergeHumanInfo(friendInfo, key, values);
+//    auto dcDataListener = DidChnDataListener::GetInstance();
+//    for (auto& [key, values]: didProps) {
+//        ret = dcDataListener->mergeHumanInfo(friendInfo, key, values);
+//        CHECK_ERROR(ret);
+//    }
+    auto humanInfo = std::dynamic_pointer_cast<HumanInfo>(friendInfo);
+    for (auto& [key, values]: didPropMap) {
+        ret = rsMgr->unpackHumanSegment(values, key, humanInfo);
         CHECK_ERROR(ret);
     }
 

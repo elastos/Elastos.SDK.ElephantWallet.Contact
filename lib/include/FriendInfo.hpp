@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "HumanInfo.hpp"
+#include "RemoteStorageManager.hpp"
 
 namespace elastos {
 

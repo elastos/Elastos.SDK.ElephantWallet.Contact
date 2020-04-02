@@ -7,7 +7,7 @@
 
 #include <ContactDebug.hpp>
 
-#include "DidChnClient.hpp"
+//#include "DidChnClient.hpp"
 #include "Log.hpp"
 
 namespace crosspl {
@@ -23,16 +23,16 @@ namespace native {
 
 int ContactDebug::GetCachedDidProp(std::stringstream* value)
 {
-    auto dcClient = elastos::DidChnClient::GetInstance();
-    if(dcClient.get() == nullptr) {
-        return elastos::ErrCode::NotReadyError;
-    }
-
-    std::string cachedDidProp;
-    int ret = dcClient->printCachedDidProp(cachedDidProp);
-    CHECK_ERROR(ret);
-
-    value->str(cachedDidProp);
+//    auto dcClient = elastos::DidChnClient::GetInstance();
+//    if(dcClient.get() == nullptr) {
+//        return elastos::ErrCode::NotReadyError;
+//    }
+//
+//    std::string cachedDidProp;
+//    int ret = dcClient->printCachedDidProp(cachedDidProp);
+//    CHECK_ERROR(ret);
+//
+//    value->str(cachedDidProp);
 
     return 0;
 }

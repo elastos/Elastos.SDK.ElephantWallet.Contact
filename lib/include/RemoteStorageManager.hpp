@@ -10,6 +10,7 @@
 
 namespace elastos {
 
+class HumanInfo;
 class FriendInfo;
 class UserInfo;
 
@@ -69,6 +70,10 @@ public:
                      std::shared_ptr<UserInfo>& userInfo,
                      std::vector<std::shared_ptr<FriendInfo>>& friendInfoList,
                      std::shared_ptr<std::fstream>& carrierData);
+
+    int unpackHumanSegment(const std::string& segment,
+                           const std::string& propKey,
+                           std::shared_ptr<HumanInfo>& humanInfo);
 
 private:
     /*** type define ***/

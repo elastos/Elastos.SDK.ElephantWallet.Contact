@@ -451,6 +451,38 @@ int RemoteStorageManager::downloadData(ClientType fromClient,
     return 0;
 }
 
+int RemoteStorageManager::unpackHumanSegment(const std::string& segment,
+                                             const std::string& propKey,
+                                             std::shared_ptr<HumanInfo>& humanInfo)
+{
+    Log::I(Log::TAG, "%s %d %s:%s", FORMAT_METHOD, __LINE__, propKey.c_str(), segment.c_str());
+
+    if(propKey == PropKey::PublicKey) {
+        int ret = humanInfo->HumanInfo::setHumanInfo(HumanInfo::Item::ChainPubKey, segment);
+    } else if(propKey == PropKey::CarrierInfo) {
+        HumanInfo::CarrierInfo carrierInfo;
+        int ret = HumanInfo::DeserializeCarrierInfo(segment, carrierInfo);
+        CHECK_ERROR(ret);
+
+        ret = humanInfo->HumanInfo::addCarrierInfo(carrierInfo, HumanInfo::Status::WaitForAccept);
+        if(GET_ERRCODE(ret) == ErrCode::IgnoreMergeOldInfo) {
+            return 0;
+        }
+        CHECK_ERROR(ret);
+//        Log::I(Log::TAG, "DidChnDataListener::processCarrierInfoChanged() Success to sync CarrierId: %s", it.c_str());
+    } else if(propKey == PropKey::DetailKey) {
+        int ret = humanInfo->deserializeDetails(segment);
+        if(GET_ERRCODE(ret) == ErrCode::IgnoreMergeOldInfo) {
+            return 0;
+        }
+        CHECK_ERROR(ret);
+    } else {
+        CHECK_ERROR(ErrCode::InvalidArgument);
+    }
+
+    return 0;
+}
+
 int RemoteStorageManager::packUserSegment(const std::shared_ptr<UserInfo> userInfo,
                                           const std::string& propKey,
                                           std::string& segment)
@@ -484,28 +516,15 @@ int RemoteStorageManager::unpackUserSegment(const std::string& segment,
                                             const std::string& propKey,
                                             std::shared_ptr<UserInfo>& userInfo)
 {
-    Log::I(Log::TAG, "%s %d %s:%s", FORMAT_METHOD, __LINE__, propKey.c_str(), segment.c_str());
-
-    if(propKey == PropKey::PublicKey) {
-        int ret = userInfo->HumanInfo::setHumanInfo(HumanInfo::Item::ChainPubKey, segment);
-    } else if(propKey == PropKey::CarrierInfo) {
-        HumanInfo::CarrierInfo carrierInfo;
-        int ret = HumanInfo::DeserializeCarrierInfo(segment, carrierInfo);
-        CHECK_ERROR(ret);
-
-        ret = userInfo->HumanInfo::addCarrierInfo(carrierInfo, HumanInfo::Status::WaitForAccept);
-        if(GET_ERRCODE(ret) == ErrCode::IgnoreMergeOldInfo) {
-            return 0;
-        }
-        CHECK_ERROR(ret);
-//        Log::I(Log::TAG, "DidChnDataListener::processCarrierInfoChanged() Success to sync CarrierId: %s", it.c_str());
-    } else if(propKey == PropKey::DetailKey) {
-        int ret = userInfo->deserializeDetails(segment);
-        if(GET_ERRCODE(ret) == ErrCode::IgnoreMergeOldInfo) {
-            return 0;
-        }
+    if(propKey == PropKey::PublicKey
+    || propKey == PropKey::CarrierInfo
+    || propKey == PropKey::DetailKey) {
+        auto humanInfo = std::dynamic_pointer_cast<HumanInfo>(userInfo);
+        int ret = unpackHumanSegment(segment, propKey, humanInfo);
         CHECK_ERROR(ret);
     } else if(propKey == PropKey::IdentifyKey) {
+        Log::I(Log::TAG, "%s %d %s:%s", FORMAT_METHOD, __LINE__, propKey.c_str(), segment.c_str());
+
         IdentifyCode identifyCode;
         int ret = identifyCode.deserialize(segment);
         CHECK_ERROR(ret);

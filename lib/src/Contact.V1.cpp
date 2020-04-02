@@ -11,8 +11,8 @@
 #include "ChannelImplCarrier.hpp"
 #include "CompatibleFileSystem.hpp"
 #include "DateTime.hpp"
-#include "DidChnClient.hpp"
-#include "DidChnDataListener.hpp"
+//#include "DidChnClient.hpp"
+//#include "DidChnDataListener.hpp"
 #include "ElaChnClient.hpp"
 #include "Log.hpp"
 #include "Platform.hpp"
@@ -134,9 +134,9 @@ int ContactV1::stop()
 
     mConfig.reset();
 
-    auto dcClient = DidChnClient::GetInstance();
-    ret = dcClient->stopMonitor();
-    CHECK_ERROR(ret);
+//    auto dcClient = DidChnClient::GetInstance();
+//    ret = dcClient->stopMonitor();
+//    CHECK_ERROR(ret);
 
     mStarted = false;
     return 0;
@@ -149,34 +149,34 @@ bool ContactV1::isStarted()
 
 int ContactV1::syncInfoDownloadFromDidChain()
 {
-    std::string did;
-    int ret = mSecurityManager->getDid(did);
-    CHECK_ERROR(ret);
-
-    auto dcClient = DidChnClient::GetInstance();
-
-    std::map<std::string, std::vector<std::string>> didProps;
-    ret = dcClient->downloadDidProp(did, false, didProps);
-    CHECK_ERROR(ret);
-
-    auto listener = DidChnDataListener::GetInstance();
-    for(auto& [key, value]: didProps) {
-        ret = listener->onChanged(did, key, value);
-        CHECK_ERROR(ret);
-    }
+//    std::string did;
+//    int ret = mSecurityManager->getDid(did);
+//    CHECK_ERROR(ret);
+//
+//    auto dcClient = DidChnClient::GetInstance();
+//
+//    std::map<std::string, std::vector<std::string>> didProps;
+//    ret = dcClient->downloadDidProp(did, false, didProps);
+//    CHECK_ERROR(ret);
+//
+//    auto listener = DidChnDataListener::GetInstance();
+//    for(auto& [key, value]: didProps) {
+//        ret = listener->onChanged(did, key, value);
+//        CHECK_ERROR(ret);
+//    }
 
     return 0;
 }
 
 int ContactV1::syncInfoUploadToDidChain()
 {
-    auto dcClient = DidChnClient::GetInstance();
-    if(dcClient.get() == nullptr) {
-        return ErrCode::NotReadyError;
-    }
-
-    int ret = dcClient->uploadCachedDidProp();
-    CHECK_ERROR(ret);
+//    auto dcClient = DidChnClient::GetInstance();
+//    if(dcClient.get() == nullptr) {
+//        return ErrCode::NotReadyError;
+//    }
+//
+//    int ret = dcClient->uploadCachedDidProp();
+//    CHECK_ERROR(ret);
 
     return 0;
 }
@@ -224,6 +224,10 @@ int ContactV1::syncInfoMigrateOss(const std::string& user, const std::string& pa
 int ContactV1::syncInfoAuthOss(const std::string& user, const std::string& password, const std::string& token,
                                const std::string& disk, const std::string& partition, const std::string& rootdir)
 {
+    if(isStarted() == true) {
+        CHECK_ERROR(ErrCode::ExpectedBeforeStartedError);
+    }
+
     int ret = initGlobal();
     CHECK_ERROR(ret);
 
@@ -256,10 +260,6 @@ int ContactV1::syncInfoAuthOss(const std::string& user, const std::string& passw
 
 int ContactV1::syncInfoDownload(int fromClient)
 {
-    if(isStarted() == true) {
-        CHECK_ERROR(ErrCode::ExpectedBeforeStartedError);
-    }
-
     int ret = initGlobal();
     CHECK_ERROR(ret);
 
@@ -496,8 +496,8 @@ ContactV1::ContactV1()
 
 ContactV1::~ContactV1()
 {
-    auto dcClient = DidChnClient::GetInstance();
-    dcClient->stopMonitor();
+//    auto dcClient = DidChnClient::GetInstance();
+//    dcClient->stopMonitor();
 }
 
 
@@ -586,46 +586,46 @@ int ContactV1::initGlobal()
     ret = ElaChnClient::InitInstance(mConfig, mSecurityManager);
     CHECK_ERROR(ret);
 
-    ret = DidChnClient::InitInstance(mConfig, mSecurityManager);
-    CHECK_ERROR(ret);
-
-    ret = DidChnDataListener::InitInstance(mUserManager, mFriendManager, mMessageManager);
-    CHECK_ERROR(ret);
-
+//    ret = DidChnClient::InitInstance(mConfig, mSecurityManager);
+//    CHECK_ERROR(ret);
+//
+//    ret = DidChnDataListener::InitInstance(mUserManager, mFriendManager, mMessageManager);
+//    CHECK_ERROR(ret);
+//
     mGlobalInited = true;
 
     return 0;
 }
 
-int ContactV1::monitorDidChainData()
-{
-    auto listener = DidChnDataListener::GetInstance();
-    auto dcClient = DidChnClient::GetInstance();
-
-    std::string did;
-    int ret = mSecurityManager->getDid(did);
-    CHECK_ERROR(ret);
-
-    ret = dcClient->appendMoniter(did, listener, false);
-    CHECK_ERROR(ret);
-
-    std::vector<std::shared_ptr<FriendInfo>> friendList;
-    ret = mFriendManager->getFriendInfoList(friendList);
-    CHECK_ERROR(ret);
-
-    for(const auto& it: friendList) {
-        ret = it->getHumanInfo(HumanInfo::Item::Did, did);
-        if(ret < 0) {
-            Log::W(Log::TAG, "ContactV1::monitorDidChainData() Failed to get friend did.");
-            continue;
-        }
-
-        ret = dcClient->appendMoniter(did, listener, false);
-        CHECK_ERROR(ret);
-    }
-
-    return 0;
-}
+//int ContactV1::monitorDidChainData()
+//{
+//    auto listener = DidChnDataListener::GetInstance();
+//    auto dcClient = DidChnClient::GetInstance();
+//
+//    std::string did;
+//    int ret = mSecurityManager->getDid(did);
+//    CHECK_ERROR(ret);
+//
+//    ret = dcClient->appendMoniter(did, listener, false);
+//    CHECK_ERROR(ret);
+//
+//    std::vector<std::shared_ptr<FriendInfo>> friendList;
+//    ret = mFriendManager->getFriendInfoList(friendList);
+//    CHECK_ERROR(ret);
+//
+//    for(const auto& it: friendList) {
+//        ret = it->getHumanInfo(HumanInfo::Item::Did, did);
+//        if(ret < 0) {
+//            Log::W(Log::TAG, "ContactV1::monitorDidChainData() Failed to get friend did.");
+//            continue;
+//        }
+//
+//        ret = dcClient->appendMoniter(did, listener, false);
+//        CHECK_ERROR(ret);
+//    }
+//
+//    return 0;
+//}
 
 int ContactV1::updateRemoteManager()
 {

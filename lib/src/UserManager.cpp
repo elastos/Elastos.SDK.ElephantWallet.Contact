@@ -8,7 +8,7 @@
 #include <UserManager.hpp>
 
 //#include "BlkChnClient.hpp"
-#include "DidChnClient.hpp"
+//#include "DidChnClient.hpp"
 #include <CompatibleFileSystem.hpp>
 #include <DateTime.hpp>
 #include <Log.hpp>
@@ -187,11 +187,11 @@ int UserManager::ensureUserCarrierInfo()
     ret = mUserInfo->getHumanInfo(HumanInfo::Item::ChainPubKey, pubKey);
     CHECK_ERROR(ret);
 
-    auto dcClient = DidChnClient::GetInstance();
-    ret = dcClient->cacheDidProp(DidChnClient::NamePublicKey, pubKey);
-    CHECK_ERROR(ret);
-    ret = dcClient->cacheDidProp(DidChnClient::NameCarrierKey, carrierInfoStr);
-    CHECK_ERROR(ret);
+//    auto dcClient = DidChnClient::GetInstance();
+//    ret = dcClient->cacheDidProp(DidChnClient::NamePublicKey, pubKey);
+//    CHECK_ERROR(ret);
+//    ret = dcClient->cacheDidProp(DidChnClient::NameCarrierKey, carrierInfoStr);
+//    CHECK_ERROR(ret);
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
@@ -240,9 +240,9 @@ int UserManager::setUserInfo(UserInfo::Item item, const std::string& value)
     }
     CHECK_ERROR(ret);
 
-    auto dcClient = DidChnClient::GetInstance();
-    ret = dcClient->cacheDidProp(DidChnClient::NameDetailKey, userDetails);
-    CHECK_ERROR(ret);
+//    auto dcClient = DidChnClient::GetInstance();
+//    ret = dcClient->cacheDidProp(DidChnClient::NameDetailKey, userDetails);
+//    CHECK_ERROR(ret);
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
@@ -279,9 +279,9 @@ int UserManager::setIdentifyCode(elastos::IdentifyCode::Type type, const std::st
     ret = mUserInfo->IdentifyCode::serialize(userIdentify);
     CHECK_ERROR(ret);
 
-    auto dcClient = DidChnClient::GetInstance();
-    ret = dcClient->cacheDidProp(DidChnClient::NameIdentifyKey, userIdentify);
-    CHECK_ERROR(ret);
+//    auto dcClient = DidChnClient::GetInstance();
+//    ret = dcClient->cacheDidProp(DidChnClient::NameIdentifyKey, userIdentify);
+//    CHECK_ERROR(ret);
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
@@ -312,9 +312,9 @@ int UserManager::setWalletAddress(const std::string& name, const std::string& va
     ret = mUserInfo->serializeDetails(userDetails);
     CHECK_ERROR(ret);
 
-    auto dcClient = DidChnClient::GetInstance();
-    ret = dcClient->cacheDidProp(DidChnClient::NameDetailKey, userDetails);
-    CHECK_ERROR(ret);
+//    auto dcClient = DidChnClient::GetInstance();
+//    ret = dcClient->cacheDidProp(DidChnClient::NameDetailKey, userDetails);
+//    CHECK_ERROR(ret);
 
     auto sectyMgr = SAFE_GET_PTR(mSecurityManager);
     auto rsMgr = SAFE_GET_PTR(mRemoteStorageManager);
