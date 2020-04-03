@@ -26,6 +26,8 @@ import android.widget.Toast;
 import org.elastos.sdk.elephantwallet.contact.Contact;
 import org.elastos.sdk.elephantwallet.contact.Utils;
 import org.elastos.tools.crosspl.utils.DataBuffer;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -974,8 +976,25 @@ public class MainActivity extends Activity {
             testNewContact();
         }
 
-        Helper.showOssAuth(this, (result) -> {
-
+        Helper.showOssAuth(this, "Migrate", (result) -> {
+            class OssAuth {
+                String user;
+                String password;
+                String token;
+                String disk;
+                String partition;
+                String rootdir;
+            }
+            try {
+                OssAuth ossAuth = Utils.GetGsonBuilder().create().fromJson(result, OssAuth.class);
+                int ret = mContact.syncInfoMigrateOss(ossAuth.user, ossAuth.password, ossAuth.token,
+                                                      ossAuth.disk, ossAuth.partition, ossAuth.rootdir);
+                if(ret < 0) {
+                    showMessage(ErrorPrefix + "Failed to migrate auth: " + result + ". ret=" + ret);
+                }
+            } catch (Exception e) {
+                showMessage(ErrorPrefix + "Failed to migrate auth: " + result);
+            }
         });
 
         return "Success to migrate oss.";
@@ -986,8 +1005,25 @@ public class MainActivity extends Activity {
             testNewContact();
         }
 
-        Helper.showOssAuth(this, (result) -> {
-
+        Helper.showOssAuth(this, "Set", (result) -> {
+            class OssAuth {
+                String user;
+                String password;
+                String token;
+                String disk;
+                String partition;
+                String rootdir;
+            }
+            try {
+                OssAuth ossAuth = Utils.GetGsonBuilder().create().fromJson(result, OssAuth.class);
+                int ret = mContact.syncInfoAuthOss(ossAuth.user, ossAuth.password, ossAuth.token,
+                                                   ossAuth.disk, ossAuth.partition, ossAuth.rootdir);
+                if(ret < 0) {
+                    showMessage(ErrorPrefix + "Failed to set auth: " + result + ". ret=" + ret);
+                }
+            } catch (Exception e) {
+                showMessage(ErrorPrefix + "Failed to set auth: " + result);
+            }
         });
 
         return "Success to auth oss.";

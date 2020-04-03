@@ -123,7 +123,7 @@ public:
 	constexpr static const int HttpClientErrorIndex = -2000;
 	constexpr static const int RemoteStorageClientErrorIndex = -3000;
 
-	constexpr static const int SourceLineSection = -100000;
+	constexpr static const int SourceLineSection = -1000000;
 
 	static void SetErrorListener(std::function<void(int, const std::string&, const std::string&)> listener);
 	static void SetError(int errCode, const std::string& ext);

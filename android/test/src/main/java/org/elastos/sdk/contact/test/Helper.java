@@ -16,8 +16,10 @@ import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,9 +29,12 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.blikoon.qrcodescanner.QrCodeActivity;
+import com.google.gson.JsonObject;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
@@ -38,6 +43,7 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 
 import org.elastos.sdk.elephantwallet.contact.Contact;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -228,35 +234,60 @@ public class Helper {
         showDialog(builder);
     }
 
-    public static void showOssAuth(MainActivity activity, OnListener listener) {
-        TextView fileName = new TextView(activity);
+    public static void showOssAuth(MainActivity activity, String prompt, OnListener listener) {
+        abstract class TableItem {
+            public abstract TableRow gen(HashMap<String, EditText> authMap, String name);
+        }
+        TableItem tableItem = new TableItem() {
+            @Override
+            public TableRow gen(HashMap<String, EditText> authMap, String name) {
+                TableRow item = new TableRow(activity);
 
-        GridView root = new GridView(activity);
-        root.setNumColumns(2);
+                TextView txtView = new TextView(activity);
+                txtView.setText(name + ":");
+                item.addView(txtView);
 
-        TextView userTxtView = new TextView(activity);
-        userTxtView.setText("User:");
-        root.addView(userTxtView);
+                EditText editView = new EditText(activity);
+                editView.setEms(10);
+                editView.setSingleLine();
+                item.addView(editView);
+                authMap.put(name, editView);
 
-        TextView passwordTxtView = new TextView(activity);
-        passwordTxtView.setText("Password:");
-        root.addView(passwordTxtView);
+                return item;
+            }
+        };
 
-        TextView tokenTxtView = new TextView(activity);
-        tokenTxtView.setText("Token:");
-        root.addView(tokenTxtView);
+        TableLayout root = new TableLayout(activity);
+        HashMap<String, EditText> authMap = new HashMap<>();
+        root.addView(tableItem.gen(authMap, "User"));
+        root.addView(tableItem.gen(authMap, "Password"));
+        root.addView(tableItem.gen(authMap, "Token"));
+        root.addView(tableItem.gen(authMap, "Disk"));
+        root.addView(tableItem.gen(authMap, "Partition"));
+        root.addView(tableItem.gen(authMap, "RootDir"));
 
-        TextView diskTxtView = new TextView(activity);
-        diskTxtView.setText("Disk:");
-        root.addView(diskTxtView);
-
-        TextView partitionTxtView = new TextView(activity);
-        partitionTxtView.setText("Partition:");
-        root.addView(partitionTxtView);
-
-        TextView rootdirTxtView = new TextView(activity);
-        rootdirTxtView.setText("RootDir:");
-        root.addView(rootdirTxtView);
+        TableRow scanItem = new TableRow(activity);
+        scanItem.setGravity(Gravity.CENTER);
+        Button scanButton = new Button(activity);
+        scanButton.setText("Scan");
+        scanButton.setOnClickListener(view -> {
+            scanAddress(activity, (result) -> {
+                try {
+                    JSONObject json = new JSONObject(result);
+                    authMap.get("User").setText(json.optString("User", null));
+                    authMap.get("Password").setText(json.optString("Password", null));
+                    authMap.get("Token").setText(json.optString("Token", null));
+                    authMap.get("Disk").setText(json.optString("Disk", null));
+                    authMap.get("Partition").setText(json.optString("Partition", null));
+                    authMap.get("RootDir").setText(json.optString("RootDir", null));
+                } catch (JSONException e) {
+                    listener.onResult(result);
+                    dismissDialog();
+                }
+            });
+        });
+        scanItem.addView(scanButton);
+        root.addView(scanItem);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Oss Auth");
@@ -264,8 +295,13 @@ public class Helper {
         builder.setNegativeButton("Cancel", (dialog, which) -> {
             dismissDialog();
         });
-        builder.setPositiveButton("Do", (dialog, which) -> {
-            listener.onResult(fileName.getText().toString());
+        builder.setPositiveButton(prompt, (dialog, which) -> {
+            JsonObject json = new JsonObject();
+            for (String name: authMap.keySet()) {
+                EditText value = authMap.get(name);
+                json.addProperty(name.toLowerCase(), value.getText().toString());
+            }
+            listener.onResult(json.toString());
             dismissDialog();
         });
 

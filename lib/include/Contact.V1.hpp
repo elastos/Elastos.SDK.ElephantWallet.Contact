@@ -85,7 +85,7 @@ private:
     explicit ContactV1();
     virtual ~ContactV1();
     int getUserDataDir(std::string& dir);
-    int initGlobal();
+    int ensureInitGlobal();
 //    int monitorDidChainData();
     int updateRemoteManager();
 

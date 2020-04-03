@@ -82,7 +82,7 @@ int ContactV1::setListener(std::shared_ptr<SecurityManager::SecurityListener> se
     mMessageManager->setMessageListener(msgListener);
     mHasListener = true;
 
-    int ret = initGlobal();
+    int ret = ensureInitGlobal();
     CHECK_ERROR(ret);
 
     return 0;
@@ -94,7 +94,7 @@ int ContactV1::start()
         return ErrCode::RepeatOperationError;
     }
 
-    int ret = initGlobal();
+    int ret = ensureInitGlobal();
     CHECK_ERROR(ret);
 
     ret = mMessageManager->presetChannels(mConfig);
@@ -150,7 +150,7 @@ bool ContactV1::isStarted()
 int ContactV1::syncInfoMigrateOss(const std::string& user, const std::string& password, const std::string& token,
                                   const std::string& disk, const std::string& partition, const std::string& rootdir)
 {
-    int ret = initGlobal();
+    int ret = ensureInitGlobal();
     CHECK_ERROR(ret);
 
     ret = mRemoteStorageManager->ensureRemoteStorageHash();
@@ -194,7 +194,7 @@ int ContactV1::syncInfoAuthOss(const std::string& user, const std::string& passw
         CHECK_ERROR(ErrCode::ExpectedBeforeStartedError);
     }
 
-    int ret = initGlobal();
+    int ret = ensureInitGlobal();
     CHECK_ERROR(ret);
 
     ret = mRemoteStorageManager->ensureRemoteStorageHash();
@@ -226,7 +226,7 @@ int ContactV1::syncInfoAuthOss(const std::string& user, const std::string& passw
 
 int ContactV1::syncInfoDownload(int fromClient)
 {
-    int ret = initGlobal();
+    int ret = ensureInitGlobal();
     CHECK_ERROR(ret);
 
     std::shared_ptr<UserInfo> userInfo;
@@ -283,7 +283,7 @@ int ContactV1::syncInfoDownload(int fromClient)
 
 int ContactV1::syncInfoUpload(int toClient)
 {
-    int ret = initGlobal();
+    int ret = ensureInitGlobal();
     CHECK_ERROR(ret);
 
     std::vector<RemoteStorageManager::ClientType> toClientType;
@@ -515,7 +515,7 @@ int ContactV1::getUserDataDir(std::string& dir)
     return 0;
 }
 
-int ContactV1::initGlobal()
+int ContactV1::ensureInitGlobal()
 {
     if(mGlobalInited == true) {
         return 0;
