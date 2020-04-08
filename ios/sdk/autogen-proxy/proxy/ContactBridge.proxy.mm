@@ -78,21 +78,39 @@ int crosspl_Proxy_ContactBridge_acceptFriend(int64_t nativeHandle, NSString* ocv
   int ocret = ret;
   return ocret;
 }
-int crosspl_Proxy_ContactBridge_syncInfoDownloadFromDidChain(int64_t nativeHandle)
+int crosspl_Proxy_ContactBridge_syncInfoAuthOss(int64_t nativeHandle, NSString* ocvar0, NSString* ocvar1, NSString* ocvar2, NSString* ocvar3, NSString* ocvar4, NSString* ocvar5)
 {
+  auto var0 = crosspl::CrossPLUtils::SafeCastString(ocvar0);
+  auto var1 = crosspl::CrossPLUtils::SafeCastString(ocvar1);
+  auto var2 = crosspl::CrossPLUtils::SafeCastString(ocvar2);
+  auto var3 = crosspl::CrossPLUtils::SafeCastString(ocvar3);
+  auto var4 = crosspl::CrossPLUtils::SafeCastString(ocvar4);
+  auto var5 = crosspl::CrossPLUtils::SafeCastString(ocvar5);
 
   auto obj = crosspl::CrossPLUtils::SafeCastCrossObjectToCpp<crosspl::native::ContactBridge>(nativeHandle);
-  int ret = obj->syncInfoDownloadFromDidChain();
+  int ret = obj->syncInfoAuthOss(var0.get(), var1.get(), var2.get(), var3.get(), var4.get(), var5.get());
 
 
   int ocret = ret;
   return ocret;
 }
-int crosspl_Proxy_ContactBridge_syncInfoUploadToDidChain(int64_t nativeHandle)
+int crosspl_Proxy_ContactBridge_syncInfoDownload(int64_t nativeHandle, int ocvar0)
 {
+  int var0 = ocvar0;
 
   auto obj = crosspl::CrossPLUtils::SafeCastCrossObjectToCpp<crosspl::native::ContactBridge>(nativeHandle);
-  int ret = obj->syncInfoUploadToDidChain();
+  int ret = obj->syncInfoDownload(var0);
+
+
+  int ocret = ret;
+  return ocret;
+}
+int crosspl_Proxy_ContactBridge_syncInfoUpload(int64_t nativeHandle, int ocvar0)
+{
+  int var0 = ocvar0;
+
+  auto obj = crosspl::CrossPLUtils::SafeCastCrossObjectToCpp<crosspl::native::ContactBridge>(nativeHandle);
+  int ret = obj->syncInfoUpload(var0);
 
 
   int ocret = ret;

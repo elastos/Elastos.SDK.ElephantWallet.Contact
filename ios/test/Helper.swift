@@ -272,6 +272,69 @@ public class Helper {
     showDialog(view, dialog)
   }
 
+  public static func showOssAuth(view: UIViewController, prompt: String, listener: @escaping OnListener) {
+    var authMap: KeyValuePairs<String, UITextView?> = [
+      "User": nil,
+      "Password": nil,
+      "Token": nil,
+      "Disk": nil,
+      "Partition": nil,
+      "RootDir": nil,
+    ]
+    
+    class TableView: UITableView, UITableViewDataSource {
+      func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return authMap.count + 1
+      }
+
+      func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell()
+        cell.backgroundColor = UIColor(white: 0, alpha: 0.1)
+
+        if(indexPath.row < authMap.count) {
+          let txtView = UILabel.init(frame: CGRect(x: 10, y: 10, width: 80, height: 30))
+          txtView.text = authMap[indexPath.row].key + ":"
+          cell.contentView.addSubview(txtView)
+          let editView = UITextView(frame: CGRect(x: 100, y: 10, width: 140, height: 30))
+          cell.contentView.addSubview(editView)
+        } else {
+          let btnView =  UIButton()
+          btnView.setTitle("Select", for: .normal)
+          btnView.setTitleColor(.blue, for: .normal)
+          btnView.addTargetClosure(closure: { sender in
+            let dialog = viewCtrl.mLastDialog!
+            viewCtrl!.dismissDialog()
+            viewCtrl!.selectPhoto(view: viewCtrl, listener: { _, url in
+              viewCtrl!.showDialog(viewCtrl, dialog)
+//              txtFileName.text = url.path
+            })
+          })
+        }
+              
+        return cell
+      }
+      
+      var viewCtrl: UIViewController?
+      var authMap: KeyValuePairs<String, UITextView?> = [:]
+    }
+    
+    let rootView = TableView()
+    rootView.authMap = authMap
+//    rootView.frame         =   CGRect(x: 0, y: 50, width: 320, height: 20);
+    
+    rootView.register(UITableViewCell.self, forCellReuseIdentifier: "CellId")
+    rootView.dataSource = rootView
+    
+    let dialog = UIAlertController(title: nil, message: nil, preferredStyle: .alert)
+    dialog.title = "Oss Auth"
+    setDialogContent(dialog, 500, rootView)
+    dialog.addAction(UIAlertAction(title: prompt, style: .default, handler: { _ in
+      listener("edit.text")
+    }))
+    dialog.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+    showDialog(view, dialog)
+  }
+  
   public static func scanAddress(view: UIViewController, listener: @escaping OnListener) {
     selectPhoto(view: view, listener: { image, _ in
       let result = Helper.makeQRCodeString(value: image)

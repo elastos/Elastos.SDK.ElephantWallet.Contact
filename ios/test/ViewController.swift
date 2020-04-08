@@ -586,30 +586,58 @@ class ViewController: UIViewController {
       return info.toString()
   }
 
-  private func testSyncUpload() -> String {
+  private func testSyncMigrateOss() -> String {
     if mContact == nil {
-      return ViewController.ErrorPrefix + "Contact is null."
+      testNewContact()
     }
 
-    let ret = mContact!.syncInfoUploadToDidChain()
+    Helper.showOssAuth(view: self, prompt: "Migrate", listener: { result in
+    });
+
+    
+//    let ret = mContact!.syncInfoMigrateOss()
+//    if(ret < 0) {
+//      return ViewController.ErrorPrefix + "Failed to call syncInfoUploadToDidChain() ret=\(ret)"
+//    }
+
+    return "Success to syncMigrateOss."
+  }
+  
+  private func testSyncAuthOss() -> String {
+    if mContact == nil {
+      _ = testNewContact()
+    }
+
+    Helper.showOssAuth(view: self, prompt: "Set", listener: { result in
+    });
+
+    return "Success to syncAuthOss."
+  }
+  
+  private func testSyncUpload() -> String {
+    if mContact == nil {
+      testNewContact()
+    }
+
+    let ret = mContact!.syncInfoUpload(toClient: Contact.SyncInfoClient.DidChain | Contact.SyncInfoClient.Oss)
     if(ret < 0) {
       return ViewController.ErrorPrefix + "Failed to call syncInfoUploadToDidChain() ret=\(ret)"
     }
 
-    return "Success to syncInfoUploadToDidChain."
+    return "Success to syncInfoUpload."
   }
 
   private func testSyncDownload() -> String {
     if mContact == nil {
-      return ViewController.ErrorPrefix + "Contact is null."
+      testNewContact()
     }
 
-    let ret = mContact!.syncInfoDownloadFromDidChain()
+    let ret = mContact!.syncInfoDownload(fromClient: Contact.SyncInfoClient.DidChain | Contact.SyncInfoClient.Oss)
     if(ret < 0) {
       return ViewController.ErrorPrefix + "Failed to call syncInfoDownloadFromDidChain() ret=\(ret)"
     }
 
-    return "Success to syncInfoDownloadFromDidChain ."
+    return "Success to syncInfoDownload."
   }
   
   private func testExportUserData() -> String {
@@ -1168,6 +1196,8 @@ class ViewController: UIViewController {
     "   |- Set User IdentifyCode": showSetUserIdentifyCode,
     "   |- Set User Details": showSetUserDetails,
     "   |- Set Wallet Address": showSetWalletAddress,
+    "   |- Sync MigrateOss": testSyncMigrateOss,
+    "   |- Sync AuthOss": testSyncAuthOss,
     "   |- Sync Upload": testSyncUpload,
     "   |- Sync Download": testSyncDownload,
     "   |- Export User Data": testExportUserData,

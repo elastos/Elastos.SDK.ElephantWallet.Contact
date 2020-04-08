@@ -6,6 +6,11 @@ extension ContactInternal {
 open class ContactBridge: CrossBase {
   public static let TAG = "elastos"
   
+  open class SyncInfoClient {
+      public static let DidChain = 1
+      public static let Oss = 2
+  }
+  
   init() {
     super.init(className: String(describing: ContactBridge.self))
   }
@@ -252,14 +257,23 @@ open class ContactBridge: CrossBase {
   }
   
   /* @CrossNativeInterface */
-  public func syncInfoDownloadFromDidChain() -> Int {
-    let ret = crosspl_Proxy_ContactBridge_syncInfoDownloadFromDidChain(nativeHandle)
+  public func syncInfoAuthOss(user: String, password: String, token: String,
+                              disk: String, partition: String, rootdir: String) -> Int {
+    let ret = crosspl_Proxy_ContactBridge_syncInfoAuthOss(nativeHandle,
+                                                          user, password, token,
+                                                          disk, partition, rootdir)
     return Int(ret)
   }
   
   /* @CrossNativeInterface */
-  public func syncInfoUploadToDidChain() -> Int {
-    let ret = crosspl_Proxy_ContactBridge_syncInfoUploadToDidChain(nativeHandle)
+  public func syncInfoDownload(fromClient: Int) -> Int {
+    let ret = crosspl_Proxy_ContactBridge_syncInfoDownload(nativeHandle, Int32(fromClient))
+    return Int(ret)
+  }
+  
+  /* @CrossNativeInterface */
+  public func syncInfoUpload(toClient: Int) -> Int {
+    let ret = crosspl_Proxy_ContactBridge_syncInfoUpload(nativeHandle, Int32(toClient))
     return Int(ret)
   }
   

@@ -12,8 +12,8 @@
 #include <SafePtr.hpp>
 #include "JsonDefine.hpp"
 #include "ProofOssClient.hpp"
-#include <PersonalStorage.SDK.OSS.hpp>
-#include <CloudErrCode.hpp>
+#include <PersonalStorage.SDK.OSS/PersonalStorage.SDK.OSS.hpp>
+#include <PersonalStorage.SDK.OSS/CloudErrCode.hpp>
 
 namespace elastos {
 
